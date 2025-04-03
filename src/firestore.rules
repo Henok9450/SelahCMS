@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection
+    match /users/{userId} {
+      // Admins can do anything
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      
+      // Users can read their own data
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can update their own profile (except role)
+      allow update: if request.auth != null && request.auth.uid == userId 
+        && request.resource.data.role == resource.data.role;
+      
+      // Zone coordinators can read users in their zone
+      allow read: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "zone_coordinator"
+        && resource.data.zoneId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zoneId;
+      
+      // Pastors can read users in their hiyaw mahider
+      allow read: if request.auth != null 
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "pastor" 
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "deputy_pastor")
+        && resource.data.hiyawMahiderId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hiyawMahiderId;
+    }
+    
+    // Hiyaw Mahiders collection
+    match /hiyaw_mahiders/{hiyawMahiderId} {
+      // Admins can do anything
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      
+      // Zone coordinators can manage hiyaw mahiders in their zone
+      allow read, write: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "zone_coordinator"
+        && resource.data.zoneId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zoneId;
+      
+      // Pastors can read their own hiyaw mahider
+      allow read: if request.auth != null 
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "pastor" 
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "deputy_pastor")
+        && hiyawMahiderId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hiyawMahiderId;
+    }
+    
+    // Similar rules for other collections (zones, study_materials, etc.)
+    // Implement rules based on your requirements document
+    
+    // Approval requests
+    match /approval_requests/{requestId} {
+      // Admins can do anything
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+      
+      // Senior pastors can read role change requests
+      allow read: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "senior_pastor"
+        && resource.data.type == "role_change";
+      
+      // Zone coordinators can read requests for their zone
+      allow read: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "zone_coordinator"
+        && (resource.data.type == "new_member" || resource.data.type == "role_change")
+        && resource.data.requestedData.zoneId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.zoneId;
+      
+      // Pastors can create new member requests
+      allow create: if request.auth != null 
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "pastor" 
+            || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "deputy_pastor")
+        && request.resource.data.type == "new_member";
+    }
+  }
+}
