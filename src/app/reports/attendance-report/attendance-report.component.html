@@ -1,0 +1,243 @@
+<div class="container mt-4">
+    <h2>Attendance Report</h2>
+    
+    <!-- Report Filters -->
+    <form [formGroup]="reportForm" (ngSubmit)="generateReport()" class="mb-4">
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="startDate" formControlName="startDate">
+        </div>
+        <div class="col-md-3">
+          <label for="endDate" class="form-label">End Date</label>
+          <input type="date" class="form-control" id="endDate" formControlName="endDate">
+        </div>
+        <div class="col-md-2">
+          <label for="status" class="form-label">Status</label>
+          <select class="form-select" id="status" formControlName="status">
+            <option value="">All Statuses</option>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+            <option value="Late">Late</option>
+            <option value="Excused">Excused</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="zone" class="form-label">Zone</label>
+          <input type="text" class="form-control" id="zone" formControlName="zone" placeholder="Filter by zone">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
+            Generate Report
+          </button>
+        </div>
+      </div>
+    </form>
+  
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="text-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2">Generating report...</p>
+    </div>
+  
+    <!-- Report Content -->
+    <div *ngIf="reportData && !isLoading">
+      <!-- Summary Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+              <h5 class="card-title">Total Records</h5>
+              <p class="card-text display-6">{{ reportData.summary.total }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-success h-100">
+            <div class="card-body">
+              <h5 class="card-title">Present</h5>
+              <p class="card-text display-6">{{ reportData.summary.present }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-danger h-100">
+            <div class="card-body">
+              <h5 class="card-title">Absent</h5>
+              <p class="card-text display-6">{{ reportData.summary.absent }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-warning h-100">
+            <div class="card-body">
+              <h5 class="card-title">Attendance Rate</h5>
+              <p class="card-text display-6">{{ reportData.summary.attendanceRate }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Charts -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5>Attendance Summary</h5>
+            </div>
+            <div class="card-body">
+              <canvas baseChart
+                [data]="summaryChartData"
+                [type]="'pie'"
+                [options]="{ responsive: true }">
+              </canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5>Attendance by User</h5>
+            </div>
+            <div class="card-body">
+              <canvas baseChart
+                [data]="byUserChartData"
+                [type]="'bar'"
+                [options]="{ 
+                  responsive: true,
+                  indexAxis: 'y',
+                  scales: { x: { max: 100 } }
+                }">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5>Attendance by Hiyaw Mahider</h5>
+            </div>
+            <div class="card-body">
+              <canvas baseChart
+                [data]="byHiyawMahiderChartData"
+                [type]="'bar'"
+                [options]="{ 
+                  responsive: true,
+                  scales: { y: { max: 100 } }
+                }">
+              </canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header">
+              <h5>Attendance by Date</h5>
+            </div>
+            <div class="card-body">
+              <canvas baseChart
+                [data]="byDateChartData"
+                [type]="'line'"
+                [options]="{ 
+                  responsive: true,
+                  scales: { y: { max: 100 } }
+                }">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Detailed Records -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Detailed Records</h5>
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-2" (click)="resetFilters()">Reset Filters</button>
+            <button class="btn btn-sm btn-success" (click)="exportToCSV()">
+              <i class="bi bi-download me-1"></i> Export to CSV
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Record Filters -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                <option value="">All Statuses</option>
+                <option *ngFor="let status of getUniqueStatuses()" [value]="status">{{ status }}</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" [(ngModel)]="userFilter" (change)="applyFilters()">
+                <option value="">All Users</option>
+                <option *ngFor="let userId of getUniqueUsers()" [value]="userId">
+                  {{ reportData.records.find((r: any) => r.userId === userId)?.userName || userId }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" [(ngModel)]="hiyawMahiderFilter" (change)="applyFilters()">
+                <option value="">All Hiyaw Mahiders</option>
+                <option *ngFor="let hiyawId of getUniqueHiyawMahiders()" [value]="hiyawId">
+                  {{ hiyawId }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select form-select-sm" [(ngModel)]="zoneFilter" (change)="applyFilters()">
+                <option value="">All Zones</option>
+                <option *ngFor="let zone of getUniqueZones()" [value]="zone">
+                  {{ zone }}
+                </option>
+              </select>
+            </div>
+          </div>
+  
+          <!-- Records Table -->
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Hiyaw Mahider</th>
+                  <th>Zone</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let record of filteredRecords">
+                  <td>{{ record.userName }}</td>
+                  <td>{{ record.date }}</td>
+                  <td>
+                    <span [ngClass]="{
+                      'badge bg-success': record.status === 'Present',
+                      'badge bg-danger': record.status === 'Absent',
+                      'badge bg-warning': record.status === 'Late',
+                      'badge bg-secondary': record.status === 'Excused'
+                    }">
+                      {{ record.status }}
+                    </span>
+                  </td>
+                  <td>{{ record.hiyawMahiderId || 'N/A' }}</td>
+                  <td>{{ record.zone || 'N/A' }}</td>
+                  <td>{{ record.notes || '-' }}</td>
+                </tr>
+                <tr *ngIf="filteredRecords.length === 0">
+                  <td colspan="6" class="text-center">No records found with current filters</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

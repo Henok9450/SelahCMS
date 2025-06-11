@@ -1,0 +1,73 @@
+<h2 mat-dialog-title>Upload Study Material</h2>
+
+<mat-dialog-content>
+  <form (submit)="upload()">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Title *</mat-label>
+      <input matInput [(ngModel)]="material.title" name="title" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput [(ngModel)]="material.description" name="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Author</mat-label>
+      <input matInput [(ngModel)]="material.author" name="author">
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="material.category" name="category">
+          <mat-option *ngFor="let category of categories" [value]="category">
+            {{category}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hiyaw Mahider</mat-label>
+        <mat-select [(ngModel)]="material.hiyawMahider" name="hiyawMahider">
+          <mat-option *ngFor="let mahider of hiyawMahiders" [value]="mahider">
+            {{mahider}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="file-upload-section">
+      <input type="file" #fileInput (change)="onFileSelected($event)" 
+             style="display: none;" 
+             accept=".pdf,.doc,.docx,.mp4,.mov,.avi,.mkv,.jpg,.jpeg,.png,.ppt,.pptx,.txt">
+      
+      <div class="file-info" *ngIf="selectedFile; else noFile">
+        <mat-icon class="file-icon">insert_drive_file</mat-icon>
+        <div class="file-details">
+          <div class="file-name">{{ selectedFile.name }}</div>
+          <div class="file-size">{{ selectedFile.size | fileSize }}</div>
+        </div>
+        <button mat-icon-button (click)="selectedFile = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <ng-template #noFile>
+        <button type="button" mat-raised-button (click)="fileInput.click()" class="select-file-btn">
+          <mat-icon>cloud_upload</mat-icon>
+          Select File
+        </button>
+        <div class="file-hint">Supports PDF, Word, Video, Images, PowerPoint, etc.</div>
+      </ng-template>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="upload()" 
+          [disabled]="!selectedFile || !material.title">
+    Upload
+  </button>
+</mat-dialog-actions>

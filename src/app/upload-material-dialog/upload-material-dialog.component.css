@@ -1,0 +1,58 @@
+.full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .half-width {
+    width: calc(50% - 8px);
+    margin-bottom: 16px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .file-upload-section {
+    margin-top: 20px;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .file-info {
+    display: flex;
+    align-items: center;
+    background: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    
+    .file-icon {
+      margin-right: 10px;
+      color: #757575;
+    }
+    
+    .file-details {
+      flex-grow: 1;
+      text-align: left;
+      
+      .file-name {
+        font-weight: 500;
+      }
+      
+      .file-size {
+        font-size: 12px;
+        color: #757575;
+      }
+    }
+  }
+  
+  .select-file-btn {
+    margin-bottom: 10px;
+  }
+  
+  .file-hint {
+    font-size: 12px;
+    color: #757575;
+  }

@@ -4,7 +4,6 @@ import {
   authState, 
   signInWithEmailAndPassword, 
   signOut, 
-  User, 
   sendPasswordResetEmail,
   reauthenticateWithCredential, 
   EmailAuthProvider, 
@@ -14,7 +13,7 @@ import {
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 
 interface LoginResponse {
   mustChangePassword?: boolean;
@@ -22,16 +21,24 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  authState$: Observable<any>; // Store the authState observable
+
   constructor(
     private auth: Auth,
     private router: Router,
     private userService: UserService
   ) {
-    setPersistence(this.auth, browserSessionPersistence);
+    // Ensure persistence is set within Angular's context
+    setPersistence(this.auth, browserSessionPersistence).catch((error) => {
+      console.error('Error setting persistence:', error);
+    });
+
+    // Initialize authState observable
+    this.authState$ = authState(this.auth);
   }
 
   get authState() {
-    return authState(this.auth);
+    return this.authState$; // Return the stored observable
   }
 
   async login(email: string, password: string): Promise<LoginResponse> {
@@ -50,6 +57,16 @@ export class AuthService {
       return {};
     } catch (error: any) {
       throw this.translateFirebaseError(error);
+    }
+  }
+
+  async getUserRole(uid: string): Promise<string | undefined> {
+    try {
+      const userDoc = await firstValueFrom(this.userService.getUser(uid));
+      return userDoc?.role; // Assuming the role is stored in the 'role' field
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+      throw new Error('Failed to fetch user role');
     }
   }
 
@@ -85,14 +102,12 @@ export class AuthService {
   }
 
   private translateFirebaseError(error: any): Error {
-    // Map Firebase error codes to user-friendly messages
     const messages: Record<string, string> = {
       'auth/wrong-password': 'Incorrect password',
       'auth/user-not-found': 'User not found',
       'auth/too-many-requests': 'Account temporarily locked',
-      // Add more mappings as needed
     };
     
     return new Error(messages[error.code] || error.message || 'Authentication failed');
   }
-}
+} 

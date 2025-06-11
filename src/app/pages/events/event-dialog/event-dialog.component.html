@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>{{ data.isEdit ? 'Edit' : 'Add New' }} Event</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="eventForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Event Title</mat-label>
+      <input matInput formControlName="title" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" required></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Event Type</mat-label>
+      <mat-select formControlName="type" required>
+        <mat-option *ngFor="let type of eventTypes" [value]="type.value">
+          {{ type.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="date-time-fields">
+      <mat-form-field appearance="fill">
+        <mat-label>Start Date & Time</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startDateTime" required>
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>End Date & Time</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="endDateTime" required>
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Location (Optional)</mat-label>
+      <input matInput formControlName="location">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Assign Pastors</mat-label>
+      <mat-select formControlName="assignedPastors" multiple required>
+        <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+          {{ pastor.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!eventForm.valid">
+    {{ data.isEdit ? 'Update' : 'Save' }}
+  </button>
+</mat-dialog-actions>

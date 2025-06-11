@@ -1,0 +1,219 @@
+<div class="attendance-container">
+  <h2>Hiyaw Mahider Study Day Attendance</h2>
+
+  <div class="search-section">
+    <h3>Search Attendance Records</h3>
+    <form [formGroup]="searchForm" class="search-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Hiyaw Mahider</mat-label>
+        <mat-select formControlName="hiyawMahiderId" [panelClass]="'attendance-select-panel'">
+          <mat-option value="">All Hiyaw Mahiders</mat-option>
+          <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
+            {{ hm.name }} ({{ hm.code }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Member</mat-label>
+        <mat-select formControlName="memberId" [panelClass]="'attendance-select-panel'">
+          <mat-option value="">All Members</mat-option>
+          <mat-option *ngFor="let member of (filteredSearchMembers | async)" [value]="member.id">
+            {{ member.fullName }} ({{ member.userName }})
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="fromDatePicker" formControlName="fromDate">
+        <mat-datepicker-toggle matSuffix [for]="fromDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #fromDatePicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="toDatePicker" formControlName="toDate">
+        <mat-datepicker-toggle matSuffix [for]="toDatePicker"></mat-datepicker-toggle>
+        <mat-datepicker #toDatePicker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="search-buttons">
+        <button mat-raised-button color="primary" (click)="searchAttendance()" [disabled]="searchLoading">
+          <span *ngIf="!searchLoading">Search</span>
+          <mat-spinner *ngIf="searchLoading" diameter="20"></mat-spinner>
+        </button>
+        <button mat-stroked-button color="warn" (click)="clearSearch()" [disabled]="searchLoading">
+          Clear
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="searchResults.length > 0" class="search-results">
+      <h4>Search Results ({{ searchResults.length }} records found)</h4>
+      <div class="results-table">
+        <table mat-table [dataSource]="searchResults" class="mat-elevation-z1">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let record">{{ record.date | date:'mediumDate' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="hiyawMahider">
+            <th mat-header-cell *matHeaderCellDef>Hiyaw Mahider</th>
+            <td mat-cell *matCellDef="let record">{{ record.hiyawMahiderName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="member">
+            <th mat-header-cell *matHeaderCellDef>Member</th>
+            <td mat-cell *matCellDef="let record">{{ record.memberName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let record">
+              <span class="status-badge" [class.present]="record.status === 'present'"
+                    [class.absent]="record.status === 'absent'"
+                    [class.excused]="record.status === 'excused'"
+                    [class.late]="record.status === 'late'"
+                    [class.new-guest]="record.status === 'new-guest'"
+                    [class.follow-up]="record.status === 'follow-up-needed'">
+                {{ record.status | titlecase }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="reason">
+            <th mat-header-cell *matHeaderCellDef>Reason/Notes</th>
+            <td mat-cell *matCellDef="let record">{{ record.reason || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let record">
+              <button mat-icon-button (click)="editAttendance(record)" color="accent" matTooltip="">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteAttendance(record)" color="warn" matTooltip="">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="controls">
+    <mat-form-field appearance="fill">
+      <mat-label>Date</mat-label>
+      <input matInput [matDatepicker]="picker"
+             [formControl]="dateControl"
+             (dateChange)="onDateChange($event.value)">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="dateControl.invalid && (dateControl.dirty || dateControl.touched)">Date is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Hiyaw Mahider</mat-label>
+      <mat-select [formControl]="hiyawMahiderIdControl" (selectionChange)="onHiyawMahiderSelect($event.value)" required>
+        <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
+          {{ hm.name }} ({{ hm.code }}) - Study Day: {{ hm.studyDay }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="attendanceForm.get('hiyawMahiderId')?.invalid && (attendanceForm.get('hiyawMahiderId')?.dirty || attendanceForm.get('hiyawMahiderId')?.touched)">Hiyaw Mahider is required</mat-error>
+    </mat-form-field>
+
+    <div *ngIf="selectedHiyawMahider" class="study-day-info">
+      <p>Study Day: <strong>{{ selectedHiyawMahider.studyDay }}</strong></p>
+    </div>
+  </div>
+
+  <div *ngIf="selectedHiyawMahider && membersForSelectedHiyawMahider.length > 0" class="attendance-form">
+    <h3>
+      <span *ngIf="!attendanceAlreadyTaken">Mark New Attendance for {{ selectedHiyawMahider.name }}</span>
+      <span *ngIf="attendanceAlreadyTaken">Edit Attendance for {{ selectedHiyawMahider.name }}</span>
+    </h3>
+
+    <div *ngIf="attendanceAlreadyTaken" class="existing-attendance-message mat-warn-bg">
+      <mat-icon class="info-icon">info</mat-icon>
+      Attendance for this Hiyaw Mahider on {{ selectedDate | date:'mediumDate' }} has already been recorded.
+      You are now in **edit mode**. Make changes and click 'Update Attendance'.
+    </div>
+
+    <mat-form-field appearance="fill" class="member-filter-field">
+      <mat-label>Filter/Select Member</mat-label>
+      <mat-select [formControl]="memberFilterControl"
+                  (selectionChange)="scrollToMember($event.value)"
+                  [panelClass]="'attendance-select-panel'"
+                  #memberSelectFilter>
+        <mat-option>
+          <mat-form-field appearance="fill" class="filter-input-container">
+            <input matInput [formControl]="memberFilterControl" placeholder="Search member name">
+          </mat-form-field>
+        </mat-option>
+        <mat-option *ngFor="let member of filteredMembersInAttendanceForm | async" [value]="member.id">
+          {{ member.fullName }} ({{ member.userName }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <form [formGroup]="attendanceForm">
+      <div formArrayName="members" class="members-list">
+        <div *ngFor="let member of membersFormArray.controls; let i = index"
+             [formGroupName]="i" class="member-row"
+             [id]="'member-row-' + member.get('userId')?.value">
+          <div class="member-info">
+            <span class="name">{{ member.get('fullName')?.value }}</span>
+            <span class="username">{{ member.get('userName')?.value }}</span>
+          </div>
+
+          <div class="status-container">
+            <mat-form-field appearance="fill" class="status-field">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status" (selectionChange)="onStatusChange(i)"
+                          [panelClass]="'attendance-select-panel'">
+                <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-icon matTooltip="{{ getStatusDescription(member.get('status')?.value) }}"
+                      matTooltipPosition="right"
+                      class="info-icon">
+              info
+            </mat-icon>
+          </div>
+
+          <mat-form-field *ngIf="member.get('status')?.value !== 'present'" appearance="fill" class="reason-field">
+            <mat-label>Reason/Notes</mat-label>
+            <input matInput formControlName="reason">
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-actions"> <button mat-raised-button color="primary"
+                (click)="submitAttendance()"
+                [disabled]="attendanceForm.invalid || loading">
+          <span *ngIf="!loading && !attendanceAlreadyTaken">Submit Attendance</span>
+          <span *ngIf="!loading && attendanceAlreadyTaken">Update Attendance</span>
+          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+        </button>
+        <button mat-stroked-button color="warn" (click)="clearAttendanceForm()" [disabled]="loading">
+          Clear Form
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div *ngIf="loading && (!selectedHiyawMahider || membersForSelectedHiyawMahider.length === 0)" class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading data...</p>
+  </div>
+</div>

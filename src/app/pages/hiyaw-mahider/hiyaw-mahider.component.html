@@ -1,0 +1,421 @@
+<div class="container">
+  <h2 class="page-title">Hiyaw Mahider Management</h2>
+
+  <!-- Edit Form -->
+  <div *ngIf="isEditMode && editingItem" class="card edit-form-card">
+    <h3>Edit Hiyaw Mahider</h3>
+    
+    <form (ngSubmit)="saveEdit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editCode">Code *</label>
+          <input type="text" id="editCode" 
+                 [(ngModel)]="editingItem.code" 
+                 name="editCode" 
+                 required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editName">Name *</label>
+          <input type="text" id="editName" 
+                 [(ngModel)]="editingItem.name" 
+                 name="editName" 
+                 required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editLocation">Location *</label>
+          <input type="text" id="editLocation" 
+                 [(ngModel)]="editingItem.location" 
+                 name="editLocation" 
+                 required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editZone">Zone</label>
+          <select id="editZone" [(ngModel)]="editingItem.zone" name="editZone">
+            <option value="">Select Zone</option>
+            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editStatus">Status</label>
+          <select id="editStatus" 
+                  [(ngModel)]="editingItem.status" 
+                  name="editStatus">
+            <option *ngFor="let status of statusOptions" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editPastor">Pastor</label>
+          <div class="dropdown-container">
+            <input type="text" id="editPastor" 
+                   [ngModel]="editingItem.pastor || ''" 
+                   (ngModelChange)="editingItem.pastor = $event || null"
+                   name="editPastor"
+                   (click)="toggleDropdown('editPastor')"
+                   (input)="handlePastorInput($event, 'pastor')">
+            
+            <div *ngIf="showPastorDropdown && activePastorField === 'editPastor'" class="dropdown-list">
+              <div *ngFor="let pastor of filteredPastors" 
+                   class="dropdown-item"
+                   (click)="selectPastor(pastor, 'editPastor')">
+                {{ pastor.name }}
+              </div>
+              <div *ngIf="filteredPastors.length === 0" class="dropdown-item">
+                No pastors found
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="editDeputyPastor">Deputy Pastor</label>
+          <div class="dropdown-container">
+            <input type="text" id="editDeputyPastor" 
+                   [ngModel]="editingItem.deputyPastor || ''" 
+                   (ngModelChange)="editingItem.deputyPastor = $event || null"
+                   name="editDeputyPastor"
+                   (click)="toggleDropdown('editDeputyPastor')"
+                   (input)="handlePastorInput($event, 'deputyPastor')">
+            
+            <div *ngIf="showDeputyPastorDropdown && activePastorField === 'editDeputyPastor'" class="dropdown-list">
+              <div *ngFor="let pastor of filteredDeputyPastors" 
+                   class="dropdown-item"
+                   (click)="selectPastor(pastor, 'editDeputyPastor')">
+                {{ pastor.name }}
+              </div>
+              <div *ngIf="filteredDeputyPastors.length === 0" class="dropdown-item">
+                No pastors found
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="editStudyDay">Study Day</label>
+          <select id="editStudyDay" 
+                  [ngModel]="editingItem.studyDay || ''" 
+                  (ngModelChange)="editingItem.studyDay = $event || null"
+                  name="editStudyDay">
+            <option value="">Select day</option>
+            <option *ngFor="let day of daysOfWeek" [value]="day">
+              {{ day }}
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="editStudyTime">Study Time</label>
+          <input type="time" id="editStudyTime" 
+                 [ngModel]="editingItem.studyTime || ''" 
+                 (ngModelChange)="editingItem.studyTime = $event || null"
+                 name="editStudyTime">
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button type="button" (click)="cancelEdit()" class="btn-secondary">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Error and Success Messages -->
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Search Section -->
+  <div class="card search-card">
+    <h3 class="section-title">Search Hiyaw Mahiders</h3>
+    <div class="search-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="searchName">Name</label>
+          <input type="text" id="searchName" [(ngModel)]="searchFilters.name" name="searchName" 
+                 placeholder="Search by name (partial matches accepted)">
+        </div>
+        
+        <div class="form-group">
+          <label for="searchPastor">Pastor</label>
+          <input type="text" id="searchPastor" [(ngModel)]="searchFilters.pastor" name="searchPastor" 
+                 placeholder="Search by pastor">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="searchDeputyPastor">Deputy Pastor</label>
+          <input type="text" id="searchDeputyPastor" [(ngModel)]="searchFilters.deputyPastor" 
+                 name="searchDeputyPastor" placeholder="Search by deputy pastor">
+        </div>
+        
+        <div class="form-group">
+          <label for="searchLocation">Location</label>
+          <input type="text" id="searchLocation" [(ngModel)]="searchFilters.location" 
+                 name="searchLocation" placeholder="Search by location">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="searchCode">Code</label>
+          <input type="text" id="searchCode" [(ngModel)]="searchFilters.code" name="searchCode" 
+                 placeholder="Search by code">
+        </div>
+        
+        <div class="form-group">
+          <label for="searchStatus">Status</label>
+          <select id="searchStatus" [(ngModel)]="searchFilters.status" name="searchStatus">
+            <option value="">All Statuses</option>
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="searchZone">Zone</label>
+          <select id="searchZone" [(ngModel)]="searchFilters.zone" name="searchZone">
+            <option value="">All Zones</option>
+            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" (click)="onSearch()" [disabled]="isLoading">
+          {{ isLoading ? 'Searching...' : 'Search' }}
+        </button>
+        <button type="button" (click)="resetSearch()" class="btn-secondary">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="card results-card">
+    <h3 class="section-title">Hiyaw Mahiders</h3>
+    
+    <div *ngIf="isLoading" class="loading-indicator">
+      <div class="spinner"></div>
+      <span>Loading Hiyaw Mahiders...</span>
+    </div>
+    
+    <ng-container *ngIf="hiyawMahiders$ | async as hiyawMahiders">
+      <div *ngIf="hiyawMahiders.length === 0" class="empty-state">
+        No Hiyaw Mahiders found
+        <span *ngIf="hasActiveFilters()">matching your search criteria</span>
+      </div>
+      <div *ngIf="hiyawMahiders.length > 0 && !hasActiveFilters() && !showAllResults" class="search-prompt">
+      </div>
+      <div class="results-grid">
+        <div *ngFor="let hm of hiyawMahiders" class="hm-card">
+          <div class="hm-card-header">
+            <h4>{{ hm.code }} - {{ hm.name }}</h4>
+            <span class="status-badge {{ hm.status.toLowerCase() }}">{{ hm.status }}</span>
+          </div>
+          
+          <div class="hm-card-body">
+            <div class="hm-detail">
+              <span class="detail-label">Location:</span>
+              <span class="detail-value">{{ hm.location }}</span>
+            </div>
+
+            <div class="hm-detail">
+              <span class="detail-label">Zone:</span>
+              <span class="detail-value">{{ getZoneName(hm.zone) || 'Not specified' }}</span>
+            </div>
+            
+            <div class="hm-detail">
+              <span class="detail-label">Pastor:</span>
+              <span class="detail-value">{{ hm.pastor || 'Not specified' }}</span>
+            </div>
+
+            <div class="hm-detail">
+              <span class="detail-label">Deputy Pastor:</span>
+              <span class="detail-value">{{ hm.deputyPastor || 'Not specified' }}</span>
+            </div>
+            
+            <div *ngIf="hm.studyDay" class="hm-detail">
+              <span class="detail-label">Study:</span>
+              <span class="detail-value">
+                {{ hm.studyDay }} at {{ hm.studyTime || 'unspecified time' }}
+              </span>
+            </div>
+            
+            <div class="hm-detail">
+              <span class="detail-label">Created:</span>
+              <span class="detail-value">{{ (getSafeDate(hm.createdDate) | toDate) | date:'mediumDate' }}</span>
+            </div>
+          </div>
+          <div class="hm-actions">
+            <button type="button" 
+                    class="btn-edit" 
+                    (click)="startEdit(hm)"
+                    [disabled]="processingIds.has(hm.id)">
+              {{ processingIds.has(hm.id) ? 'Editing...' : 'Edit' }}
+            </button>
+            <button type="button" 
+                    class="btn-delete" 
+                    (click)="onDelete(hm.id, hm.name)"
+                    [disabled]="processingIds.has(hm.id)">
+              {{ processingIds.has(hm.id) ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Show All button -->
+      <div *ngIf="hiyawMahiders.length === 4 && !showAllResults && !hasActiveFilters()"
+           class="show-more-container">
+        <button type="button" (click)="showAll()" class="btn-show-more">
+          Show All Hiyaw Mahiders
+        </button>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Create New Section -->
+  <div class="card form-card">
+    <h3 class="section-title">Create New Hiyaw Mahider</h3>
+    
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="code">Code *</label>
+          <input type="text" id="code" 
+                 [(ngModel)]="newHiyawMahider.code" 
+                 name="code" 
+                 required
+                 placeholder="Enter unique code (e.g., ETH-001)">
+          <small class="error-hint" *ngIf="codeError">{{ codeError }}</small>
+        </div>
+        
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input type="text" id="name" [(ngModel)]="newHiyawMahider.name" name="name" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="location">Location *</label>
+          <input type="text" id="location" [(ngModel)]="newHiyawMahider.location" name="location" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="zone">Zone</label>
+          <select id="zone" [(ngModel)]="newHiyawMahider.zone" name="zone">
+            <option value="">Select Zone</option>
+            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select id="status" [(ngModel)]="newHiyawMahider.status" name="status">
+            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pastor">Pastor</label>
+          <div class="dropdown-container">
+            <input type="text" id="pastor" 
+                   [ngModel]="newHiyawMahider.pastor || ''" 
+                   (ngModelChange)="newHiyawMahider.pastor = $event || null"
+                   name="pastor"
+                   (click)="toggleDropdown('pastor')"
+                   (input)="handlePastorInput($event, 'pastor')">
+            
+            <div *ngIf="showPastorDropdown && activePastorField === 'pastor'" class="dropdown-list">
+              <div *ngFor="let pastor of filteredPastors" 
+                   class="dropdown-item"
+                   (click)="selectPastor(pastor, 'pastor')">
+                {{ pastor.name }}
+              </div>
+              <div *ngIf="filteredPastors.length === 0" class="dropdown-item">
+                No pastors found
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="deputyPastor">Deputy Pastor</label>
+          <div class="dropdown-container">
+            <input type="text" id="deputyPastor" 
+                   [ngModel]="newHiyawMahider.deputyPastor || ''" 
+                   (ngModelChange)="newHiyawMahider.deputyPastor = $event || null"
+                   name="deputyPastor"
+                   (click)="toggleDropdown('deputyPastor')"
+                   (input)="handlePastorInput($event, 'deputyPastor')">
+            
+            <div *ngIf="showDeputyPastorDropdown && activePastorField === 'deputyPastor'" class="dropdown-list">
+              <div *ngFor="let pastor of filteredDeputyPastors" 
+                   class="dropdown-item"
+                   (click)="selectPastor(pastor, 'deputyPastor')">
+                {{ pastor.name }}
+              </div>
+              <div *ngIf="filteredDeputyPastors.length === 0" class="dropdown-item">
+                No pastors found
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="studyDay">Study Day</label>
+          <select id="studyDay" 
+                  [ngModel]="newHiyawMahider.studyDay || ''" 
+                  (ngModelChange)="newHiyawMahider.studyDay = $event || null"
+                  name="studyDay">
+            <option value="">Select day</option>
+            <option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="studyTime">Study Time</label>
+          <input type="time" id="studyTime" 
+                 [ngModel]="newHiyawMahider.studyTime || ''" 
+                 (ngModelChange)="newHiyawMahider.studyTime = $event || null"
+                 name="studyTime">
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Creating...' : 'Create Hiyaw Mahider' }}
+        </button>
+        <button type="button" (click)="resetForm()" class="btn-secondary">Reset Form</button>
+      </div>
+    </form>
+  </div>
+</div>

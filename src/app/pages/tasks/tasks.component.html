@@ -1,1 +1,118 @@
-<p>tasks works!</p>
+<div class="task-management-container">
+  <div class="header">
+    <h1>Task Management | My Tasks</h1>
+    <button (click)="toggleCreateForm()" class="create-button">
+      {{ showCreateForm ? 'Cancel' : '+ Create New Task' }}
+    </button>
+  </div>
+
+  <div class="filter-tabs">
+    <button 
+      [class.active]="currentFilter === 'all'"
+      (click)="filterTasks('all')">
+      All ({{ tasks.length }})
+    </button>
+    <button 
+      [class.active]="currentFilter === 'pending'"
+      (click)="filterTasks('pending')">
+      Pending ({{ pendingCount }})
+    </button>
+    <button 
+      [class.active]="currentFilter === 'completed'"
+      (click)="filterTasks('completed')">
+      Completed ({{ completedCount }})
+    </button>
+  </div>
+
+  <div *ngIf="showCreateForm" class="create-form">
+    <h3>Create New Task</h3>
+    <div class="form-group">
+      <label for="title">Task Title</label>
+      <input 
+        type="text" 
+        id="title"
+        [(ngModel)]="newTask.title" 
+        placeholder="Enter task title"
+        class="form-input">
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea 
+        id="description"
+        [(ngModel)]="newTask.description" 
+        placeholder="Enter description"
+        class="form-textarea"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="dueDate">Due Date</label>
+      <input 
+        type="date" 
+        id="dueDate"
+        [(ngModel)]="newTask.dueDate" 
+        class="form-input">
+    </div>
+    
+    <div class="form-actions">
+      <button (click)="createTask()" class="submit-button" [disabled]="!newTask.title">
+        Create Task
+      </button>
+      <button (click)="toggleCreateForm()" class="cancel-button">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    Loading tasks...
+  </div>
+
+  <div *ngIf="!isLoading" class="task-list">
+    <table>
+      <thead>
+        <tr>
+          <th width="50px">#</th>
+          <th>Task Title</th>
+          <th width="120px">Status</th>
+          <th width="150px">Due Date</th>
+          <th width="120px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of filteredTasks; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>
+            <strong>{{ task.title }}</strong>
+            <p *ngIf="task.description" class="task-description">{{ task.description }}</p>
+          </td>
+          <td>
+            <span [class.pending]="task.status === 'pending'"
+                  [class.completed]="task.status === 'completed'">
+              {{ task.status === 'pending' ? 'Pending' : 'Completed' }}
+            </span>
+          </td>
+          <td>{{ convertToDate(task.dueDate) | date:'dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button *ngIf="task.status === 'pending'" 
+                    (click)="updateTaskStatus(task, 'completed')"
+                    class="complete-button">
+              Mark Complete
+            </button>
+            <button *ngIf="task.status === 'completed'" 
+                    (click)="updateTaskStatus(task, 'pending')"
+                    class="pending-button">
+              Reopen
+            </button>
+            <button (click)="deleteTask(task.id)" class="delete-button">
+              Delete
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredTasks.length === 0">
+          <td colspan="5" class="no-tasks">No tasks found matching criteria</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

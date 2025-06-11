@@ -1,0 +1,16 @@
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 16px;
+  }
+  
+  .report-card {
+    padding: 16px;
+    text-align: center;
+  }
+  
+  mat-icon {
+    font-size: 48px;
+    color: #3f51b5;
+  }

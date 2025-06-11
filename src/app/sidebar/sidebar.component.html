@@ -1,0 +1,109 @@
+
+<nav class="side-nav">
+    <ul>
+      <li class="nav-item active">
+        <a routerLink="/home">
+          <mat-icon>home</mat-icon>
+          <span>Home</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="../pages/dashboard">
+          <mat-icon>person</mat-icon>
+          <span>My Profile</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="../pages/user-management">
+          <mat-icon>manage_accounts</mat-icon>
+          <span>User Management</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="../pages/zone">
+          <mat-icon>location_on</mat-icon>
+          <span>Zones</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="../pages/hiyaw-mahider">
+          <mat-icon>diversity_3</mat-icon>
+          <span>Hiyaw Mahider</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="../pages/attendance">
+          <mat-icon>how_to_reg<</mat-icon>
+          <span>Attendance</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a routerLink="../pages/pastors">
+          <mat-icon>book</mat-icon> <!-- Alternative: "elderly" or "diversity_3" -->
+          <span>Pastors</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="/members">
+          <mat-icon>group</mat-icon>
+          <span>Members</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="../pages/tasks">
+          <mat-icon>assignment</mat-icon>
+          <span>Tasks</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="../pages/events">
+          <mat-icon>event</mat-icon>
+          <span>Events</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="/progress">
+          <mat-icon>trending_up</mat-icon>
+          <span>Progress</span>
+        </a>
+      </li>
+    <!-- Reports Section -->
+    <li class="nav-item" [class.active]="showReportsSubmenu">
+      <a (click)="toggleReports()" class="has-submenu">
+        <mat-icon>assessment</mat-icon>
+        <span>Reports</span>
+        <mat-icon class="submenu-icon">
+          {{ showReportsSubmenu ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+      </a>
+      <ul class="submenu" [class.show]="showReportsSubmenu">
+        <li *ngFor="let report of reports">
+          <a [routerLink]="['/reports', report.id]" routerLinkActive="active">
+            <mat-icon>{{report.icon}}</mat-icon>
+            <span>{{report.title}}</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+      <li class="nav-item" >
+        <a routerLink="../pages/study-materials">
+          <mat-icon>menu_book</mat-icon>
+          <span>Study Materials</span>
+        </a>
+      </li>
+      <li class="nav-item" >
+        <a routerLink="/certificates">
+          <mat-icon>verified</mat-icon>
+          <span>Certificates</span>
+        </a>
+      </li>
+      <div class="overlay"></div>
+<button class="mobile-menu-toggle">☰</button>
+      <li class="nav-item" >
+        <a routerLink="/admin">
+          <mat-icon>admin_panel_settings</mat-icon>
+          <span>Admin</span>
+        </a>
+      </li>
+    </ul>
+  </nav>

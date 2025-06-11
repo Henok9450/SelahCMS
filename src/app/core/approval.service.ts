@@ -1,5 +1,16 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import { 
+  Firestore,
+  collection,
+  collectionData,
+  query,
+  where,
+  doc,
+  updateDoc,
+  serverTimestamp,
+  orderBy,
+  limit
+} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ApprovalRequest } from '../core/approval-request.model';
 
@@ -7,41 +18,74 @@ import { ApprovalRequest } from '../core/approval-request.model';
   providedIn: 'root'
 })
 export class ApprovalService {
-  constructor(private afs: AngularFirestore) {}
+  // Default page size for queries
+  private readonly DEFAULT_PAGE_SIZE = 20;
 
-  getAllPendingApprovals(): Observable<ApprovalRequest[]> {
-    return this.afs.collection<ApprovalRequest>('approval_requests', ref => 
-      ref.where('status', '==', 'pending')
-    ).valueChanges({ idField: 'id' });
+  constructor(private firestore: Firestore) {}
+
+  private get approvalsCollection() {
+    return collection(this.firestore, 'approval_requests');
   }
 
-  getPendingRoleChangeApprovals(): Observable<ApprovalRequest[]> {
-    return this.afs.collection<ApprovalRequest>('approval_requests', ref => 
-      ref.where('status', '==', 'pending')
-         .where('type', '==', 'role_change')
-    ).valueChanges({ idField: 'id' });
+  // Generic query helper with pagination
+  private getQuery(
+    additionalConditions: any[] = [],
+    pageSize: number = this.DEFAULT_PAGE_SIZE
+  ) {
+    return query(
+      this.approvalsCollection,
+      where('status', '==', 'pending'),
+      ...additionalConditions,
+      orderBy('createdAt', 'desc'), // Ensures consistent ordering
+      limit(pageSize)
+    );
   }
 
-  getPendingApprovalsForZone(zoneId: string): Observable<ApprovalRequest[]> {
-    return this.afs.collection<ApprovalRequest>('approval_requests', ref => 
-      ref.where('status', '==', 'pending')
-         .where('zoneId', '==', zoneId)
-    ).valueChanges({ idField: 'id' });
+  getAllPendingApprovals(pageSize?: number): Observable<ApprovalRequest[]> {
+    return collectionData(
+      this.getQuery([], pageSize), 
+      { idField: 'id' }
+    ) as Observable<ApprovalRequest[]>;
+  }
+
+  getPendingRoleChangeApprovals(pageSize?: number): Observable<ApprovalRequest[]> {
+    return collectionData(
+      this.getQuery([where('type', '==', 'role_change')], pageSize),
+      { idField: 'id' }
+    ) as Observable<ApprovalRequest[]>;
+  }
+
+  getPendingApprovalsForZone(zoneId: string, pageSize?: number): Observable<ApprovalRequest[]> {
+    return collectionData(
+      this.getQuery([
+        where('zoneId', '==', zoneId)
+      ], pageSize),
+      { idField: 'id' }
+    ) as Observable<ApprovalRequest[]>;
   }
 
   async approveRequest(requestId: string, processedBy: string): Promise<void> {
-    await this.afs.collection('approval_requests').doc(requestId).update({
+    await this.updateRequestStatus(requestId, {
       status: 'approved',
-      processedBy,
-      processedAt: new Date()
+      processedBy
     });
   }
 
   async rejectRequest(requestId: string, processedBy: string): Promise<void> {
-    await this.afs.collection('approval_requests').doc(requestId).update({
+    await this.updateRequestStatus(requestId, {
       status: 'rejected',
-      processedBy,
-      processedAt: new Date()
+      processedBy
+    });
+  }
+
+  private async updateRequestStatus(
+    requestId: string, 
+    data: Partial<ApprovalRequest>
+  ): Promise<void> {
+    const docRef = doc(this.firestore, `approval_requests/${requestId}`);
+    await updateDoc(docRef, {
+      ...data,
+      processedAt: serverTimestamp() // Better than new Date()
     });
   }
 }

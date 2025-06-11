@@ -1,1 +1,48 @@
-<p>dashboard works!</p>
+<!-- ADMIN VIEW -->
+ <ng-container *ngIf="isAdmin">
+    <h2>ስራዎችን ይመድቡ | Assign Tasks</h2>
+    
+    <!-- <form (submit)="assignTask()">
+      <input [(ngModel)]="newTask.title" placeholder="ርዕስ | Title" required>
+      <textarea [(ngModel)]="newTask.description" placeholder="መመሪያ | Instructions"></textarea>
+      <input [(ngModel)]="newTask.biblePassage" placeholder="መጽሐፍ ቅዱስ ጥቅስ | Bible Passage">
+      
+      <select [(ngModel)]="newTask.assignedTo" required>
+        <option *ngFor="let member of churchMembers" [value]="member.uid">
+          {{ member.displayName }}
+        </option>
+      </select>
+      
+      <button type="submit">መድብ | Assign</button>
+    </form> -->
+  
+    <div class="task-list">
+      <h3>የተመደቡ ስራዎች | Assigned Tasks</h3>
+      <div *ngFor="let task of filteredTasks" class="task-card">
+        <p><strong>{{ task.title }}</strong> ({{ task.assignedToName }})</p>
+        <p>{{ task.biblePassage }}</p>
+        <p>ሁኔታ | Status: {{ task.status }}</p>
+        <!-- <button (click)="updateTaskStatus(task, 'completed')">Complete</button> -->
+      </div>
+    </div>
+  </ng-container>  
+  <!-- MEMBER VIEW -->
+  <!-- <ng-container *ngIf="!isAdmin">
+    <h2>የእኔ ስራዎች | My Tasks</h2>
+    
+    <div class="task-filters">
+      <button (click)="filterTasks()">ሁሉም | All</button>
+      <button (click)="filterTasks('pending')">በመጠባበቅ ላይ | Pending</button>
+      <button (click)="filterTasks('completed')">የተጠናቀቀ | Completed</button>
+    </div>
+  
+    <div *ngFor="let task of filteredTasks" class="task-card">
+      <h3>{{ task.title }}</h3>
+      <p>{{ task.description }}</p>
+      <p>መጽሐፍ ቅዱስ | Bible: {{ task.biblePassage }}</p>
+      <button (click)="updateTaskStatus(task, 'in_progress')">Start</button>
+      <button (click)="updateTaskStatus(task, 'completed')">Complete</button>
+    </div>
+  </ng-container>   -->
+
+  <h1> Abebee</h1>

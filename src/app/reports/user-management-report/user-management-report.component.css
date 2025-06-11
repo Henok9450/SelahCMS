@@ -1,0 +1,260 @@
+/* Modern, clean styling for the user management report */
+:host {
+    display: block;
+    padding: 2rem;
+    background: #f5f7fa;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  }
+  
+  /* Header with elegant underline */
+  h2 {
+    color: #2c3e50;
+    margin: 0 0 2rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    padding-bottom: 0.5rem;
+  }
+  
+  h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5rem;
+    height: 0.25rem;
+    background: linear-gradient(90deg, #4285f4, #34a853);
+    border-radius: 0.125rem;
+  }
+  
+  /* Summary cards - modern card design */
+  .summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  mat-card {
+    border-radius: 0.75rem !important;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    position: relative;
+    border: none;
+    padding: 1.5rem;
+  }
+  
+  mat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0.25rem;
+    background: linear-gradient(90deg, #4285f4, #34a853);
+  }
+  
+  mat-card:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  mat-card-title {
+    font-size: 0.875rem;
+    color: #5f6368;
+    margin: 0 0 0.5rem 0;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+  }
+  
+  mat-card-content {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #202124;
+    margin: 0;
+  }
+  
+  /* Color variants for each card */
+  .summary-cards mat-card:nth-child(1)::before {
+    background: linear-gradient(90deg, #4285f4, #34a853);
+  }
+  
+  .summary-cards mat-card:nth-child(2)::before {
+    background: linear-gradient(90deg, #34a853, #fbbc05);
+  }
+  
+  .summary-cards mat-card:nth-child(3)::before {
+    background: linear-gradient(90deg, #ea4335, #9b59b6);
+  }
+  
+  /* Action buttons container */
+  .actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Button styling */
+  button[mat-raised-button] {
+    border-radius: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  button[mat-raised-button][color="primary"] {
+    background: linear-gradient(135deg, #4285f4, #34a853);
+    color: white;
+  }
+  
+  button[mat-raised-button]:not([color="primary"]) {
+    background: white;
+    color: #5f6368;
+    border: 1px solid #dadce0;
+  }
+  
+  button[mat-raised-button]:hover {
+    transform: translateY(-0.125rem);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Table container - modern card style */
+  .table-container {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 1.5rem;
+    padding: 1rem;
+  }
+  
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th.mat-header-cell {
+    background: #f8f9fa;
+    color: #5f6368;
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    padding: 1rem;
+  }
+  
+  td.mat-cell {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f3f4;
+    color: #202124;
+    font-size: 0.875rem;
+  }
+  
+  tr.mat-row:hover {
+    background: #f8f9fa;
+  }
+  
+  /* Hiyaw Mahider ID styling */
+  .hiyaw-id {
+    font-size: 0.75rem;
+    color: #5f6368;
+    margin-left: 0.5rem;
+    opacity: 0.7;
+  }
+  
+  /* Filters component styling */
+  app-report-filters {
+    display: block;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Loading spinner styling */
+  mat-spinner {
+    margin: 2rem auto;
+  }
+  
+  /* No data state */
+  .no-data {
+    text-align: center;
+    padding: 3rem;
+    color: #5f6368;
+  }
+  
+  .no-data mat-icon {
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+    color: #dadce0;
+    margin-bottom: 1rem;
+  }
+  
+  .no-data p {
+    font-size: 1rem;
+    margin: 0;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    :host {
+      padding: 1rem;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .summary-cards {
+      grid-template-columns: 1fr;
+    }
+    
+    td.mat-cell, th.mat-header-cell {
+      padding: 0.75rem;
+    }
+  }
+  
+  /* Animation for smooth appearance */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  mat-card, .table-container, app-report-filters {
+    animation: fadeInUp 0.4s ease-out forwards;
+  }
+  
+  mat-card:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  
+  mat-card:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  mat-card:nth-child(3) {
+    animation-delay: 0.3s;
+  }

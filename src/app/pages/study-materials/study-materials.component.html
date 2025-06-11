@@ -1,1 +1,39 @@
-<p>study-materials works!</p>
+<div class="container">
+    <div class="header">
+      <h1>ሕያው ማህደር Study Materials</h1>
+      <button mat-raised-button color="primary" (click)="openUploadDialog()">
+        <mat-icon>upload</mat-icon> Upload New Material
+      </button>
+    </div>
+  
+    <div *ngIf="loading" class="spinner-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  
+    <div class="materials-grid">
+      <mat-card *ngFor="let material of materials$ | async" class="material-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>{{ getFileIcon(material.fileType) }}</mat-icon>
+          <mat-card-title>{{ material.title }}</mat-card-title>
+          <mat-card-subtitle>{{ material.fileType }} • {{ material.uploadDate | date }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p>{{ material.description }}</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <a mat-button color="primary" [href]="material.fileUrl" target="_blank" download>
+            <mat-icon>cloud_download</mat-icon> Download
+          </a>
+          <button mat-button color="warn" (click)="deleteMaterial(material.id!, material.fileUrl)">
+            <mat-icon>delete</mat-icon> Delete
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  
+    <div *ngIf="(materials$ | async)?.length === 0 && !loading" class="empty-state">
+      <mat-icon class="empty-icon">folder_open</mat-icon>
+      <h3>No study materials yet</h3>
+      <p>Upload your first study material by clicking the button above</p>
+    </div>
+  </div>

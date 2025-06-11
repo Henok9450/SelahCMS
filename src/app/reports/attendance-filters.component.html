@@ -1,0 +1,52 @@
+<div class="filters-container">
+    <h3>Apply Filters</h3>
+    
+    <form [formGroup]="filterForm">
+      <div class="filter-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Hiyaw Mahider</mat-label>
+          <mat-select formControlName="hiyawMahiderId">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let hm of hiyawMahiders$ | async" [value]="hm.id">
+              {{ hm.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline">
+          <mat-label>Study Day</mat-label>
+          <mat-select formControlName="studyDay">
+            <mat-option value="">All Days</mat-option>
+            <mat-option *ngFor="let day of studyDays" [value]="day">
+              {{ day }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+  
+      <div class="filter-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+  
+        <mat-form-field appearance="outline">
+          <mat-label>End Date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+  
+      <div class="filter-actions">
+        <button mat-stroked-button type="button" (click)="resetFilters()">
+          Reset
+        </button>
+        <button mat-raised-button color="primary" type="button" (click)="applyFilters()">
+          Apply Filters
+        </button>
+      </div>
+    </form>
+  </div>

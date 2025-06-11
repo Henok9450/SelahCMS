@@ -1,1 +1,109 @@
-/* You can add global styles to this file, and also import other style files */
+/* In your global styles.css or styles.scss */
+
+/* Target the Material Select Panel */
+.mat-mdc-select-panel {
+    background-color: white !important; /* Make the background solid white */
+    border-radius: 4px; /* Optional: give it some rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  }
+  
+  /* Target individual options for consistent background */
+  .mat-mdc-option {
+    background-color: white !important; /* Ensure options also have a white background */
+    color: rgba(0, 0, 0, 0.87); /* Default text color for options */
+  }
+  
+  /* Optional: Improve hover and selected states for clarity */
+  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    background-color: rgba(0, 0, 0, 0.04) !important; /* Lighter background for selected but not disabled */
+    color: #3f51b5 !important; /* Use your primary color for selected text */
+  }
+  
+  .mat-mdc-option.mdc-list-item--selected.mat-primary:not(.mdc-list-item--disabled) {
+    background-color: rgba(63, 81, 181, 0.1) !important; /* A light tint of your primary color */
+    color: #3f51b5 !important;
+  }
+  
+  .mat-mdc-option:hover:not(.mdc-list-item--disabled),
+  .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
+    background-color: rgba(0, 0, 0, 0.04) !important; /* Light gray on hover/focus */
+  }
+  
+  /* Ensure the filter input container also has a solid background if it's part of the overlay */
+  .filter-input-container {
+      background-color: white !important;
+  }
+
+  /* In your global styles.css or styles.scss */
+
+/* Existing styles for mat-select dropdowns */
+.mat-mdc-select-panel {
+    background-color: white !important;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mat-mdc-option {
+    background-color: white !important;
+    color: rgba(0, 0, 0, 0.87);
+  }
+  
+  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    color: #3f51b5 !important;
+  }
+  
+  .mat-mdc-option.mdc-list-item--selected.mat-primary:not(.mdc-list-item--disabled) {
+    background-color: rgba(63, 81, 181, 0.1) !important;
+    color: #3f51b5 !important;
+  }
+  
+  .mat-mdc-option:hover:not(.mdc-list-item--disabled),
+  .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+  
+  .filter-input-container {
+      background-color: white !important;
+  }
+  
+  /* NEW: Styles for Material Datepicker Calendar */
+  .mat-datepicker-content {
+    background-color: white !important; /* Solid white background for the entire calendar dialog */
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
+  }
+  
+  .mat-calendar {
+    background-color: white !important; /* Ensure the calendar itself is also solid white */
+    color: rgba(0, 0, 0, 0.87) !important; /* Default text color for calendar elements */
+  }
+  
+  /* You might need to target specific elements if parts of the calendar are still transparent,
+     e.g., header, body, date cells, etc. */
+  .mat-calendar-table-header {
+    color: rgba(0, 0, 0, 0.54) !important; /* Day names color */
+  }
+  
+  .mat-calendar-body-cell-content {
+    background-color: white !important; /* Ensure individual date cells are white */
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+  
+  /* Hover and selected states for date cells */
+  .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover .mat-calendar-body-cell-content {
+    background-color: rgba(0, 0, 0, 0.04) !important; /* Light grey on hover */
+  }
+  
+  .mat-calendar-body-selected {
+    background-color: #3f51b5 !important; /* Primary color for selected date */
+    color: white !important;
+  }
+  
+  /* Today's date circle */
+  .mat-calendar-body-today:not(.mat-calendar-body-selected) .mat-calendar-body-cell-content {
+    border-color: #3f51b5 !important; /* Primary color border for today's date */
+  }
+
+
+  

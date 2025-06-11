@@ -1,0 +1,255 @@
+/* tasks.component.css */
+
+/* Base Styles */
+.task-management-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #eaeaea;
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 2rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.filter-tabs button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background-color: #f5f7fa;
+  color: #4a5568;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tabs button.active {
+  background-color: #4299e1;
+  color: white;
+}
+
+.filter-tabs button:hover:not(.active) {
+  background-color: #ebf8ff;
+  color: #3182ce;
+}
+
+/* Task Creation Form */
+.create-form {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.create-form h3 {
+  margin-top: 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  background-color: #f8fafc;
+}
+
+.form-input:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Buttons */
+.create-button, .submit-button {
+  background-color: #48bb78;
+  color: white;
+  font-weight: 500;
+}
+
+.create-button:hover, .submit-button:hover {
+  background-color: #38a169;
+}
+
+.cancel-button {
+  background-color: #e53e3e;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c53030;
+}
+
+/* Task List */
+.task-list {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.task-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.task-list th {
+  background-color: #f7fafc;
+  padding: 1rem;
+  text-align: left;
+  color: #4a5568;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.task-list td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #edf2f7;
+  vertical-align: top;
+}
+
+.task-list tr:last-child td {
+  border-bottom: none;
+}
+
+.task-description {
+  color: #718096;
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* Status Badges */
+.pending {
+  color: #dd6b20;
+  font-weight: 500;
+  background-color: #fffaf0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.completed {
+  color: #38a169;
+  font-weight: 500;
+  background-color: #f0fff4;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+/* Action Buttons */
+.complete-button {
+  background-color: #4299e1;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.pending-button {
+  background-color: #ed8936;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.delete-button {
+  background-color: #e53e3e;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Empty State */
+.no-tasks {
+  text-align: center;
+  padding: 2rem;
+  color: #a0aec0;
+}
+
+/* Loading State */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #4a5568;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .task-management-container {
+    padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .filter-tabs {
+    flex-wrap: wrap;
+  }
+  
+  .task-list table {
+    display: block;
+    overflow-x: auto;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+  
+  .complete-button, .pending-button, .delete-button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,46 @@
+.container {
+    padding: 20px;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .material-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  mat-card-content {
+    flex-grow: 1;
+  }
+  
+  .spinner-container {
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: rgba(0, 0, 0, 0.54);
+  
+    .empty-icon {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+      margin-bottom: 20px;
+    }
+  }

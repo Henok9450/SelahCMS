@@ -1,1 +1,62 @@
-<p>events works!</p>
+<div class="events-container">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Hiyaw Mahider Events</mat-card-title>
+      </mat-card-header>
+  
+      <mat-card-content>
+        <div class="events-toolbar">
+          <button mat-raised-button color="primary" (click)="openAddEventDialog()">
+            <mat-icon>add</mat-icon> Add New Event
+          </button>
+  
+          <mat-form-field *ngIf="selectedTab === 'pastor'" class="pastor-select">
+            <mat-label>Select Pastor</mat-label>
+            <mat-select [(value)]="selectedPastorId" (selectionChange)="onPastorSelect($event.value)">
+              <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+                {{ pastor.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+  
+        <mat-tab-group [(selectedIndex)]="selectedTab" (selectedIndexChange)="onTabChange($event ? 'all' : 'pastor')">
+          <mat-tab label="All Events"></mat-tab>
+          <mat-tab label="Pastor Events"></mat-tab>
+        </mat-tab-group>
+  
+        <div *ngIf="filteredEvents.length === 0" class="no-events">
+          <p>No events found.</p>
+        </div>
+  
+        <div class="events-list">
+          <mat-card *ngFor="let event of filteredEvents" class="event-card">
+            <mat-card-header>
+              <mat-card-title>{{ event.title }}</mat-card-title>
+              <mat-card-subtitle>
+                <span class="event-type">{{ getEventTypeLabel(event.type) }}</span>
+                <span class="event-date">
+                  {{ event.startDateTime | date:'medium' }} - {{ event.endDateTime | date:'shortTime' }}
+                </span>
+              </mat-card-subtitle>
+            </mat-card-header>
+  
+            <mat-card-content>
+              <p>{{ event.description }}</p>
+              <p *ngIf="event.location"><strong>Location:</strong> {{ event.location }}</p>
+              <p><strong>Assigned Pastors:</strong> {{ getAssignedPastorsNames(event.assignedPastors) }}</p>
+            </mat-card-content>
+  
+            <mat-card-actions align="end">
+              <button mat-icon-button (click)="openEditEventDialog(event)" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteEvent(event.id!)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>

@@ -1,0 +1,110 @@
+<div class="dashboard-container">
+
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Side Navigation -->
+
+    <!-- Dashboard Content -->
+    <div class="content-area">
+      <!-- Quick Stats Section -->
+      <div class="quick-stats" *ngIf="showQuickStats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{memberCount}}</h3>
+            <p>Members</p>
+          </div>
+        </div>
+        <div class="stat-card" *ngIf="showPendingApprovals">
+          <div class="stat-icon pending">
+            <mat-icon>pending_actions</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{pendingApprovals}}</h3>
+            <p>Pending Approvals</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>event_available</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{upcomingEvents}}</h3>
+            <p>Upcoming Events</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <mat-icon>school</mat-icon>
+          </div>
+          <div class="stat-info">
+            <h3>{{completedCourses}}</h3>
+            <p>Completed Courses</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Widgets -->
+      <div class="dashboard-widgets">
+        <!-- Upcoming Events Widget -->
+        <div class="widget" *ngIf="showEventsWidget">
+          <div class="widget-header">
+            <h2>Upcoming Events</h2>
+            <button mat-button color="primary" (click)="viewAllEvents()">View All</button>
+          </div>
+          <div class="widget-content">
+            <mat-list>
+              <mat-list-item *ngFor="let event of recentEvents">
+                <mat-icon matListIcon>event</mat-icon>
+                <h3 matLine>{{event.title}}</h3>
+                <p matLine>
+                  <span>{{event.date | date:'mediumDate'}}</span>
+                  <span> • {{event.location}}</span>
+                </p>
+              </mat-list-item>
+              <mat-list-item *ngIf="recentEvents.length === 0">
+                <p>No upcoming events</p>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </div>
+
+        <!-- Recent Tasks Widget -->
+        <div class="widget" *ngIf="showTasksWidget">
+          <div class="widget-header">
+            <h2>Recent Tasks</h2>
+            <button mat-button color="primary" (click)="viewAllTasks()">View All</button>
+          </div>
+          <div class="widget-content">
+            <mat-list>
+              <mat-list-item *ngFor="let task of recentTasks">
+                <mat-icon matListIcon>assignment</mat-icon>
+                <h3 matLine>{{task.title}}</h3>
+                <p matLine>
+                  <span>Due: {{task.dueDate | date:'mediumDate'}}</span>
+                  <span> • Status: {{task.status}}</span>
+                </p>
+              </mat-list-item>
+              <mat-list-item *ngIf="recentTasks.length === 0">
+                <p>No tasks assigned</p>
+              </mat-list-item>
+            </mat-list>
+          </div>
+        </div>
+
+        <!-- Learning Progress Widget -->
+        <div class="widget" *ngIf="showProgressWidget">
+          <div class="widget-header">
+            <h2>Learning Progress</h2>
+            <button mat-button color="primary" (click)="viewProgressDetails()">Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>

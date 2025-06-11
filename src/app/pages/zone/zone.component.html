@@ -1,0 +1,138 @@
+<div class="container">
+  <div class="header">
+    <h2>Zones Management</h2>
+    <button mat-raised-button color="primary" (click)="startAdd()" *ngIf="!isEditing">
+      <mat-icon>add</mat-icon> Add New Zone
+    </button>
+  </div>
+
+  <!-- Edit/Create Form -->
+  <mat-card *ngIf="isEditing" class="form-card">
+    <mat-card-header>
+      <mat-card-title>{{ currentZoneId ? 'Edit Zone' : 'Create New Zone' }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="zoneForm">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Zone Code *</mat-label>
+          <input matInput formControlName="code" required>
+          <mat-error *ngIf="zoneForm.get('code')?.hasError('required')">
+            Zone code is required
+          </mat-error>
+          <mat-error *ngIf="zoneForm.get('code')?.hasError('pattern')">
+            Only letters and numbers allowed
+          </mat-error>
+          <mat-error *ngIf="zoneForm.get('code')?.hasError('maxlength')">
+            Maximum 10 characters allowed
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Zone Name *</mat-label>
+          <input matInput formControlName="name">
+        
+          <mat-error *ngIf="zoneForm.get('name')?.hasError('required')">
+            Zone name is required
+          </mat-error>
+        
+          <mat-error *ngIf="zoneForm.get('name')?.hasError('maxlength')">
+            Maximum 100 characters allowed
+          </mat-error>
+        </mat-form-field>
+        
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Status *</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="inactive">Inactive</mat-option>
+          </mat-select>
+          <mat-error *ngIf="zoneForm.get('status')?.hasError('required')">
+            Status is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Zone Coordinators</mat-label>
+          <mat-select formControlName="coordinators" multiple [compareWith]="comparePastors">
+            <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+              {{ pastor.name }} 
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </form>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancelEdit()">Cancel</button>
+      <button mat-raised-button 
+        color="primary" 
+        (click)="saveZone()" 
+        [disabled]="!zoneForm.valid">
+  <mat-icon>{{ currentZoneId ? 'save' : 'add' }}</mat-icon>
+  {{ currentZoneId ? 'Update' : 'Save' }}
+</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Loading State -->
+  <mat-card *ngIf="isLoading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <div class="loading-text">Loading zones...</div>
+  </mat-card>
+
+  <!-- Zones List -->
+  <div *ngIf="!isLoading && !isEditing">
+    <table mat-table [dataSource]="zones" class="mat-elevation-z8">
+      <!-- Zone Code Column -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef> Code </th>
+        <td mat-cell *matCellDef="let zone"> {{ zone.code }} </td>
+      </ng-container>
+
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let zone"> {{ zone.name || 'N/A' }} </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let zone">
+          <mat-chip [color]="zone.status === 'active' ? 'primary' : 'warn'" selected>
+            {{ zone.status | titlecase }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Coordinators Column -->
+      <ng-container matColumnDef="coordinators">
+        <th mat-header-cell *matHeaderCellDef> Coordinators </th>
+        <td mat-cell *matCellDef="let zone">
+          {{ getCoordinatorNames(zone.coordinators) }}
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Actions </th>
+        <td mat-cell *matCellDef="let zone">
+          <button mat-icon-button color="primary" (click)="startEdit(zone)" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteZone(zone.id)" matTooltip="Delete">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="zones.length === 0" class="no-data">
+      <mat-icon>info</mat-icon>
+      <span>No zones found. Create your first zone!</span>
+    </div>
+  </div>
+</div>

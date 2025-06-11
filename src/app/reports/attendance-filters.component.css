@@ -1,0 +1,37 @@
+.filters-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 24px;
+  }
+  
+  .filters-container h3 {
+    margin-top: 0;
+    color: #3f51b5;
+    font-weight: 500;
+  }
+  
+  .filter-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .filter-row mat-form-field {
+    flex: 1;
+  }
+  
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  @media (max-width: 768px) {
+    .filter-row {
+      flex-direction: column;
+      gap: 16px;
+    }
+  }
