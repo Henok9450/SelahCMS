@@ -13,73 +13,47 @@ import {
 import { Observable } from 'rxjs';
 import { User } from '../core/user.model'; 
 import { getDoc } from '@angular/fire/firestore';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { docData } from '@angular/fire/firestore';
+import { collectionData } from '@angular/fire/firestore'; 
+import { Auth } from '@angular/fire/auth';
+import { sendPasswordResetEmail } from '@angular/fire/auth';
+import { createUserWithEmailAndPassword, signOut } from '@angular/fire/auth';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private auth: Auth) {}
 
-  async createUser(userData: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<void> {
+  // This method is designed to be called AFTER a user is created in Firebase Authentication.
+  // It takes the Firebase Auth UID as the first argument.
+  async createOrUpdateUserProfile(uid: string, userData: Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'userName'>): Promise<void> {
     if (!userData.fullName) {
-      throw new Error('Full name is required to create a user.');
+      throw new Error('Full name is required to create or update a user profile.');
     }
 
-    const userId = doc(collection(this.firestore, 'users')).id;
-    const userName = await this.generateUniqueUsername(userData.fullName);
-
-    const user: User = {
-      id: userId,
-      userName,
-      fullName: userData.fullName, // Now guaranteed to exist
+   
+    const userProfile: User = {
+      uid: uid, // CRITICAL: Use the Firebase Auth UID as the Firestore document ID
+      fullName: userData.fullName, 
+      email: userData.email || '',
       phoneNumber: userData.phoneNumber || '',
       residencyLocation: userData.residencyLocation || '',
       maritalStatus: userData.maritalStatus || '',
       role: userData.role || 'Member',
-      firstLogin: true,
-      active: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      firstLogin: userData.firstLogin !== undefined ? userData.firstLogin : true,
+      active: userData.active !== undefined ? userData.active : true,
+      createdAt: new Date(), 
+      updatedAt: new Date(), 
       assignedHiyawMahider: userData.assignedHiyawMahider || null,
       pastor: userData.pastor || '',
       deputyPastor: userData.deputyPastor || ''
     };
 
-    const userRef = doc(this.firestore, 'users', userId);
-    return setDoc(userRef, user);
-}
-
-  private getFirstName(fullName: string): string {
-    // Get first name and clean it
-    const firstName = fullName.split(' ')[0];
-    return firstName.toLowerCase()
-      .replace(/[^a-z]/g, '')  // Remove non-alphabets
-      .substring(0, 8);        // Limit to 8 characters
-  }
-
-  private async generateUniqueUsername(fullName: string): Promise<string> {
-    const baseName = this.getFirstName(fullName);
-    let attempts = 0;
-    const maxAttempts = 5;
-
-    while (attempts < maxAttempts) {
-      const suffix = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-      const userName = `${baseName}.${suffix}`;
-
-      const usersCollection = collection(this.firestore, 'users');
-      const q = query(usersCollection, where('userName', '==', userName));
-      const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        return userName;
-      }
-
-      attempts++;
-    }
-
-    throw new Error('Failed to generate unique username after multiple attempts');
+    const userRef = doc(this.firestore, 'users', uid);
+    return setDoc(userRef, userProfile, { merge: true });
   }
 
   updateUser(userId: string, data: Partial<User>): Promise<void> {
@@ -99,7 +73,7 @@ export class UserService {
             querySnapshot.docs.map(async doc => {
               const userData = doc.data() as User;
               const user: User = {
-                id: doc.id,
+                uid: doc.id,
                 ...userData,
                 hiyawMahiderName: 'None',
                 pastorName: userData.pastor || 'Not assigned',
@@ -175,5 +149,23 @@ export class UserService {
   getUser(uid: string): Observable<User | null> {
     const userRef = doc(this.firestore, `users/${uid}`);
     return docData(userRef, { idField: 'id' }) as Observable<User | null>;
+  }
+
+  getUserByEmail(email: string): Observable<User | null> {
+    const usersCollection = collection(this.firestore, 'users');
+    const q = query(usersCollection, where('email', '==', email));
+    return collectionData(q, { idField: 'id' }).pipe(
+      map(users => users.length > 0 ? users[0] as User : null)
+    );
+  }
+
+  async resetUserPasswordByEmail(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(this.auth, email);
+      console.log('Password reset email sent!');
+    } catch (error) {
+      console.error('Error sending password reset email:', error);
+      throw error;
+    }
   }
 }

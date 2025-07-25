@@ -1,123 +1,151 @@
 <div class="container mt-4">
-    <h2 class="mb-4">Pastor Management</h2>
-  
-    <div class="row">
-      <!-- Left Column - List -->
-      <div class="col-lg-8">
-        <div class="card mb-4">
-          <div class="card-header bg-light">
-            <div class="d-flex justify-content-between align-items-center">
-              <h4 class="mb-0">Pastors</h4>
-              <div class="w-50">
-                <input type="text" class="form-control" placeholder="Search pastors..." 
-                      [(ngModel)]="searchTerm" (input)="onSearch()">
-              </div>
-            </div>
+  <mat-card class="mb-4 mat-elevation-z2">
+    <mat-card-header>
+      <mat-card-title class="page-title">Pastor Management</mat-card-title>
+    </mat-card-header>
+  </mat-card>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <mat-card class="mb-4 mat-elevation-z2">
+        <mat-card-header>
+          <div class="card-header-content">
+            <mat-card-title>Pastors</mat-card-title>
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search Pastors</mat-label>
+              <input matInput type="text" [(ngModel)]="searchTerm" (input)="onSearch()">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
           </div>
-          
-          <div class="card-body">
-            <div *ngIf="isLoading" class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
-  
-            <div *ngIf="!isLoading && pastors.length === 0" class="text-center py-4 text-muted">
-              No pastors found
-            </div>
-  
-            <div class="results-grid">
-              <div *ngFor="let pastor of pastors" class="hm-card">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <h5 class="mb-0">{{ pastor.name }}</h5>
-                  <span [ngClass]="getStatusClass(pastor.status)" class="status-badge">{{ pastor.status }}</span>
-                </div>
-                <p class="mb-1"><i class="bi bi-telephone me-2"></i>{{ pastor.phoneNumber }}</p>
-                <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>{{ pastor.address }}</p>
-                <p class="mb-2"><i class="bi bi-people me-2"></i>Assigned to: {{ getHiyawMahiderName(pastor.assignedHiyawMahider) }}</p>
-                <div class="d-flex justify-content-end gap-2">
-                  <button class="btn btn-sm btn-outline-primary" (click)="onEdit(pastor)">
-                    <i class="bi bi-pencil"></i> Edit
+        </mat-card-header>
+
+        <mat-card-content>
+          <div *ngIf="isLoading" class="loading-spinner-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading pastors...</span>
+          </div>
+
+          <div *ngIf="!isLoading && dataSource.data.length === 0 && initialLoadComplete" class="empty-state">
+            <mat-icon>sentiment_dissatisfied</mat-icon>
+            <p>No pastors found.</p>
+            <p *ngIf="searchTerm">Try adjusting your search criteria.</p>
+          </div>
+
+          <div class="mat-elevation-z1" *ngIf="dataSource.data.length > 0">
+            <table mat-table [dataSource]="dataSource">
+
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Name </th>
+                <td mat-cell *matCellDef="let pastor"> {{ pastor.name }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="phoneNumber">
+                <th mat-header-cell *matHeaderCellDef> Phone Number </th>
+                <td mat-cell *matCellDef="let pastor"> {{ pastor.phoneNumber }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="address">
+                <th mat-header-cell *matHeaderCellDef> Address </th>
+                <td mat-cell *matCellDef="let pastor"> {{ pastor.address }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="assignedHiyawMahider">
+                <th mat-header-cell *matHeaderCellDef> Assigned Hiyaw Mahider </th>
+                <td mat-cell *matCellDef="let pastor"> {{ getHiyawMahiderName(pastor.assignedHiyawMahider) }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let pastor">
+                  <span class="status-badge" [ngClass]="getStatusClass(pastor.status)">{{ pastor.status }}</span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Actions </th>
+                <td mat-cell *matCellDef="let pastor">
+                  <button mat-icon-button color="primary" (click)="onEdit(pastor)" matTooltip="Edit Pastor">
+                    <mat-icon>edit</mat-icon>
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="onDelete(pastor.id ?? '')">
-                    <i class="bi bi-trash"></i> Delete
+                  <button mat-icon-button color="warn" (click)="onDelete(pastor.id || '')" matTooltip="Delete Pastor">
+                    <mat-icon>delete</mat-icon>
                   </button>
-                </div>
-              </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="col-lg-4">
+      <mat-card class="sticky-top mat-elevation-z2" style="top: 20px;">
+        <mat-card-header>
+          <mat-card-title>{{ isEditMode ? 'Edit Pastor' : 'Add New Pastor' }}</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="pastorForm" (ngSubmit)="onSubmit()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Name *</mat-label>
+              <input matInput formControlName="name">
+              <mat-error *ngIf="pastorForm.get('name')?.invalid && pastorForm.get('name')?.touched">
+                Name is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Phone Number *</mat-label>
+              <input matInput type="tel" formControlName="phoneNumber">
+              <mat-error *ngIf="pastorForm.get('phoneNumber')?.invalid && pastorForm.get('phoneNumber')?.touched">
+                Valid phone number (10-15 digits) is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Address *</mat-label>
+              <textarea matInput formControlName="address" rows="3"></textarea>
+              <mat-error *ngIf="pastorForm.get('address')?.invalid && pastorForm.get('address')?.touched">
+                Address is required
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Assigned Hiyaw Mahider *</mat-label>
+              <mat-select formControlName="assignedHiyawMahider">
+                <mat-option value="">Select Hiyaw Mahider</mat-option>
+                <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
+                  {{ hm.name }} ({{ hm.code }})
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="pastorForm.get('assignedHiyawMahider')?.invalid && pastorForm.get('assignedHiyawMahider')?.touched">
+                Please assign to a Hiyaw Mahider
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Status *</mat-label>
+              <mat-select formControlName="status">
+                <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="form-actions">
+              <button mat-raised-button color="primary" type="submit" [disabled]="pastorForm.invalid || isLoading">
+                <mat-icon *ngIf="isLoading" class="spinner-icon">hourglass_empty</mat-icon>
+                {{ isEditMode ? 'Update Pastor' : 'Create Pastor' }}
+              </button>
+              <button mat-button type="button" (click)="resetForm()" *ngIf="isEditMode">
+                Cancel
+              </button>
             </div>
-            
-          </div>
-        </div>
-      </div>
-  
-      <!-- Right Column - Form -->
-      <div class="col-lg-4">
-        <div class="card sticky-top" style="top: 20px;">
-          <div class="card-header bg-light">
-            <h4 class="mb-0">{{ isEditMode ? 'Edit Pastor' : 'Add New Pastor' }}</h4>
-          </div>
-          <div class="card-body">
-            <form [formGroup]="pastorForm" (ngSubmit)="onSubmit()">
-              <div class="mb-3">
-                <label class="form-label">Name *</label>
-                <input type="text" class="form-control" formControlName="name">
-                <div *ngIf="pastorForm.get('name')?.invalid && pastorForm.get('name')?.touched" 
-                    class="invalid-feedback d-block">
-                  Name is required
-                </div>
-              </div>
-  
-              <div class="mb-3">
-                <label class="form-label">Phone Number *</label>
-                <input type="tel" class="form-control" formControlName="phoneNumber">
-                <div *ngIf="pastorForm.get('phoneNumber')?.invalid && pastorForm.get('phoneNumber')?.touched" 
-                    class="invalid-feedback d-block">
-                  Valid phone number (10 digits) is required
-                </div>
-              </div>
-  
-              <div class="mb-3">
-                <label class="form-label">Address *</label>
-                <textarea class="form-control" rows="3" formControlName="address"></textarea>
-                <div *ngIf="pastorForm.get('address')?.invalid && pastorForm.get('address')?.touched" 
-                    class="invalid-feedback d-block">
-                  Address is required
-                </div>
-              </div>
-  
-              <div class="mb-3">
-                <label class="form-label">Assigned Hiyaw Mahider *</label>
-                <select class="form-select" formControlName="assignedHiyawMahider">
-                  <option value="">Select Hiyaw Mahider</option>
-                  <option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
-                    {{ hm.name }} ({{ hm.code }})
-                  </option>
-                </select>
-                <div *ngIf="pastorForm.get('assignedHiyawMahider')?.invalid && pastorForm.get('assignedHiyawMahider')?.touched" 
-                    class="invalid-feedback d-block">
-                  Please assign to a Hiyaw Mahider
-                </div>
-              </div>
-  
-              <div class="mb-3">
-                <label class="form-label">Status *</label>
-                <select class="form-select" formControlName="status">
-                  <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-                </select>
-              </div>
-  
-              <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary" [disabled]="pastorForm.invalid || isLoading">
-                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1"></span>
-                  {{ isEditMode ? 'Update' : 'Create' }} Pastor
-                </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="resetForm()" *ngIf="isEditMode">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
+</div>

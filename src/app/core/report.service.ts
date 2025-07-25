@@ -4,8 +4,6 @@ import { collectionData } from 'rxfire/firestore';
 import { map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { getDoc, doc } from '@angular/fire/firestore';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
 
 interface User {
   id: string;
@@ -23,6 +21,11 @@ interface User {
   lastName?: string;
   assignedHiyawMahider?: string;
 }
+
+interface HiyawMahider {
+    id: string;
+    name: string;
+  }
 
 interface ReportData {
   totalUsers: number;
@@ -60,10 +63,10 @@ export class ReportService {
         description: 'Hiyaw Mahider statistics'
       },
       {
-        id: 'zone',
-        title: 'Zone Reports',
-        icon: 'location_on',
-        description: 'Zone-based analytics'
+        id: 'follow-up',
+        title: 'Follow-Up Reports',
+        icon: 'warning_amber',
+        description: 'Follow-up analytics'
       }
     ];
   }
@@ -95,10 +98,13 @@ export class ReportService {
     }
 
     return collectionData(q, { idField: 'id' }).pipe(
-      map(users => users.map(user => this.transformUserData(user))),
-      tap(users => console.log('Processed users:', users))
-    );
-  }
+        map(users => {
+          if (!users) return []; // Ensure we always return an array
+          return users.map(user => this.transformUserData(user));
+        }),
+        tap(users => console.log('Processed users:', users))
+      );
+    }
 
   transformUserData(user: any): User {
     return {
@@ -149,6 +155,21 @@ export class ReportService {
       inactiveUsers: users.filter(u => u.status === 'Inactive').length,
       userList: users
     };
+  }
+
+  // Add this method to your ReportService
+  getHiyawMahiders(): Observable<HiyawMahider[]> {
+    const hiyawMahidersCollection = collection(this.firestore, 'hiyawMahiders');
+    const q = query(hiyawMahidersCollection, orderBy('name'));
+  
+    return collectionData(q, { idField: 'id' }).pipe(
+      map((mahiders: DocumentData[]) =>
+        mahiders.map((mahider: DocumentData) => ({
+          id: mahider['id'], // Access properties using ['propertyName']
+          name: mahider['name'] || 'Unnamed'
+        }))
+      )
+    );
   }
 
   async getHiyawMahiderName(id: string): Promise<string> {
@@ -214,158 +235,5 @@ export class ReportService {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  }
-  /**
-   * Export attendance report to CSV
-   */
-  generateAttendanceReport(records: any[]): any {
-    const summary = {
-      total: records.length,
-      present: records.filter(record => record.status === 'Present').length,
-      absent: records.filter(record => record.status === 'Absent').length,
-      late: records.filter(record => record.status === 'Late').length,
-      excused: records.filter(record => record.status === 'Excused').length,
-      attendanceRate: 0
-    };
-  
-    summary.attendanceRate = summary.total > 0
-      ? Math.round((summary.present / summary.total) * 100)
-      : 0;
-  
-    const byUser = this.groupBy(records, 'userName');
-    const byHiyawMahider = this.groupBy(records, 'hiyawMahiderId');
-    const byZone = this.groupBy(records, 'zone');
-    const byDate = this.groupBy(records, 'date');
-  
-    return {
-      summary,
-      byUser: this.calculateGroupStats(byUser),
-      byHiyawMahider: this.calculateGroupStats(byHiyawMahider),
-      byZone: this.calculateGroupStats(byZone),
-      byDate: this.calculateGroupStats(byDate),
-      records
-    };
-  }
-  
-  private groupBy(array: any[], key: string): Record<string, any[]> {
-    return array.reduce((result, currentValue) => {
-      const groupKey = currentValue[key] || 'N/A';
-      if (!result[groupKey]) {
-        result[groupKey] = [];
-      }
-      result[groupKey].push(currentValue);
-      return result;
-    }, {});
-  }
-  
-  private calculateGroupStats(groupedData: Record<string, any[]>): any[] {
-    return Object.keys(groupedData).map(key => {
-      const group = groupedData[key];
-      const total = group.length;
-      const present = group.filter(record => record.status === 'Present').length;
-      const rate = total > 0 ? Math.round((present / total) * 100) : 0;
-  
-      return {
-        key,
-        total,
-        present,
-        rate
-      };
-    });
-  }
-
-  exportAttendanceReportToCSV(reportData: ReturnType<typeof this.generateAttendanceReport>, filename: string): void {
-    const { summary, byUser, byHiyawMahider, byZone, byDate, records } = reportData;
-  
-    // Create CSV content
-    let csvContent = 'Attendance Report\n\n';
-  
-    // Summary section
-    csvContent += 'Summary\n';
-    csvContent += `Total Records,${summary.total}\n`;
-    csvContent += `Present,${summary.present}\n`;
-    csvContent += `Absent,${summary.absent}\n`;
-    csvContent += `Late,${summary.late}\n`;
-    csvContent += `Excused,${summary.excused}\n`;
-    csvContent += `Attendance Rate,${summary.attendanceRate}%\n\n`;
-  
-    // By User section
-    csvContent += 'By User\n';
-    csvContent += 'User Name,Present Days,Total Days,Attendance Rate\n';
-    byUser.forEach((user: { userName: string; present: number; total: number; rate: number }) => {
-      csvContent += `${user.userName},${user.present},${user.total},${user.rate}%\n`;
-    });
-    csvContent += '\n';
-  
-    // By Hiyaw Mahider section
-    csvContent += 'By Hiyaw Mahider\n';
-    csvContent += 'Hiyaw Mahider ID,Present,Total,Attendance Rate\n';
-    byHiyawMahider.forEach((hiyaw: { hiyawMahiderId: string; present: number; total: number; rate: number }) => {
-      csvContent += `${hiyaw.hiyawMahiderId},${hiyaw.present},${hiyaw.total},${hiyaw.rate}%\n`;
-    });
-    csvContent += '\n';
-  
-    // By Zone section
-    csvContent += 'By Zone\n';
-    csvContent += 'Zone,Present,Total,Attendance Rate\n';
-    byZone.forEach((zone: { zone: string; present: number; total: number; rate: number }) => {
-      csvContent += `${zone.zone},${zone.present},${zone.total},${zone.rate}%\n`;
-    });
-    csvContent += '\n';
-  
-    // By Date section
-    csvContent += 'By Date\n';
-    csvContent += 'Date,Present,Total,Attendance Rate\n';
-    byDate.forEach((date: { date: string; present: number; total: number; rate: number }) => {
-      csvContent += `${date.date},${date.present},${date.total},${date.rate}%\n`;
-    });
-    csvContent += '\n';
-  
-    // Detailed records
-    csvContent += 'Detailed Records\n';
-    csvContent += 'User Name,Date,Status,Hiyaw Mahider,Zone,Notes\n';
-    records.forEach((record: { userName: string; date: string; status: string; hiyawMahiderId?: string; zone?: string; notes?: string }) => {
-      csvContent += `"${record.userName}","${record.date}","${record.status}","${record.hiyawMahiderId || ''}","${record.zone || ''}","${record.notes || ''}"\n`;
-    });
-  
-    this.downloadFile(csvContent, `${filename}.csv`, 'text/csv;charset=utf-8;');
-  }
-  
-  getAttendanceRecords(filters: any = {}): Observable<any[]> {
-    const attendanceCollection = collection(this.firestore, 'attendances');
-
-    // Start with base query ordered by date
-    let q: Query<DocumentData> = query(attendanceCollection, orderBy('date', 'desc'));
-
-    // Apply filters
-    if (filters.hiyawMahiderId && filters.hiyawMahiderId !== '') {
-      q = query(q, where('hiyawMahiderId', '==', filters.hiyawMahiderId));
-    }
-
-    if (filters.userId && filters.userId !== '') {
-      q = query(q, where('userId', '==', filters.userId));
-    }
-
-    if (filters.zone && filters.zone !== '') {
-      q = query(q, where('zone', '==', filters.zone));
-    }
-
-    if (filters.status && filters.status !== '') {
-      q = query(q, where('status', '==', filters.status));
-    }
-
-    if (filters.startDate) {
-      const startDate = new Date(filters.startDate);
-      startDate.setHours(0, 0, 0, 0);
-      q = query(q, where('date', '>=', startDate));
-    }
-
-    if (filters.endDate) {
-      const endDate = new Date(filters.endDate);
-      endDate.setHours(23, 59, 59, 999);
-      q = query(q, where('date', '<=', endDate));
-    }
-
-    return collectionData(q, { idField: 'id' });
   }
 }

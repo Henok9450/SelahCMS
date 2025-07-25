@@ -1,109 +1,581 @@
-/* In your global styles.css or styles.scss */
+/* src/styles.css or src/styles.scss */
 
-/* Target the Material Select Panel */
-.mat-mdc-select-panel {
-    background-color: white !important; /* Make the background solid white */
-    border-radius: 4px; /* Optional: give it some rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
-  }
-  
-  /* Target individual options for consistent background */
-  .mat-mdc-option {
-    background-color: white !important; /* Ensure options also have a white background */
-    color: rgba(0, 0, 0, 0.87); /* Default text color for options */
-  }
-  
-  /* Optional: Improve hover and selected states for clarity */
-  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-    background-color: rgba(0, 0, 0, 0.04) !important; /* Lighter background for selected but not disabled */
-    color: #3f51b5 !important; /* Use your primary color for selected text */
-  }
-  
-  .mat-mdc-option.mdc-list-item--selected.mat-primary:not(.mdc-list-item--disabled) {
-    background-color: rgba(63, 81, 181, 0.1) !important; /* A light tint of your primary color */
-    color: #3f51b5 !important;
-  }
-  
-  .mat-mdc-option:hover:not(.mdc-list-item--disabled),
-  .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
-    background-color: rgba(0, 0, 0, 0.04) !important; /* Light gray on hover/focus */
-  }
-  
-  /* Ensure the filter input container also has a solid background if it's part of the overlay */
-  .filter-input-container {
-      background-color: white !important;
-  }
+/* --- ANGULAR MATERIAL THEME IMPORTS --- */
+/* Choose ONLY ONE prebuilt theme */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+/* If you prefer another theme, uncomment one below and comment out indigo-pink: */
+/* @import '@angular/material/prebuilt-themes/deeppurple-amber.css'; */
+/* @import '@angular/material/prebuilt-themes/pink-bluegrey.css'; */
+/* @import '@angular/material/prebuilt-themes/purple-green.css'; */
 
-  /* In your global styles.css or styles.scss */
+/* --- FONT IMPORTS --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
 
-/* Existing styles for mat-select dropdowns */
-.mat-mdc-select-panel {
-    background-color: white !important;
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .mat-mdc-option {
+/* --- NEOMORPHIC UTILITIES (if used) --- */
+@import url('https://unpkg.com/neumorphism-css/dist/neumorphism.min.css');
+
+/* --- ANIMATIONS (if used) --- */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+/* --- NORMALIZE/RESET (if used) --- */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+
+/* --- FLEXBOX GRID (if used) --- */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css');
+
+
+/* --- GLOBAL CSS VARIABLES --- */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4895ef;
+    --dark-color: #2b2d42;
+    --light-color: #f8f9fa;
+    --success-color: #4cc9f0;
+    --warning-color: #f8961e;
+    --danger-color: #f72585;
+    --gray-color: #adb5bd;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+
+/* --- BASE STYLES & OVERALL PAGE LAYOUT --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif; /* Changed to Roboto per your imports */
+    background-color: var(--light-color); /* Using CSS variable */
+    overflow-x: hidden;
+}
+
+/* Class to disable body scroll when mobile menu is open */
+body.no-scroll {
+    overflow: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* --- HEADER STYLES --- */
+.dashboard-header {
+    background: linear-gradient(135deg, #07514d 0%, #1a2b3c 100%); /* Your specific gradient */
+    color: white;
+    height: 80px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    padding: 0 2rem;
+    box-sizing: border-box;
+
+    @media (min-width: 1600px) {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-section .logo {
+    background-image: url('/assets/images/logo.png');
+    height: 70px;
+    width: 130px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 5%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    margin-top: auto;
+}
+
+.logo-section h1 {
+    font-family: 'Georgia', serif;
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-greeting {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.user-greeting span {
+    font-size: 0.9rem;
+}
+
+.user-role {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.user-info button {
+    color: white;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    height: 40px;
+    width: 40px;
+}
+
+/* Mobile Menu Toggle for Header */
+.mobile-menu-toggle {
+    display: none; /* Hidden by default */
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-right: 1rem;
+    order: -1; /* Pushes it to the left in a flex container */
+}
+
+/* --- MAIN CONTENT AREA WRAPPER --- */
+.main-layout-wrapper {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+    padding: 0 2rem; /* Consistent horizontal padding */
+    box-sizing: border-box;
+}
+
+/* --- CONTENT AREA --- */
+.content-area {
+    flex: 1;
+    padding: 1.5rem;
+    background-color: var(--light-color); /* Using CSS variable */
+    overflow-y: auto;
+}
+
+/* --- QUICK STATS CARDS --- */
+.quick-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.quick-stats .stat-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.quick-stats .stat-card .stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.quick-stats .stat-card .stat-icon mat-icon {
+    color: #1976d2;
+    font-size: 24px;
+}
+
+.quick-stats .stat-card .stat-icon.pending {
+    background-color: #ffebee;
+}
+
+.quick-stats .stat-card .stat-icon.pending mat-icon {
+    color: #f44336;
+}
+
+.quick-stats .stat-card .stat-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.quick-stats .stat-card .stat-info p {
+    margin: 0;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* --- DASHBOARD WIDGETS --- */
+.dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.dashboard-widgets .widget {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.dashboard-widgets .widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-widgets .widget-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.dashboard-widgets .widget-content {
+    padding: 1rem;
+}
+
+.dashboard-widgets .widget-content mat-list-item {
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.dashboard-widgets .widget-content mat-list-item:last-child {
+    border-bottom: none;
+}
+
+/* --- PROGRESS CONTAINER --- */
+.progress-container {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.progress-container .progress-chart {
+    width: 120px;
+    height: 120px;
+    margin-right: 1.5rem;
+}
+
+.progress-container .progress-stats {
+    flex: 1;
+}
+
+.progress-container .progress-stats .progress-stat {
+    margin-bottom: 1rem;
+}
+
+.progress-container .progress-stats .progress-stat .stat-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+.progress-container .progress-stats .progress-stat .stat-label {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.announcement-footer {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #777;
+    text-align: right;
+}
+
+/* --- FOOTER STYLES --- */
+.footer {
+    padding: 1.5rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #2c3e50 0%, #1a2b3c 100%);
+    color: white;
+    font-family: 'Arial', sans-serif;
+    font-size: 0.7rem;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.footer p {
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+/* --- MOBILE OVERLAY & RELATED STYLES --- */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 998; /* Below sidebar, above content */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* --- ANGULAR MATERIAL OVERRIDES --- */
+.mat-mdc-select-panel,
+.mat-datepicker-content {
+    background-color: #2F5C5B !important; /* Original color */
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+.mat-mdc-option {
     background-color: white !important;
     color: rgba(0, 0, 0, 0.87);
-  }
-  
-  .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
+    font-size: 16px;
+    padding: 12px 16px;
+}
+
+.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
     background-color: rgba(0, 0, 0, 0.04) !important;
-    color: #3f51b5 !important;
-  }
-  
-  .mat-mdc-option.mdc-list-item--selected.mat-primary:not(.mdc-list-item--disabled) {
+    color: #2F5C5B !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected.mat-primary:not(.mdc-list-item--disabled) {
     background-color: rgba(63, 81, 181, 0.1) !important;
-    color: #3f51b5 !important;
-  }
-  
-  .mat-mdc-option:hover:not(.mdc-list-item--disabled),
-  .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
+    color: #2F5C5B !important;
+}
+
+.mat-mdc-option:hover:not(.mdc-list-item--disabled),
+.mat-mdc-option:focus:not(.mdc-list-item--disabled) {
     background-color: rgba(0, 0, 0, 0.04) !important;
-  }
-  
-  .filter-input-container {
-      background-color: white !important;
-  }
-  
-  /* NEW: Styles for Material Datepicker Calendar */
-  .mat-datepicker-content {
-    background-color: white !important; /* Solid white background for the entire calendar dialog */
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: add a subtle shadow */
-  }
-  
-  .mat-calendar {
-    background-color: white !important; /* Ensure the calendar itself is also solid white */
-    color: rgba(0, 0, 0, 0.87) !important; /* Default text color for calendar elements */
-  }
-  
-  /* You might need to target specific elements if parts of the calendar are still transparent,
-     e.g., header, body, date cells, etc. */
-  .mat-calendar-table-header {
-    color: rgba(0, 0, 0, 0.54) !important; /* Day names color */
-  }
-  
-  .mat-calendar-body-cell-content {
-    background-color: white !important; /* Ensure individual date cells are white */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.filter-input-container {
+    background-color: white !important;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.mat-calendar {
+    background-color: white !important;
     color: rgba(0, 0, 0, 0.87) !important;
-  }
-  
-  /* Hover and selected states for date cells */
-  .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover .mat-calendar-body-cell-content {
-    background-color: rgba(0, 0, 0, 0.04) !important; /* Light grey on hover */
-  }
-  
-  .mat-calendar-body-selected {
-    background-color: #3f51b5 !important; /* Primary color for selected date */
+}
+
+.mat-calendar-table-header {
+    color: rgba(0, 0, 0, 0.54) !important;
+    font-size: 14px;
+}
+
+.mat-calendar-body-cell-content {
+    background-color: white !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover .mat-calendar-body-cell-content {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.mat-calendar-body-selected {
+    background-color: #2F5C5B !important;
     color: white !important;
-  }
-  
-  /* Today's date circle */
-  .mat-calendar-body-today:not(.mat-calendar-body-selected) .mat-calendar-body-cell-content {
-    border-color: #3f51b5 !important; /* Primary color border for today's date */
-  }
+}
+
+.mat-calendar-body-today:not(.mat-calendar-body-selected) .mat-calendar-body-cell-content {
+    border: 1px solid !important;
+}
+
+.mat-menu-panel {
+    border-radius: 4px !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mat-menu-item {
+    font-family: 'Arial', sans-serif !important;
+    color: #2c3e50 !important;
+    transition: all 0.2s ease !important;
+}
+
+.mat-menu-item:hover {
+    background-color: #f0f5ff !important;
+    color: #1a2b3c !important;
+}
+
+.mat-menu-item mat-icon {
+    color: #2c3e50 !important;
+}
+
+/* --- ANIMATION ENHANCEMENTS --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-widgets .widget,
+.quick-stats .stat-card,
+.progress-container {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+.dashboard-widgets .widget:nth-child(2) { animation-delay: 0.1s; }
+.dashboard-widgets .widget:nth-child(3) { animation-delay: 0.2s; }
+.quick-stats .stat-card:nth-child(2) { animation-delay: 0.1s; }
+.quick-stats .stat-card:nth-child(3) { animation-delay: 0.2s; }
+.quick-stats .stat-card:nth-child(4) { animation-delay: 0.3s; }
 
 
-  
+/* --- GLOBAL RESPONSIVE DESIGN --- */
+
+@media (max-width: 1200px) {
+    .content-area {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .quick-stats {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+
+    .dashboard-widgets {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .progress-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .progress-container .progress-chart {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout - General adjustments */
+    .mobile-menu-toggle {
+        display: block; /* Show on mobile */
+    }
+
+    .dashboard-header {
+        padding: 0.75rem 1rem;
+        height: 60px; /* Reduced header height for mobile */
+    }
+
+    .dashboard-header .logo-section h1 {
+        font-size: 1.1rem;
+    }
+
+    .dashboard-header .user-info {
+        gap: 1rem;
+    }
+
+    .dashboard-header .user-info .user-greeting {
+        display: none; /* Hide greeting on small screens */
+    }
+
+    .main-layout-wrapper {
+        flex-direction: column; /* Stacks content below header on mobile */
+        padding: 0; /* Remove horizontal padding on mobile for full width */
+    }
+
+    .content-area {
+        padding: 1rem;
+        margin-top: 0;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-widgets {
+        grid-template-columns: 1fr;
+    }
+
+    .footer {
+        padding: 1.5rem 1rem;
+    }
+
+    /* Angular Material overrides for smaller screens */
+    .mat-mdc-select-panel,
+    .mat-datepicker-content {
+        max-width: 95vw;
+        min-width: unset;
+    }
+
+    .mat-mdc-option {
+        font-size: 15px;
+        padding: 10px 14px;
+    }
+
+    .mat-calendar-body-cell-content {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    .logo-section h1 {
+        display: none; /* Hide title on very small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    /* No additional changes needed here, handled by 768px and 600px */
+}

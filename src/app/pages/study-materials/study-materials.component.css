@@ -1,46 +1,228 @@
+/* Overall Container Styling */
 .container {
-    padding: 20px;
+  padding: 20px 30px; /* More balanced padding */
+  max-width: 1200px; /* Max width for larger screens to prevent stretching */
+  margin: 0 auto; /* Center the container */
+  background-color: #f9fbfd; /* Very light background for the page */
+  min-height: calc(100vh - var(--header-height, 64px)); /* Adjust for your actual header height */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+  border-radius: 8px; /* Slightly rounded corners for the main content area */
+}
+
+/* Header Styling */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px; /* More space below header */
+  border-bottom: 1px solid #e0e0e0; /* Subtle separator */
+  padding-bottom: 15px;
+}
+
+.header h1 {
+  font-family: 'Roboto', sans-serif; /* Standard Material font */
+  font-size: 2.2em; /* Slightly larger heading */
+  font-weight: 700; /* Bold */
+  color: #333; /* Darker text for prominence */
+  letter-spacing: -0.5px; /* Tighter letter spacing for modern look */
+}
+
+.header button {
+  /* Styles for Material button are usually handled by Angular Material itself,
+     but you can add custom overrides here if needed */
+  padding: 10px 20px;
+  font-size: 1em;
+  font-weight: 500;
+  border-radius: 25px; /* Pill-shaped button */
+  transition: all 0.3s ease; /* Smooth hover effect */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Subtle lift */
+}
+
+.header button:hover {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15); /* More pronounced lift on hover */
+  transform: translateY(-2px); /* Slight lift animation */
+}
+
+/* Materials Grid */
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Adjusted min-width for better fit */
+  gap: 25px; /* Increased gap between cards */
+  margin-top: 0; /* No top margin needed, handled by header margin-bottom */
+}
+
+/* Material Card Styling */
+.material-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #ffffff; /* White background for cards */
+  border-radius: 12px; /* More rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Softer, more diffuse shadow */
+  overflow: hidden; /* Ensures content respects border-radius */
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+}
+
+.material-card:hover {
+  transform: translateY(-5px); /* Lift card on hover */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+}
+
+mat-card-header {
+  padding: 18px 20px 10px; /* Top, sides, bottom padding */
+  border-bottom: 1px solid #f0f0f0; /* Light separator for header */
+}
+
+mat-card-header .mat-card-avatar {
+  font-size: 36px; /* Larger icon */
+  width: 48px;
+  height: 48px;
+  line-height: 48px; /* Center icon vertically */
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Center icon horizontally */
+  align-items: center; /* Center icon vertically */
+  background-color: #6200ee; /* Primary color for avatar background */
+  color: white; /* White icon color */
+  border-radius: 50%; /* Perfect circle */
+}
+
+mat-card-title {
+  font-size: 1.25em; /* Slightly larger title */
+  font-weight: 600;
+  color: #3f51b5; /* A distinct color for titles */
+  margin-bottom: 4px; /* Space between title and subtitle */
+}
+
+mat-card-subtitle {
+  font-size: 0.85em; /* Smaller subtitle */
+  color: #757575; /* Muted color for subtitle */
+}
+
+mat-card-content {
+  flex-grow: 1;
+  padding: 15px 20px; /* Padding for content */
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: #555;
+}
+
+mat-card-actions {
+  padding: 10px 15px 15px; /* Padding for actions (bottom-heavy) */
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 8px; /* Space between buttons */
+  border-top: 1px solid #f0f0f0; /* Light separator for actions */
+}
+
+mat-card-actions button,
+mat-card-actions a {
+  min-width: unset; /* Allow buttons to shrink */
+  padding: 6px 12px;
+  border-radius: 20px; /* Rounded button corners */
+  font-size: 0.85em;
+  font-weight: 500;
+}
+
+mat-card-actions a {
+  text-decoration: none; /* Remove underline from anchor tags */
+}
+
+mat-card-actions button mat-icon,
+mat-card-actions a mat-icon {
+  font-size: 18px; /* Smaller icons in buttons */
+  height: 18px;
+  width: 18px;
+  margin-right: 5px; /* Space between icon and text */
+}
+
+/* Spinner Container */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center vertically too */
+  padding: 80px 0; /* More vertical padding */
+  min-height: 200px; /* Ensure spinner has space */
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px; /* Generous padding */
+  color: #757575; /* Muted grey for text */
+  background-color: #ffffff; /* White background */
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Soft shadow */
+  margin-top: 30px; /* Space from the header */
+}
+
+.empty-state .empty-icon {
+  font-size: 80px; /* Larger icon */
+  width: 80px;
+  height: 80px;
+  margin-bottom: 25px; /* More space below icon */
+  color: #bdbdbd; /* Light grey for the icon */
+  opacity: 0.8;
+}
+
+.empty-state h3 {
+  font-size: 1.8em; /* Prominent heading */
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  font-size: 1.1em; /* Slightly larger paragraph text */
+  line-height: 1.6;
+  color: #757575;
+  max-width: 500px; /* Limit width for better readability */
+  margin: 0 auto; /* Center the paragraph */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+      padding: 15px;
   }
-  
+
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+      flex-direction: column; /* Stack header elements on small screens */
+      align-items: flex-start; /* Align header items to the start */
+      margin-bottom: 20px;
   }
-  
+
+  .header h1 {
+      font-size: 1.8em;
+      margin-bottom: 15px; /* Space between title and button */
+  }
+
+  .header button {
+      width: 100%; /* Full width button on small screens */
+  }
+
   .materials-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+      grid-template-columns: 1fr; /* Single column on very small screens */
   }
-  
+
   .material-card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+      margin-bottom: 15px; /* Space between stacked cards */
   }
-  
-  mat-card-content {
-    flex-grow: 1;
-  }
-  
-  .spinner-container {
-    display: flex;
-    justify-content: center;
-    padding: 50px;
-  }
-  
+
   .empty-state {
-    text-align: center;
-    padding: 40px;
-    color: rgba(0, 0, 0, 0.54);
-  
-    .empty-icon {
+      padding: 40px 15px;
+  }
+
+  .empty-state .empty-icon {
       font-size: 60px;
       width: 60px;
       height: 60px;
-      margin-bottom: 20px;
-    }
   }
+
+  .empty-state h3 {
+      font-size: 1.5em;
+  }
+
+  .empty-state p {
+      font-size: 1em;
+  }
+}

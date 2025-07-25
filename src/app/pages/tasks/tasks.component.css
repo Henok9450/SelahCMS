@@ -1,5 +1,3 @@
-/* tasks.component.css */
-
 /* Base Styles */
 .task-management-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -16,6 +14,8 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #eaeaea;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1.5rem; /* Space between header items if they wrap */
 }
 
 h1 {
@@ -23,6 +23,96 @@ h1 {
   font-size: 2rem;
   margin: 0;
   font-weight: 600;
+  flex-grow: 1; /* Allow heading to take available space */
+}
+
+/* Style for the dynamic filter label within the h1 */
+h1 .filter-label {
+  font-size: 1.75rem; /* Slightly smaller for the filter part */
+  color: #555; /* Muted color for the filter label */
+  font-weight: normal; /* Less bold than the main title */
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem; /* Space between buttons */
+  align-items: center;
+}
+
+/* Buttons (General styles for consistency) */
+.action-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Prevent button text from wrapping */
+}
+
+/* Specific button styles */
+.create-button {
+  background-color: #48bb78; /* Green */
+  color: white;
+}
+
+.create-button:hover {
+  background-color: #38a169;
+}
+
+/* Clear Filters Button (New style) */
+.clear-filters-button {
+  background-color: #e53e3e; /* Red, consistent with cancel/delete */
+  color: white;
+}
+
+.clear-filters-button:hover {
+  background-color: #c53030;
+}
+
+/* Hiyaw Mahider Filter Section - Refined Styling */
+.hiyaw-mahider-filter-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Space between label, select, and potential clear button */
+  margin-bottom: 2rem;
+  padding: 1rem; /* Add padding for visual distinctiveness */
+  background-color: #f8f9fa; /* Light background */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #e2e8f0; /* Subtle border */
+  flex-wrap: wrap; /* Allow wrapping for responsiveness */
+}
+
+.hiyaw-mahider-filter-section label {
+  font-weight: 600;
+  color: #4a5568;
+  white-space: nowrap; /* Prevent label text from wrapping */
+}
+
+.hiyaw-mahider-filter-section select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #ffffff; /* White background for select */
+  min-width: 250px; /* Ensure sufficient width */
+  flex-grow: 1; /* Allow select to take available space */
+  max-width: 350px; /* Max width for select to prevent it from getting too wide */
+  transition: border-color 0.2s;
+}
+
+.hiyaw-mahider-filter-section select:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.hiyaw-mahider-filter-section .loading-text,
+.hiyaw-mahider-filter-section .empty-text {
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.9375rem; /* Smaller text */
 }
 
 /* Filter Tabs */
@@ -81,7 +171,8 @@ h1 {
   color: #4a5568;
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 0.875rem;
   border: 1px solid #e2e8f0;
@@ -91,7 +182,8 @@ h1 {
   background-color: #f8fafc;
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
   outline: none;
   border-color: #4299e1;
   box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
@@ -106,17 +198,23 @@ h1 {
   display: flex;
   gap: 1rem;
   margin-top: 1.5rem;
+  justify-content: flex-end; /* Align buttons to the right */
 }
 
 /* Buttons */
-.create-button, .submit-button {
+.submit-button {
   background-color: #48bb78;
   color: white;
   font-weight: 500;
 }
 
-.create-button:hover, .submit-button:hover {
+.submit-button:hover:not(:disabled) {
   background-color: #38a169;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
 
 .cancel-button {
@@ -187,27 +285,47 @@ h1 {
 }
 
 /* Action Buttons */
-.complete-button {
-  background-color: #4299e1;
+.task-actions button {
+  /* Apply common button styles here if not already applied by .action-button */
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.complete-button {
+  background-color: #4299e1; /* Blue */
+  color: white;
+}
+
+.complete-button:hover {
+  background-color: #0056b3;
 }
 
 .pending-button {
-  background-color: #ed8936;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  background-color: #ed8936; /* Orange */
+  color: white;
+}
+
+.pending-button:hover {
+  background-color: #c82333; /* Darker orange/red */
 }
 
 .delete-button {
-  background-color: #e53e3e;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  background-color: #e53e3e; /* Red */
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c53030;
 }
 
 .actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap; /* Allow action buttons to wrap on small screens */
 }
 
 /* Empty State */
@@ -224,32 +342,295 @@ h1 {
   color: #4a5568;
 }
 
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem; /* Consistent spacing with rem */
+  gap: 1rem;
+}
+
+.pagination-controls button {
+  padding: 0.75rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #ebf8ff;
+  color: #3182ce;
+  border-color: #4299e1;
+}
+
+.pagination-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #f0f4f8;
+  color: #a0aec0;
+}
+
+.pagination-controls span {
+  font-weight: 600;
+  margin: 0 0.5rem;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.pagination-controls select {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #4a5568;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .task-management-container {
     padding: 1rem;
   }
-  
+
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
+  .header-actions {
+    flex-direction: column; /* Stack buttons vertically */
+    width: 100%; /* Make buttons take full width */
+  }
+
+  .header-actions .action-button {
+    width: 100%; /* Full width buttons */
+  }
+
+  .hiyaw-mahider-filter-section {
+    flex-direction: column; /* Stack filter elements vertically */
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .hiyaw-mahider-filter-section select {
+    width: 100%; /* Full width select */
+    min-width: unset; /* Remove min-width for mobile */
+    max-width: unset; /* Remove max-width for mobile */
+  }
+
   .filter-tabs {
     flex-wrap: wrap;
+    gap: 0.75rem;
   }
-  
+
+  .filter-tabs button {
+    flex-grow: 1; /* Allow buttons to grow and fill space */
+  }
+
   .task-list table {
     display: block;
     overflow-x: auto;
+    width: 100%; /* Ensure table doesn't overflow container */
   }
-  
+
   .actions {
     flex-direction: column;
+    gap: 0.5rem;
   }
-  
-  .complete-button, .pending-button, .delete-button {
-    width: 100%;
+
+  .task-actions button {
+    width: 100%; /* Full width action buttons */
+  }
+
+  .pagination-controls {
+    flex-wrap: wrap;
+    gap: 0.75rem;
   }
 }
+.task-management-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 24px auto;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.task-management-toolbar {
+  margin-bottom: 24px;
+  border-radius: 8px 8px 0 0;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.filter-label-text {
+  margin-left: 16px;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-card {
+  margin-bottom: 20px;
+  padding: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.hiyaw-mahider-filter-section {
+  margin-bottom: 20px;
+}
+
+.filter-chips {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+mat-chip-row {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+mat-chip-row.active {
+  background-color: var(--mdc-sys-color-primary); /* Use Material's primary color */
+  color: white;
+  transform: translateY(-2px);
+}
+
+.create-form {
+  margin-bottom: 24px;
+  padding: 24px;
+}
+
+.create-form h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #3f51b5; /* Material primary color */
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #673ab7; /* Material deep purple */
+}
+
+.task-table-container {
+  overflow-x: auto;
+  margin-top: 24px;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th.mat-header-cell {
+  background-color: #3f51b5; /* Material primary color */
+  color: white;
+  font-weight: bold;
+  padding: 16px;
+  text-align: left;
+}
+
+td.mat-cell {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+tr.mat-row:last-child td.mat-cell {
+  border-bottom: none;
+}
+
+.task-description-material {
+  font-size: 0.85em;
+  color: #616161;
+  margin-top: 4px;
+}
+
+.mat-chip-listbox .mat-chip-row.pending {
+  background-color: #ffc107; /* Amber for pending */
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.mat-chip-listbox .mat-chip-row.completed {
+  background-color: #4caf50; /* Green for completed */
+  color: white;
+}
+
+.actions button {
+  margin-right: 8px;
+}
+
+.mat-paginator {
+  border-top: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  border-radius: 0 0 8px 8px;
+}
+
+.mat-no-data-row {
+  text-align: center;
+  padding: 20px;
+  color: #757575;
+}
+
+.ml-2 {
+  margin-left: 8px;
+}
+/* Other existing styles */
+
+.task-management-toolbar {
+  margin-bottom: 24px;
+  border-radius: 8px 8px 0 0;
+  padding: 0 24px; /* Add padding to match container if needed, or adjust based on your desired look */
+}
+
+.task-management-toolbar h1 {
+  display: flex; /* Allow filter label to sit next to title */
+  align-items: center; /* Vertically align */
+  margin: 0; /* Remove default h1 margin */
+  font-size: 24px; /* Adjust as needed */
+}
+
+.filter-label-text {
+  margin-left: 12px; /* Space between title and filter label */
+  font-size: 0.8em; /* Make it slightly smaller than the main title */
+  font-weight: normal; /* Less bold than main title */
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.spacer {
+  flex: 1 1 auto; /* Pushes content to the right */
+}
+
+.ml-2 {
+  margin-left: 8px; /* Standard spacing for Material, adjust as needed */
+}
+
+

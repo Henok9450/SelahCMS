@@ -1,3 +1,4 @@
+// src/app/user-management/user-management.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,7 +17,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, Validators } from '@angular/forms'; // Import Validators
 import { HiyawMahiderService } from '../../core/hiyaw-mahider.service';
 import { HiyawMahider } from '../../core/hiyaw-mahider.model';
 
@@ -44,8 +45,9 @@ import { HiyawMahider } from '../../core/hiyaw-mahider.model';
 export class UserManagementComponent implements OnInit {
   users$!: Observable<User[]>;
   displayedColumns: string[] = [
-    'userName',
+    
     'fullName',
+    'email', // Add email to displayed columns
     'contact',
     'hiyawMahider',
     'status',
@@ -55,15 +57,16 @@ export class UserManagementComponent implements OnInit {
   // Search and pagination properties
   searchParams = {
     username: '',
+    email: '', // Add email to search parameters
     hiyawMahider: '',
     status: '',
     pastor: '',
     deputy: ''
   };
-  
+
   pastorSearchControl = new FormControl();
   deputySearchControl = new FormControl();
-  
+
   pageSize = 10;
   currentPage = 0;
   totalUsers = 0;
@@ -124,18 +127,24 @@ export class UserManagementComponent implements OnInit {
       map(users => {
         // Apply filters
         let filteredUsers = users.filter(user => {
-          // Username filter (partial match)
-          if (this.searchParams.username && 
-              !user.userName.toLowerCase().includes(this.searchParams.username.toLowerCase())) {
+          // // Username filter (partial match)
+          // if (this.searchParams.username &&
+          //     !user.userName.toLowerCase().includes(this.searchParams.username.toLowerCase())) {
+          //   return false;
+          // }
+
+          // Email filter (partial match)
+          if (this.searchParams.email &&
+              !user.email.toLowerCase().includes(this.searchParams.email.toLowerCase())) {
             return false;
           }
-          
+
           // Hiyaw Mahider filter
-          if (this.searchParams.hiyawMahider && 
+          if (this.searchParams.hiyawMahider &&
               user.assignedHiyawMahider !== this.searchParams.hiyawMahider) {
             return false;
           }
-          
+
           // Status filter
           if (this.searchParams.status === 'active' && !user.active) {
             return false;
@@ -143,25 +152,25 @@ export class UserManagementComponent implements OnInit {
           if (this.searchParams.status === 'inactive' && user.active) {
             return false;
           }
-          
+
           // Pastor filter (partial match)
-          if (this.searchParams.pastor && 
+          if (this.searchParams.pastor &&
               (!user.pastor || !user.pastor.toLowerCase().includes(this.searchParams.pastor.toLowerCase()))) {
             return false;
           }
-          
+
           // Deputy filter (partial match)
-          if (this.searchParams.deputy && 
+          if (this.searchParams.deputy &&
               (!user.deputyPastor || !user.deputyPastor.toLowerCase().includes(this.searchParams.deputy.toLowerCase()))) {
             return false;
           }
-          
+
           return true;
         });
 
         // Update total count
         this.totalUsers = filteredUsers.length;
-        
+
         // Apply pagination
         const startIndex = this.currentPage * this.pageSize;
         return filteredUsers
@@ -170,8 +179,8 @@ export class UserManagementComponent implements OnInit {
             ...user,
             pastorName: user.pastor || 'Not assigned',
             deputyPastorName: user.deputyPastor || 'Not assigned',
-            hiyawMahiderName: user.assignedHiyawMahider 
-              ? this.getHiyawMahiderName(user.assignedHiyawMahider) 
+            hiyawMahiderName: user.assignedHiyawMahider
+              ? this.getHiyawMahiderName(user.assignedHiyawMahider)
               : 'None'
           }));
       }),
@@ -195,9 +204,6 @@ export class UserManagementComponent implements OnInit {
     this.loadUsers();
   }
 
-  
-
-
   openUserDialog(user?: User): void {
     const dialogRef = this.dialog.open(UserFormDialogComponent, {
       width: '600px',
@@ -209,41 +215,41 @@ export class UserManagementComponent implements OnInit {
     });
   }
 
-  resetPassword(user: User): void {
-    if (!user.id) {
-      this.snackBar.open('User ID is missing. Cannot reset password.', 'Close', { duration: 3000 });
-      return;
-    }
-  
-    this.userService.updateUser(user.id, {
-      password: this.generateTempPassword(),
-      firstLogin: true,
-      updatedAt: new Date()
-    }).then(() => {
-      this.snackBar.open('Password reset successfully. New temporary password generated.', 'Close', { duration: 3000 });
-    }).catch(error => {
-      this.snackBar.open('Failed to reset password. Please try again.', 'Close', { duration: 3000 });
-      console.error('Error resetting password:', error);
-    });
-  }
+  // resetPassword(user: User): void {
+  //   if (!user.id) {
+  //     this.snackBar.open('User ID is missing. Cannot reset password.', 'Close', { duration: 3000 });
+  //     return;
+  //   }
+
+  //   this.userService.updateUser(user.id, {
+  //     password: this.generateTempPassword(), // This 'password' field would only be relevant if you're storing passwords directly in Firestore, which is generally not recommended for security. For Firebase Authentication, you'd use Firebase Auth's password reset functionality.
+  //     firstLogin: true,
+  //     updatedAt: new Date()
+  //   }).then(() => {
+  //     this.snackBar.open('Password reset successfully. New temporary password generated.', 'Close', { duration: 3000 });
+  //   }).catch(error => {
+  //     this.snackBar.open('Failed to reset password. Please try again.', 'Close', { duration: 3000 });
+  //     console.error('Error resetting password:', error);
+  //   });
+  // }
 
   toggleUserStatus(user: User): void {
-    if (!user.id) {
+    if (!user.uid) {
       this.snackBar.open('User ID is missing. Cannot toggle status.', 'Close', { duration: 3000 });
       return;
     }
-  
+
     const newStatus = !user.active;
     const statusText = newStatus ? 'activated' : 'deactivated';
     const action = newStatus ? 'activate' : 'deactivate';
-  
+
     // Confirm before deactivating
     if (!newStatus) {
       const confirm = window.confirm(`Are you sure you want to deactivate ${user.fullName}?`);
       if (!confirm) return;
     }
-  
-    this.userService.updateUser(user.id, {
+
+    this.userService.updateUser(user.uid, {
       active: newStatus,
       updatedAt: new Date()
     }).then(() => {
@@ -263,4 +269,21 @@ export class UserManagementComponent implements OnInit {
     }
     return result;
   }
+  resetPassword(user: User): void {
+    if (!user.email) {
+      this.snackBar.open('User email is missing. Cannot reset password.', 'Close', { duration: 3000 });
+      return;
+    }
+  
+    this.userService.resetUserPasswordByEmail(user.email)
+      .then(() => {
+        this.snackBar.open('Password reset email sent successfully to the user\'s email.', 'Close', { duration: 5000 });
+      })
+      .catch(error => {
+        this.snackBar.open('Failed to send password reset email. Please try again.', 'Close', { duration: 3000 });
+        console.error('Error sending password reset email:', error);
+      });
+  }
+
+
 }

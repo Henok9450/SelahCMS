@@ -1,284 +1,735 @@
+/* Overall Page Layout */
 .dashboard-container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     background-color: #f5f5f5;
-  }
-  
-  .dashboard-header {
-    background-color: #2c3e50;
-    color: white;
-    padding: 0.5rem 1rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    
-    .header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .logo-section {
-      display: flex;
-      align-items: center;
-      
-      .logo {
-        height: 40px;
-        margin-right: 1rem;
-      }
-      
-      h1 {
-        font-size: 1.2rem;
-        margin: 0;
-        font-weight: 500;
-      }
-    }
-    
-    .user-info {
-      display: flex;
-      align-items: center;
-      
-      .user-greeting {
-        display: flex;
-        flex-direction: column;
-        margin-right: 1rem;
-        text-align: right;
-        
-        .user-role {
-          font-size: 0.8rem;
-          opacity: 0.8;
-        }
-      }
-      
-      button {
-        color: white;
-      }
-    }
-  }
-  
-  .main-content {
+    overflow: hidden;
+    font-family: 'Roboto', sans-serif; /* Using a common, clean font */
+    color: #333; /* Default text color */
+}
+
+/* Main Content Area Wrapper */
+.main-layout-wrapper {
     display: flex;
     flex: 1;
-    max-width: 1200px;
-    margin: 0 auto;
     width: 100%;
-  }
-  
-  .side-nav {
-    width: 250px;
-    background-color: white;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    padding: 1rem 0;
-    
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    
-    .nav-item {
-      a {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem 1.5rem;
-        color: #555;
-        text-decoration: none;
-        transition: all 0.2s;
-        
-        mat-icon {
-          margin-right: 1rem;
-          color: #777;
-        }
-        
-        &:hover {
-          background-color: #f0f0f0;
-          color: #2c3e50;
-          
-          mat-icon {
-            color: #2c3e50;
-          }
-        }
-      }
-      
-      &.active a {
-        background-color: #e3f2fd;
-        color: #1976d2;
-        border-left: 4px solid #1976d2;
-        
-        mat-icon {
-          color: #1976d2;
-        }
-      }
-    }
-  }
-  
-  .content-area {
+    max-width: 1280px; /* Slightly increased max-width for more breathing room */
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 20px; /* Added some overall padding */
+}
+
+/* Content Area */
+.content-area {
     flex: 1;
-    padding: 1.5rem;
-  }
-  
-  .quick-stats {
+    padding: 0; /* Remove padding here, it's handled by main-layout-wrapper */
+    background-color: #f5f5f5;
+    overflow-y: auto;
+    display: flex; /* Added flex to manage internal blocks */
+    flex-direction: column; /* Stack elements vertically */
+    gap: 20px; /* Consistent spacing between major sections */
+}
+
+/* Welcome Message */
+.welcome-message {
+    margin-bottom: 0; /* Handled by content-area gap */
+    padding: 20px; /* Increased padding */
+    background-color: #f7a50017; /* Softer green for welcome message */
+    border-left: 5px solid #f7a400; /* Green left border */
+    border-radius: 8px; /* Slightly more rounded */
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+}
+
+.welcome-message h1 {
+    margin: 0;
+    font-size: 1.1em; /* Slightly larger welcome message */
+    color: #07514d; /* Darker green for heading */
+    font-weight: 500;
+}
+
+/* Quick Stats Cards */
+.quick-stats {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    
-    .stat-card {
-      background-color: white;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      
-      .stat-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: #e3f2fd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1rem;
-        
-        mat-icon {
-          color: #1976d2;
-          font-size: 24px;
-        }
-        
-        &.pending {
-          background-color: #ffebee;
-          
-          mat-icon {
-            color: #f44336;
-          }
-        }
-      }
-      
-      .stat-info {
-        h3 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 500;
-        }
-        
-        p {
-          margin: 0;
-          color: #777;
-          font-size: 0.9rem;
-        }
-      }
-    }
-  }
-  
-  .dashboard-widgets {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-    
-    .widget {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-      
-      .widget-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem;
-        border-bottom: 1px solid #eee;
-        
-        h2 {
-          margin: 0;
-          font-size: 1.1rem;
-          font-weight: 500;
-        }
-      }
-      
-      .widget-content {
-        padding: 1rem;
-        
-        mat-list-item {
-          border-bottom: 1px solid #f5f5f5;
-          
-          &:last-child {
-            border-bottom: none;
-          }
-        }
-      }
-    }
-  }
-  
-  .progress-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Larger min-width for stats */
+    gap: 20px;
+    margin-bottom: 0; /* Handled by content-area gap */
+}
+
+.quick-stats .stat-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* More pronounced shadow */
+    padding: 25px; /* Increased padding */
     display: flex;
     align-items: center;
-    
-    .progress-chart {
-      width: 120px;
-      height: 120px;
-      margin-right: 1.5rem;
-    }
-    
-    .progress-stats {
-      flex: 1;
-      
-      .progress-stat {
-        margin-bottom: 1rem;
-        
-        .stat-value {
-          display: block;
-          font-size: 1.2rem;
-          font-weight: 500;
-          color: #2c3e50;
-        }
-        
-        .stat-label {
-          font-size: 0.9rem;
-          color: #777;
-        }
-      }
-    }
-  }
-  
-  .announcement-footer {
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
+    transition: transform 0.2s ease-in-out; /* Add hover effect */
+}
+
+.quick-stats .stat-card:hover {
+    transform: translateY(-5px); /* Lift on hover */
+}
+
+.quick-stats .stat-card .stat-icon {
+    width: 55px; /* Slightly larger icon area */
+    height: 55px;
+    border-radius: 50%;
+    background-color: #e1f5fe; /* Lighter blue */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px; /* Increased margin */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+}
+
+.quick-stats .stat-card .stat-icon mat-icon {
+    color: #03a9f4; /* More vibrant blue */
+    font-size: 36px; /* Adjusted icon size */
+    width: 36px;
+    height: 36px;
+}
+
+.quick-stats .stat-card .stat-icon.pending {
+    background-color: #ffe0b2; /* Lighter orange */
+}
+
+.quick-stats .stat-card .stat-icon.pending mat-icon {
+    color: #ff9800; /* Orange for pending */
+}
+
+.quick-stats .stat-card .stat-info h3 {
+    margin: 0;
+    font-size: 2em; /* Larger number */
+    font-weight: 600; /* Bolder font */
+    color: #212121; /* Darker color */
+}
+
+.quick-stats .stat-card .stat-info p {
+    margin: 0;
+    color: #616161; /* Softer grey */
+    font-size: 1em; /* Slightly larger text */
+}
+
+/* New Widget Row Styling */
+.widgets-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* Adjusted min-width for flexibility */
+    gap: 20px; /* Consistent gap with quick-stats */
+    margin-bottom: 0; /* Handled by content-area gap */
+}
+
+/* Overall Card Styling - Makes the widget "pop" a bit more */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Consistent shadow with stat cards */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Allow card to determine its height based on content */
+    max-height: 480px; /* Slightly increased max height */
+    transition: box-shadow 0.3s ease; /* Smooth shadow transition */
+}
+
+.card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); /* Slightly more prominent shadow on hover */
+}
+
+.card-header {
+    padding: 18px 25px; /* Increased padding */
+    border-bottom: 1px solid #f0f0f0; /* Lighter border */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff; /* White header background for cleaner look */
+    flex-shrink: 0;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.35em; /* Slightly larger heading */
+    color: #333;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.card-header .add-new-button,
+.card-header .back-button {
+    color: #1976d2; /* Consistent primary color for buttons */
+    transition: background-color 0.2s;
+}
+
+.card-header .add-new-button:hover,
+.card-header .back-button:hover {
+    background-color: #e3f2fd; /* Light hover background */
+}
+
+/* List Item Enhancements */
+.card-body {
+    padding: 0; /* Remove padding here, apply directly to list items */
+    flex-grow: 1;
+    /* max-height: 400px; */ /* Consider removing or increasing max-height if content frequently overflows */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.card-body mat-list {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.card-body mat-list-item {
+    height: auto !important; /* IMPORTANT: Allow height to expand based on content */
+    min-height: 72px; /* Increased min-height for better touch targets */
+    padding: 15px 25px; /* Increased horizontal padding for items */
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    display: flex;
+    align-items: flex-start; /* Align items to the start, not center, to prevent content cutting off at top/bottom */
+}
+
+.card-body mat-list-item:last-child {
+    border-bottom: none;
+}
+
+.card-body mat-list-item:hover {
+    background-color: #fcfcfc; /* Very light background on hover */
+}
+
+.card-body mat-list-item mat-icon {
+    margin-right: 18px; /* Increased space */
+    color: #757575; /* Slightly softer icon color */
+    font-size: 22px; /* Slightly larger icon */
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    margin-top: 2px; /* Small adjustment for visual alignment with text if `align-items: flex-start` */
+}
+
+.card-body mat-list-item .mat-list-item-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0;
+    flex-grow: 1; /* Allow content to take available space */
+    min-width: 0; /* Allow content to shrink if needed within the flex container */
+}
+
+.card-body mat-list-item [matListItemTitle] {
+    font-weight: 600;
+    color: #424242;
+    font-size: 1.15em; /* Slightly larger title */
+    margin-bottom: 6px; /* More space below title */
+    line-height: 1.3; /* Ensure enough line height for wrapping */
+    word-break: break-word; /* Allow long words to break */
+}
+
+.card-body mat-list-item [matListItemLine] {
+    color: #757575;
+    font-size: 0.95em; /* Slightly larger font */
+    line-height: 1.4;
+    word-break: break-word; /* Allow long words to break */
+}
+
+/* Specific Styles for Upcoming Events */
+.event-list-item {
+    display: flex;
+    align-items: flex-start; /* IMPORTANT: Align to start for better vertical spacing with wrapping text */
+    flex-grow: 1;
+    width: 100%; /* Ensure it takes full width of its parent */
+}
+
+.event-list-item .event-icon-wrapper {
+    width: 42px; /* Larger icon wrapper */
+    height: 42px;
+    border-radius: 50%;
+    background-color: #e3f2fd;
+    margin-right: 1.2rem; /* Increased margin */
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px; /* Align with text baseline visually */
+}
+
+.event-list-item .event-icon-wrapper mat-icon {
+    font-size: 25px; /* Larger icon */
+    color: #1976d2;
+}
+
+.event-list-item .event-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0; /* Allow content to shrink within the flex container */
+}
+
+.event-list-item .event-title {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.0em; /* Consistent with list item title */
+    margin-bottom: 4px;
+    line-height: 1.3;
+    white-space: normal; /* Allow text to wrap */
+    overflow-wrap: break-word; /* Ensure long words break */
+    text-decoration: none;
+    display: block; /* Ensure it behaves like a block for wrapping */
+}
+
+.event-list-item .event-title:hover {
+    text-decoration: underline;
+    color: #f7a301;
+}
+
+.event-list-item .event-date-time {
+    font-size: 0.9em;
     color: #777;
-    text-align: right;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .main-content {
-      flex-direction: column;
+    display: flex;
+    flex-direction: column; /* Keep vertical stacking */
+    white-space: normal; /* Allow text to wrap */
+    word-break: break-word; /* Allow long words to break */
+    /* Remove overflow: hidden and text-overflow: ellipsis here to ensure full text is visible */
+    overflow: visible; /* Ensure content is not hidden */
+    text-overflow: clip; /* Ensure no ellipsis if content wraps */
+}
+
+.event-date-time > span:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem; /* Increased gap */
+    margin-bottom: 4px;
+    white-space: normal; /* Allow text to wrap within this span */
+    overflow: visible; /* Ensure content is not hidden */
+    text-overflow: clip; /* Ensure no ellipsis if content wraps */
+    flex-wrap: wrap; /* Allow items within the span to wrap */
+}
+
+.event-list-item .event-date-time mat-icon {
+    font-size: 18px; /* Slightly larger icon */
+    color: #999;
+    margin-right: 0;
+    flex-shrink: 0;
+    margin-top: 2px; /* Align icon with text */
+}
+
+/* Styling for the event detail view */
+.event-detail-view {
+    padding: 20px 25px; /* Increased padding */
+    line-height: 1.7; /* Increased line height for readability */
+    font-size: 14px; /* Slightly larger font */
+    color: #333;
+    word-break: break-word; /* Ensure detail text wraps */
+}
+
+.event-detail-view h4 {
+    margin-top: 0;
+    margin-bottom: 18px; /* More space */
+    font-size: 1.5em; /* Larger heading */
+    color: #f7a301;
+    font-weight: 600;
+}
+
+.event-detail-view p {
+    margin-bottom: 10px; /* More space between paragraphs */
+}
+
+.event-detail-view p strong {
+    color: #555;
+    font-weight: 600;
+}
+
+.event-actions {
+    margin-top: 25px; /* More space */
+    display: flex;
+    gap: 12px; /* More space between buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+    justify-content: center; /* Center buttons when wrapped */
+}
+
+/* Styling for the task detail view (when clicked) */
+.task-detail-view {
+    padding: 20px 25px; /* Increased padding */
+    line-height: 1.7;
+    font-size: 13px;
+    color: #333;
+    word-break: break-word; /* Ensure detail text wraps */
+}
+
+.task-detail-view h4 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 1.5em;
+    color: #424242;
+    font-weight: 500;
+}
+
+.task-detail-view p {
+    margin-bottom: 10px;
+}
+
+.task-detail-view p strong {
+    color: #555;
+    font-weight: 600;
+}
+
+.task-actions {
+    margin-top: 25px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap; /* Allow buttons to wrap on small screens */
+    justify-content: center; /* Center buttons when wrapped */
+}
+
+/* Specific Styles for Recent Tasks */
+.task-status-badge {
+    display: inline-block;
+    padding: 5px 10px; /* Slightly larger padding */
+    border-radius: 15px; /* More pronounced pill shape */
+    font-size: 0.8em; /* Slightly larger text */
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    margin-left: 8px; /* More space */
+    vertical-align: middle;
+    white-space: nowrap; /* Keep badge text on one line */
+    flex-shrink: 0; /* Prevent badge from shrinking too much */
+}
+
+.status-pending {
+    background-color: #ffb300; /* Darker orange */
+}
+
+.status-in_progress {
+    background-color: #1e88e5; /* Darker blue */
+}
+
+.status-completed {
+    background-color: #43a047; /* Darker green */
+}
+
+.task-status-badge:not(.status-pending):not(.status-in_progress):not(.status-completed) {
+    background-color: #757575; /* Darker grey */
+}
+
+.card-body mat-list-item p {
+    text-align: center;
+    width: 100%;
+    color: #b0b0b0; /* Lighter grey for 'no tasks' */
+    font-style: italic;
+    padding: 15px 0; /* Increased padding */
+    font-size: 1em;
+}
+
+/* Dashboard Widgets - General Widget Styling */
+.widget {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Consistent shadow */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    max-height: 480px; /* Consistent max height with cards */
+    transition: box-shadow 0.3s ease;
+}
+
+.widget:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 25px; /* Consistent padding with card-header */
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+    background-color: #ffffff;
+}
+
+.widget-header h2 {
+    margin: 0;
+    font-size: 1.35em; /* Consistent heading size */
+    font-weight: 500;
+    color: #333;
+}
+
+.widget-header h2 mat-icon {
+    margin-right: 10px;
+    font-size: 1.1em;
+    vertical-align: middle;
+    color: #555;
+}
+
+.widget-header button {
+    color: #1976d2; /* Consistent primary color */
+    transition: background-color 0.2s;
+}
+
+.widget-header button:hover {
+    background-color: #e3f2fd;
+}
+
+.widget-content {
+    padding: 20px 25px; /* Consistent padding */
+    flex-grow: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex; /* Added flex to center content */
+    flex-direction: column;
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+}
+
+/* Optional: Style the scrollbar for webkit browsers */
+.widget-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.widget-content::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.widget-content::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    height: 100%; /* Allow container to fill widget-content */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Space between chart and info */
+}
+
+.chart-container canvas {
+    display: block;
+    width: 100% !important; /* Ensure canvas fills available width */
+    height: 100% !important; /* Ensure canvas fills available height */
+    max-width: 250px; /* Limit max width for donut charts to keep them circular */
+    max-height: 250px; /* Limit max height for donut charts to keep them circular */
+    object-fit: contain; /* Ensure the chart fits within its bounds without distortion */
+}
+
+.chart-info {
+    margin-top: 0; /* Handled by chart-container gap */
+    text-align: center;
+    font-size: 0.95em; /* Slightly larger text */
+    color: #555;
+    line-height: 1.5;
+}
+
+.chart-info strong {
+    color: #000;
+    font-weight: 600;
+}
+
+/* Update: Added flex properties to attendance-chart-area to make it fill the space */
+.attendance-chart-area {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Ensure it takes full width */
+    height: 100%; /* Ensure it takes full height */
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) { /* Adjusted breakpoint for wider tablets */
+    .main-layout-wrapper {
+        flex-direction: column;
+        max-width: 100%;
+        margin: 0;
+        padding: 15px; /* Slightly reduced padding */
     }
-    
-    .side-nav {
-      width: 100%;
-      padding: 0;
-      
-      ul {
-        display: flex;
-        overflow-x: auto;
-        
-        .nav-item {
-          flex-shrink: 0;
-          
-          a {
-            padding: 1rem;
-          }
-          
-          &.active a {
-            border-left: none;
-            border-bottom: 4px solid #1976d2;
-          }
-        }
-      }
+
+    .content-area {
+        padding: 0;
+        gap: 15px; /* Slightly smaller gap */
     }
-    
-    .dashboard-widgets {
-      grid-template-columns: 1fr;
+
+    .welcome-message {
+        padding: 18px;
     }
-  }
+
+    .welcome-message h1 {
+        font-size: 1.4em;
+    }
+
+    .quick-stats {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Adjust min-width for stats */
+        gap: 15px;
+    }
+
+    .quick-stats .stat-card {
+        padding: 20px;
+    }
+
+    .quick-stats .stat-card .stat-info h3 {
+        font-size: 1.8em;
+    }
+
+    .widgets-row {
+        grid-template-columns: 1fr; /* Stack widgets on smaller screens */
+        gap: 15px;
+    }
+
+    .card, .widget {
+        max-height: none; /* Allow cards to expand on smaller screens */
+    }
+
+    .card-header, .widget-header {
+        padding: 15px 20px;
+    }
+
+    .card-header h3, .widget-header h2 {
+        font-size: 1.25em;
+    }
+
+    .card-body mat-list-item {
+        min-height: 64px;
+        padding: 12px 20px;
+    }
+
+    .card-body mat-list-item [matListItemTitle] {
+        font-size: 1.05em;
+    }
+
+    .event-list-item .event-icon-wrapper {
+        width: 38px;
+        height: 38px;
+        margin-right: 1rem;
+    }
+
+    .event-list-item .event-icon-wrapper mat-icon {
+        font-size: 20px;
+    }
+
+    .event-list-item .event-title {
+        font-size: 1em;
+    }
+
+    .event-detail-view, .task-detail-view {
+        padding: 18px 20px;
+        font-size: 14px;
+    }
+
+    .event-detail-view h4, .task-detail-view h4 {
+        font-size: 1.3em;
+    }
+
+    .chart-container canvas {
+        max-width: 200px; /* Further reduce max size for small screens */
+        max-height: 200px;
+    }
+}
+
+@media (max-width: 576px) { /* Extra small screens */
+    .main-layout-wrapper {
+        padding: 10px;
+    }
+
+    .content-area {
+        gap: 10px;
+    }
+
+    .welcome-message {
+        padding: 15px;
+        border-radius: 6px;
+    }
+
+    .welcome-message h1 {
+        font-size: 1.2em;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr; /* Single column on very small screens */
+        gap: 10px;
+    }
+
+    .quick-stats .stat-card {
+        padding: 15px;
+        flex-direction: column; /* Stack icon and info vertically */
+        text-align: center;
+    }
+
+    .quick-stats .stat-card .stat-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+
+    .widgets-row {
+        gap: 10px;
+    }
+
+    .card-header, .widget-header {
+        padding: 12px 15px;
+        flex-direction: column; /* Stack title and buttons */
+        align-items: flex-start;
+        gap: 8px; /* Space between stacked elements */
+    }
+
+    .card-header h3, .widget-header h2 {
+        font-size: 1.1em;
+        width: 100%; /* Ensure heading takes full width */
+        text-align: center;
+        justify-content: center; /* Center text if only one item */
+    }
+    .card-header .add-new-button,
+    .card-header .back-button,
+    .widget-header button {
+        margin-left: 0;
+        width: 100%; /* Make buttons full width */
+        text-align: center;
+    }
+
+    .card-body mat-list-item {
+        min-height: 56px;
+        padding: 10px 15px;
+        /* Ensure content wraps inside list items */
+        align-items: flex-start; /* Ensure items start at the top, not center */
+    }
+
+    .card-body mat-list-item mat-icon {
+        margin-right: 12px;
+        font-size: 18px;
+        margin-top: 2px; /* Visual adjustment */
+    }
+
+    .card-body mat-list-item [matListItemTitle] {
+        font-size: 1em;
+    }
+
+    .event-list-item .event-icon-wrapper {
+        width: 32px;
+        height: 32px;
+        margin-right: 0.8rem;
+        margin-top: 2px; /* Visual adjustment */
+    }
+
+    .event-list-item .event-icon-wrapper mat-icon {
+        font-size: 18px;
+    }
+
+    .event-detail-view, .task-detail-view {
+        padding: 15px;
+        font-size: 13px;
+    }
+
+    .event-detail-view h4, .task-detail-view h4 {
+        font-size: 1.2em;
+    }
+
+    .chart-container canvas {
+        max-width: 180px; /* Smallest size for charts */
+        max-height: 180px;
+    }
+}

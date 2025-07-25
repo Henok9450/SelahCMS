@@ -1,195 +1,345 @@
-import { Component, OnInit } from '@angular/core';
-import { ReportService } from '../../core/report.service';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { DatePipe } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms'; 
-import { ChartsModule } from 'ng2-charts'; 
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AttendanceReportService, AttendanceRecord, HiyawMahider, AttendanceReportSummary } from '../../core/attendance-report.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { DatePipe, CommonModule } from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { of, switchMap, forkJoin, Subscription, Subject } from 'rxjs'; // Added Subject
+import { map, tap, takeUntil } from 'rxjs/operators'; // Added takeUntil
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { AuthService } from '../../core/auth.service'; // Adjust this path if different
+import { User } from '../../core/user.model'; // Adjust this path if different
+import { ROLES } from '../../core/role.utils'; // Assuming this provides role constants
 
 @Component({
   selector: 'app-attendance-report',
   standalone: true,
   imports: [
-    ReactiveFormsModule, // Add ReactiveFormsModule here
-    DatePipe,
-    ChartsModule
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatProgressSpinnerModule,
+    MatInputModule,
+    MatSelectModule,
+    CommonModule,
+    MatButtonModule,
+    MatPaginatorModule,
+    MatTableModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DatePipe
   ],
   templateUrl: './attendance-report.component.html',
-  styleUrls: ['./attendance-report.component.scss'],
-  providers: [DatePipe]
+  styleUrls: ['./attendance-report.component.css']
 })
-export class AttendanceReportComponent implements OnInit {
+export class AttendanceReportComponent implements OnInit, OnDestroy {
+  hiyawMahiders: HiyawMahider[] = [];
+  zones: { id: string, name: string }[] = [];
+  hiyawMahidersByZone: { [zoneId: string]: HiyawMahider[] } = {};
   reportForm: FormGroup;
+  attendanceReport: AttendanceReportSummary | null = null;
   isLoading = false;
-  reportData: any;
-  filteredRecords: any[] = [];
-  
-  // Filters for the detailed records table
-  statusFilter = '';
-  userFilter = '';
-  hiyawMahiderFilter = '';
-  zoneFilter = '';
+  members: string[] = [];
+  displayedColumns: string[] = ['date', 'hiyawMahiderName', 'zone', 'memberName', 'studyDay', 'status', 'reason'];
 
-  // Chart data
-  summaryChartData: any;
-  byUserChartData: any;
-  byHiyawMahiderChartData: any;
-  byZoneChartData: any;
-  byDateChartData: any;
+  flattenedRecords: any[] = [];
+  pageSize = 10;
+  currentPage = 0;
+  totalRecords = 0;
+  paginatedRecords: any[] = [];
+
+  statusOptions = [
+    { value: '', display: 'All Statuses' },
+    { value: 'present', display: 'Present' },
+    { value: 'absent', display: 'Absent' },
+    { value: 'excused', display: 'Excused' },
+    { value: 'late', display: 'Late' },
+    { value: 'new-guest', display: 'New Guest' },
+    { value: 'follow-up-needed', display: 'Follow Up Needed' }
+  ];
+
+  currentUser: User | null = null;
+  isPastorOrDeputy = false;
+  assignedHiyawMahiderId: string | null = null; // Single ID as per your AuthService and User model
+
+  private destroy$ = new Subject<void>(); // Subject for unsubscription
 
   constructor(
-    private reportService: ReportService,
+    private attendanceReportService: AttendanceReportService,
     private fb: FormBuilder,
-    private datePipe: DatePipe
+    private authService: AuthService
   ) {
     this.reportForm = this.fb.group({
+      zone: [''],
+      hiyawMahiderId: [''],
       startDate: [this.getDefaultStartDate()],
       endDate: [new Date()],
-      userId: [''],
-      hiyawMahiderId: [''],
-      zone: [''],
+      studyDay: [''],
+      memberName: [''],
       status: ['']
     });
   }
 
-  ngOnInit(): void {
-    this.generateReport();
+  ngOnInit() {
+    this.authService.authState$.pipe(
+      takeUntil(this.destroy$), // Unsubscribe when component is destroyed
+      tap(user => {
+        this.currentUser = user;
+        this.isPastorOrDeputy = user?.role === ROLES.PASTOR || user?.role === ROLES.DEPUTY_PASTOR;
+        this.assignedHiyawMahiderId = user?.assignedHiyawMahider || null;
+        console.log('[Component] Current user:', this.currentUser);
+        console.log('[Component] Is Pastor or Deputy:', this.isPastorOrDeputy);
+        console.log('[Component] Assigned Hiyaw Mahider ID:', this.assignedHiyawMahiderId);
+
+        if (this.isPastorOrDeputy && this.assignedHiyawMahiderId) {
+          // If Pastor/Deputy, pre-select their assigned Hiyaw Mahider
+          this.reportForm.patchValue({ hiyawMahiderId: this.assignedHiyawMahiderId });
+          // Load only their assigned Hiyaw Mahider
+          this.attendanceReportService.getHiyawMahiders({ id: this.assignedHiyawMahiderId }).pipe(
+            takeUntil(this.destroy$)
+          ).subscribe(mahiders => {
+            this.hiyawMahiders = mahiders;
+            if (this.hiyawMahiders.length > 0) {
+              this.onHiyawMahiderChange(this.hiyawMahiders[0].id); // Load members for this Hiyaw Mahider
+            }
+          });
+        } else if (!this.isPastorOrDeputy) {
+          // For Admin or other roles, load all zones and then all hiyaw mahiders
+          this.loadZones();
+        }
+      })
+    ).subscribe({
+      error: (err) => console.error('[Component] Error during initial user data load:', err)
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   getDefaultStartDate(): Date {
     const date = new Date();
-    date.setMonth(date.getMonth() - 1); // Default to last month
+    date.setDate(date.getDate() - 30);
     return date;
   }
 
-  generateReport(): void {
+  resetFilters() {
+    this.reportForm.reset({
+      zone: '',
+      hiyawMahiderId: '',
+      startDate: this.getDefaultStartDate(),
+      endDate: new Date(),
+      studyDay: '',
+      memberName: '',
+      status: ''
+    });
+    this.members = [];
+    this.attendanceReport = null;
+    this.flattenedRecords = [];
+    this.currentPage = 0;
+    this.totalRecords = 0;
+    this.paginatedRecords = [];
+
+    // Re-apply initial filtering for Pastor/Deputy
+    if (this.isPastorOrDeputy && this.assignedHiyawMahiderId) {
+      this.reportForm.patchValue({ hiyawMahiderId: this.assignedHiyawMahiderId });
+      // Reload members for the assigned Hiyaw Mahider
+      this.onHiyawMahiderChange(this.assignedHiyawMahiderId);
+    } else if (!this.isPastorOrDeputy) {
+      // For Admin, reload all Hiyaw Mahiders
+      this.hiyawMahiders = Object.values(this.hiyawMahidersByZone).flat();
+      console.log('[Component] Filters reset. All Hiyaw Mahiders shown for Admin/Other:', this.hiyawMahiders);
+    }
+  }
+
+  generateReport() {
     this.isLoading = true;
-    const filters = {
-      startDate: this.reportForm.value.startDate,
-      endDate: this.reportForm.value.endDate,
-      userId: this.reportForm.value.userId,
-      hiyawMahiderId: this.reportForm.value.hiyawMahiderId,
-      zone: this.reportForm.value.zone,
-      status: this.reportForm.value.status
+    const filters = this.reportForm.value;
+    const memberStatusFilters = {
+      memberName: filters.memberName || '',
+      status: filters.status || ''
     };
 
-    this.reportService.getAttendanceRecords(filters).subscribe({
-      next: (records) => {
-        this.reportData = this.reportService.generateAttendanceReport(records);
-        this.filteredRecords = [...this.reportData.records];
-        this.prepareChartData();
+    console.log('[Component] Initiating report generation with filters:', filters);
+
+    // Ensure hiyawMahiderId is correctly set for Pastor/Deputy
+    if (this.isPastorOrDeputy && this.assignedHiyawMahiderId) {
+      filters.hiyawMahiderId = this.assignedHiyawMahiderId;
+      console.log('[Component] Pastor/Deputy: Forced hiyawMahiderId filter to:', filters.hiyawMahiderId);
+    }
+
+    this.attendanceReportService.getOverallExpectedMembersCount(filters).pipe(
+      takeUntil(this.destroy$),
+      switchMap(totalExpectedMembersOverall => {
+        console.log(`[Component] Overall expected members for selected criteria: ${totalExpectedMembersOverall}`);
+        return this.attendanceReportService.getAttendanceRecords(filters, this.zones).pipe(
+          map(records => ({ records, totalExpectedMembersOverall }))
+        );
+      })
+    ).subscribe({
+      next: ({ records, totalExpectedMembersOverall }) => {
+        this.attendanceReport = this.attendanceReportService.generateAttendanceReport(
+          records,
+          memberStatusFilters,
+          totalExpectedMembersOverall
+        );
+        this.flattenedRecords = this.flattenRecords(this.attendanceReport.records);
+        this.totalRecords = this.flattenedRecords.length;
+        this.currentPage = 0; // Reset to first page
+        this.updatePaginatedRecords();
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error generating report:', err);
+        console.error('[Component] Error loading attendance records:', err);
         this.isLoading = false;
       }
     });
   }
 
-  prepareChartData(): void {
-    // Summary chart (pie chart)
-    this.summaryChartData = {
-      labels: ['Present', 'Absent', 'Late', 'Excused'],
-      datasets: [
-        {
-          data: [
-            this.reportData.summary.present,
-            this.reportData.summary.absent,
-            this.reportData.summary.late,
-            this.reportData.summary.excused
-          ],
-          backgroundColor: ['#4CAF50', '#F44336', '#FFC107', '#9E9E9E']
-        }
-      ]
-    };
-
-    // By User chart (horizontal bar)
-    this.byUserChartData = {
-      labels: this.reportData.byUser.map((u: any) => u.userName),
-      datasets: [
-        {
-          label: 'Attendance Rate (%)',
-          data: this.reportData.byUser.map((u: any) => u.rate),
-          backgroundColor: '#2196F3'
-        }
-      ]
-    };
-
-    // By Hiyaw Mahider chart (bar)
-    this.byHiyawMahiderChartData = {
-      labels: this.reportData.byHiyawMahider.map((h: any) => h.hiyawMahiderId),
-      datasets: [
-        {
-          label: 'Attendance Rate (%)',
-          data: this.reportData.byHiyawMahider.map((h: any) => h.rate),
-          backgroundColor: '#673AB7'
-        }
-      ]
-    };
-
-    // By Zone chart (pie)
-    this.byZoneChartData = {
-      labels: this.reportData.byZone.map((z: any) => z.zone),
-      datasets: [
-        {
-          data: this.reportData.byZone.map((z: any) => z.present),
-          backgroundColor: ['#FF5722', '#607D8B', '#00BCD4', '#8BC34A']
-        }
-      ]
-    };
-
-    // By Date chart (line)
-    this.byDateChartData = {
-      labels: this.reportData.byDate.map((d: any) => d.date),
-      datasets: [
-        {
-          label: 'Attendance Rate (%)',
-          data: this.reportData.byDate.map((d: any) => d.rate),
-          borderColor: '#009688',
-          fill: false
-        }
-      ]
-    };
-  }
-
-  applyFilters(): void {
-    this.filteredRecords = this.reportData.records.filter((record: any) => {
-      return (
-        (!this.statusFilter || record.status === this.statusFilter) &&
-        (!this.userFilter || record.userId === this.userFilter) &&
-        (!this.hiyawMahiderFilter || record.hiyawMahiderId === this.hiyawMahiderFilter) &&
-        (!this.zoneFilter || record.zone === this.zoneFilter)
-      );
+  private flattenRecords(records: AttendanceRecord[]): any[] {
+    return records.flatMap(record => {
+      // Use zoneName if available, otherwise use zone ID, fall back to 'Unknown'
+      const zoneDisplayName = record.zoneName || 
+                            (this.zones.find(z => z.id === record.zone)?.name || 
+                            record.zone || 
+                            'Unknown');
+  
+      return record.members.map(member => ({  
+        date: record.date,
+        hiyawMahiderName: record.hiyawMahiderName,
+        zone: zoneDisplayName,
+        memberName: member.fullName,
+        studyDay: record.studyDay,
+        status: member.status,
+        reason: member.reason
+      }));
     });
   }
 
-  resetFilters(): void {
-    this.statusFilter = '';
-    this.userFilter = '';
-    this.hiyawMahiderFilter = '';
-    this.zoneFilter = '';
-    this.filteredRecords = [...this.reportData.records];
+  onPageChange(event: any) {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.updatePaginatedRecords();
   }
 
-  exportToCSV(): void {
-    if (this.reportData) {
-      const dateRange = `${this.datePipe.transform(this.reportForm.value.startDate, 'yyyy-MM-dd')}_to_${this.datePipe.transform(this.reportForm.value.endDate, 'yyyy-MM-dd')}`;
-      this.reportService.exportAttendanceReportToCSV(this.reportData, `Attendance_Report_${dateRange}`);
+  private updatePaginatedRecords() {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedRecords = this.flattenedRecords.slice(startIndex, endIndex);
+  }
+
+  loadZones() {
+    this.attendanceReportService.getZones().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(zones => {
+      this.zones = zones;
+      console.log('[Component] Zones loaded:', this.zones);
+      this.loadAllHiyawMahiders(); // Load all Hiyaw Mahiders after zones for Admin
+    });
+  }
+
+  loadAllHiyawMahiders() {
+    this.attendanceReportService.getHiyawMahiders().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(mahiders => {
+      this.hiyawMahiders = mahiders;
+      this.hiyawMahidersByZone = {};
+
+      mahiders.forEach(mahider => {
+        if (!this.hiyawMahidersByZone[mahider.zone]) {
+          this.hiyawMahidersByZone[mahider.zone] = [];
+        }
+        this.hiyawMahidersByZone[mahider.zone].push(mahider);
+      });
+      console.log('[Component] All HiyawMahiders loaded and grouped by zone:', this.hiyawMahidersByZone);
+
+      const currentZone = this.reportForm.get('zone')?.value;
+      if (currentZone) {
+        this.onZoneChange(currentZone); // Apply existing zone filter if any
+      } else {
+         this.hiyawMahiders = Object.values(this.hiyawMahidersByZone).flat();
+      }
+      console.log('[Component] Initial Hiyaw Mahiders list for dropdown:', this.hiyawMahiders);
+    });
+  }
+
+  onHiyawMahiderChange(hiyawMahiderId: string) {
+    console.log('[Component] Hiyaw Mahider selection changed to:', hiyawMahiderId);
+    this.members = [];
+
+    // Pastor/Deputy: Ensure the selected ID matches their assigned one or is empty (meaning "their" single HM)
+    if (this.isPastorOrDeputy && this.assignedHiyawMahiderId && hiyawMahiderId !== this.assignedHiyawMahiderId) {
+      console.warn(`[Component] Pastor/Deputy tried to select unauthorized Hiyaw Mahider: ${hiyawMahiderId}. Resetting to assigned.`);
+      this.reportForm.get('hiyawMahiderId')?.setValue(this.assignedHiyawMahiderId, { emitEvent: false }); // Reset without triggering loop
+      hiyawMahiderId = this.assignedHiyawMahiderId;
+    } else if (this.isPastorOrDeputy && !this.assignedHiyawMahiderId) {
+       console.warn('[Component] Pastor/Deputy has no assigned Hiyaw Mahider. Cannot load members.');
+       return;
+    }
+
+    if (!hiyawMahiderId) {
+      console.log('[Component] "All Hiyaw Mahiders" selected or no Hiyaw Mahider. Clearing members.');
+      return;
+    }
+
+    this.attendanceReportService.getUsersByHiyawMahider(hiyawMahiderId).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (userNames: string[]) => {
+        if (userNames.length > 0) {
+          this.members = userNames;
+          console.log('[Component] Members (users) loaded for selected Hiyaw Mahider:', this.members);
+        } else {
+          console.log(`%c[Component] No users found for Hiyaw Mahider ID: "${hiyawMahiderId}"`, 'color: orange;');
+          this.members = [];
+        }
+      },
+      error: (err) => {
+        console.error('[Component] Error loading users for Hiyaw Mahider:', err);
+      }
+    });
+  }
+
+  onZoneChange(zoneId: string) {
+    console.log('[Component] Zone selection changed to:', zoneId);
+
+    // If the user is a Pastor or Deputy Pastor, they should not be able to change zones.
+    // This condition should already be handled by *ngIf in template, but good for defensive coding.
+    if (this.isPastorOrDeputy) {
+      console.warn('[Component] Pastor/Deputy users are not allowed to change zones. Ignoring selection.');
+      // Reset to previous value or disable the control
+      // this.reportForm.get('zone')?.setValue(this.zones.length > 0 ? this.zones[0].id : '');
+      return;
+    }
+
+    this.reportForm.patchValue({ hiyawMahiderId: '' }); // Clear Hiyaw Mahider selection when zone changes
+    this.members = []; // Clear members when zone changes
+    console.log('[Component] Hiyaw Mahider and Members dropdowns reset.');
+
+    if (!zoneId) {
+      this.hiyawMahiders = Object.values(this.hiyawMahidersByZone).flat();
+      console.log('[Component] "All Zones" selected. Displaying all Hiyaw Mahiders:', this.hiyawMahiders);
+    } else {
+      this.hiyawMahiders = this.hiyawMahidersByZone[zoneId] || [];
+      console.log(`[Component] Zone "${zoneId}" selected. Displaying Hiyaw Mahiders for this zone:`, this.hiyawMahiders);
     }
   }
-  getUniqueUsers(): string[] {
-    return [...new Set(this.reportData.records.map((r: any) => r.userId))] as string[];
-  }
-  
-  getUniqueHiyawMahiders(): string[] {
-    return [...new Set(this.reportData.records.map((r: any) => r.hiyawMahiderId).filter((id: string) => id))] as string[];
-  }
-  
-  getUniqueZones(): string[] {
-    return [...new Set(this.reportData.records.map((r: any) => r.zone).filter((zone: string) => zone))] as string[];
-  }
-  
-  getUniqueStatuses(): string[] {
-    return [...new Set(this.reportData.records.map((r: any) => r.status))] as string[];
+
+  exportToCSV() {
+    if (this.attendanceReport?.records && this.attendanceReport.records.length > 0) {
+      this.attendanceReportService.exportAttendanceRecordsToCSV(
+        this.flattenedRecords, // Use the already flattened records
+        `attendance_report_${new Date().toISOString().slice(0, 10)}`
+      );
+      console.log('[Component] Exporting report to CSV.');
+    } else {
+      console.warn('[Component] No records to export to CSV.');
+    }
   }
 }

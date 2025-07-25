@@ -1,0 +1,205 @@
+
+
+ <div class="follow-up-container">
+  <h2>Follow-Up Report</h2>
+
+  <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
+    <div class="filter-section">
+      <mat-form-field>
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Zone</mat-label>
+        <mat-select formControlName="zone">
+          <mat-option value="">All Zones</mat-option>
+          <mat-option *ngFor="let zone of zones$ | async" [value]="zone.id">
+            {{ zone.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>Hiyaw Mahider</mat-label>
+        <mat-select formControlName="hiyawMahider">
+          <mat-option *ngIf="(filteredHiyawMahiders$ | async)?.length === 0" disabled>
+            {{ reportForm.get('zone')?.value ? 'No mahiders in selected zone' : 'Loading Hiyaw Mahiders...' }}
+          </mat-option>
+          <mat-option value="">All Mahiders</mat-option>
+          <mat-option
+            *ngFor="let mahider of filteredHiyawMahiders$ | async"
+            [value]="mahider.id">
+            {{ mahider.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>  
+    <!--Close filter-section -->
+
+    <div class="button-group">
+      <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Generating...' : 'Generate Report' }}
+      </button>
+      <button mat-stroked-button type="button" (click)="resetFilters()">
+        Reset Filters
+      </button>
+    </div>
+  </form>
+
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <span>Loading report...</span>
+  </div>
+
+  <div *ngIf="followUpData" class="report-sections">
+    <mat-accordion> 
+      <!-- Consecutive Absences Section -->
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Members with 4+ Consecutive Absences
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ followUpData.absentMembers.length }} members found
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <mat-table [dataSource]="followUpData.absentMembers" class="follow-up-table">
+          <ng-container matColumnDef="fullName">
+            <mat-header-cell *matHeaderCellDef>Member Name</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.fullName }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="hiyawMahiderName">
+            <mat-header-cell *matHeaderCellDef>Hiyaw Mahider</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.hiyawMahiderName }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="zone">
+            <mat-header-cell *matHeaderCellDef>Zone</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.zone }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="consecutiveAbsences">
+            <mat-header-cell *matHeaderCellDef>Consecutive Absences</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.consecutiveAbsences }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="lastAbsenceDate">
+            <mat-header-cell *matHeaderCellDef>Last Absence Date</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.lastAbsenceDate | date }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let member">
+              <button mat-button color="primary" (click)="loadMemberDetails(member.userId)">View Details</button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="absentColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: absentColumns;"></mat-row>
+        </mat-table>
+
+        <div *ngIf="followUpData.absentMembers.length === 0" class="no-results">
+          No members with 4+ consecutive absences found in the selected period.
+        </div>
+      </mat-expansion-panel> 
+
+      <!-- Follow Up Needed Section -->
+      <mat-expansion-panel expanded="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Members Marked "Follow Up Needed"
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ followUpData.followUpNeededMembers.length }} members found
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <mat-table [dataSource]="followUpData.followUpNeededMembers" class="follow-up-table">
+          <ng-container matColumnDef="fullName">
+            <mat-header-cell *matHeaderCellDef>Member Name</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.fullName }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="hiyawMahiderName">
+            <mat-header-cell *matHeaderCellDef>Hiyaw Mahider</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.hiyawMahiderName }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="zone">
+            <mat-header-cell *matHeaderCellDef>Zone</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.zone }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="followUpCount">
+            <mat-header-cell *matHeaderCellDef>Follow-Up Count</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.followUpCount }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="latestFollowUpDate">
+            <mat-header-cell *matHeaderCellDef>Latest Date</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.latestFollowUpDate | date }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="reason">
+            <mat-header-cell *matHeaderCellDef>Reason</mat-header-cell>
+            <mat-cell *matCellDef="let member">{{ member.reason || 'No reason provided' }}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let member">
+              <button mat-button color="primary" (click)="loadMemberDetails(member.userId)">View Details</button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="followUpColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: followUpColumns;"></mat-row>
+        </mat-table>
+
+        <div *ngIf="followUpData.followUpNeededMembers.length === 0" class="no-results">
+          No members marked "Follow Up Needed" found in the selected period.
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion> 
+
+    <!-- Member Details Panel -->
+    <mat-card *ngIf="selectedMemberDetails" class="member-details-card">
+      <mat-card-header>
+        <mat-card-title>{{ selectedMemberDetails.fullName || selectedMemberDetails.username }}</mat-card-title>
+        
+      </mat-card-header>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item>
+            <span matListItemTitle>Phone Number</span>
+            <span matListItemLine>{{ selectedMemberDetails.phoneNumber || 'Not available' }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span matListItemTitle>Residency Location</span>
+            <span matListItemLine>{{ selectedMemberDetails.residencyLocation || 'Not available' }}</span>
+          </mat-list-item>
+          <mat-list-item>
+            <span matListItemTitle>Assigned Hiyaw Mahider</span>
+            <span matListItemLine>{{ selectedMemberDetails.assignedHiyawMahider || 'Not assigned' }}</span>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button (click)="selectedMemberDetails = null">Close</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>

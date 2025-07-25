@@ -1,89 +1,81 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatButtonModule } from '@angular/material/button';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { ReportService } from '../core/report.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-report-filters',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatSelectModule,
     MatInputModule,
+    MatSelectModule,
     MatDatepickerModule,
-    MatButtonModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatButtonModule
   ],
-  template: `
-    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-      <mat-form-field *ngIf="showStatusFilter">
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option value="">All</mat-option>
-          <mat-option *ngFor="let option of statusOptions" [value]="option.value">
-            {{ option.label }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field *ngIf="showUserFilter">
-        <mat-label>User</mat-label>
-        <input matInput formControlName="user" placeholder="Enter user name">
-      </mat-form-field>
-
-      <mat-form-field *ngIf="showDateFilter">
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field *ngIf="showDateFilter">
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
-
-      <button mat-raised-button color="primary" type="submit">Apply Filters</button>
-      <button mat-button type="button" (click)="resetFilters()">Reset</button>
-    </form>
-  `
+  templateUrl: './report-filters.component.html',
+  styleUrls: ['./report-filters.component.css'],
+  providers: [ReportService]
 })
 export class ReportFiltersComponent {
-  @Input() showStatusFilter: boolean = false; // Control visibility of status filter
-  @Input() showUserFilter: boolean = false; // Control visibility of user filter
-  @Input() showDateFilter: boolean = false; // Control visibility of date filters
   @Output() filtersChanged = new EventEmitter<any>();
-
   filterForm: FormGroup;
 
   statusOptions = [
-    { value: 'Present', label: 'Present' },
-    { value: 'Absent', label: 'Absent' },
-    { value: 'Late', label: 'Late' }
+    { value: '', display: 'All Statuses' },
+    { value: 'Active', display: 'Active' },
+    { value: 'Inactive', display: 'Inactive' }
   ];
 
-  constructor(private fb: FormBuilder) {
+  roleOptions = [
+    { value: '', display: 'All Roles' },
+    { value: 'Admin', display: 'Admin' },
+    { value: 'Pastor', display: 'Pastor' },
+    { value: 'Member', display: 'Member' }
+  ];
+
+  hiyawMahiders$!: Observable<{ id: string; name: string }[]>; // Define the property
+
+  constructor(
+    private fb: FormBuilder,
+    private reportService: ReportService
+  ) {
     this.filterForm = this.fb.group({
       status: [''],
-      user: [''],
+      role: [''],
+      hiyawMahiderId: [''],
       startDate: [''],
       endDate: ['']
     });
   }
+  ngOnInit() {
+    this.hiyawMahiders$ = this.reportService.getHiyawMahiders();
+  }
 
   applyFilters() {
-    this.filtersChanged.emit(this.filterForm.value);
+    const filters = this.filterForm.value;
+    // Clean up empty values
+    Object.keys(filters).forEach(key => {
+      if (filters[key] === '' || filters[key] == null) {
+        delete filters[key];
+      }
+    });
+    this.filtersChanged.emit(filters);
   }
 
   resetFilters() {
     this.filterForm.reset();
-    this.filtersChanged.emit(this.filterForm.value);
+    this.filtersChanged.emit({});
   }
 }

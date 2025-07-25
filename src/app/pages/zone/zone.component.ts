@@ -15,6 +15,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
 
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { Zone } from '../../core/zone.model';
@@ -35,7 +36,8 @@ import { Pastor } from '../../core/pastor.model';
     MatTableModule,
     MatProgressBarModule,
     MatChipsModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTooltipModule // Add MatTooltipModule here
   ],
   templateUrl: './zone.component.html',
   styleUrls: ['./zone.component.css']
@@ -49,7 +51,7 @@ export class ZoneComponent implements OnInit {
 
   zoneForm: FormGroup;
 
-  displayedColumns: string[] = ['code', 'name', 'status', 'coordinators', 'actions'];
+  displayedColumns: string[] = ['code', 'name', 'status', 'mainCoordinators', 'deputyCoordinators', 'actions'];
 
   constructor(
     private zoneService: ZoneService,
@@ -58,35 +60,27 @@ export class ZoneComponent implements OnInit {
     private dialog: MatDialog,
     private snackBar: MatSnackBar
   ) {
-    // Replace the form initialization in the constructor with this:
-this.zoneForm = this.fb.group({
-  code: ['', [
-    Validators.required,
-    Validators.maxLength(10),
-    Validators.pattern(/^[a-zA-Z0-9-_\s]*$/)  // More permissive pattern
-  ]],
-  name: ['', [Validators.maxLength(100)]],
-  status: ['active', [Validators.required]],
-  coordinators: [[]] // Remove any unnecessary validators here
-});
-
-// Add this debug code right after form initialization:
-this.zoneForm.valueChanges.subscribe(val => {
-  console.log('FORM VALUE:', val);
-  console.log('FORM VALID:', this.zoneForm.valid);
-  console.log('FORM ERRORS:', this.zoneForm.errors);
-  Object.keys(this.zoneForm.controls).forEach(key => {
-    const control = this.zoneForm.get(key);
-    console.log(`${key} valid: ${control?.valid}, errors:`, control?.errors);
-  });
-});
-
-    // Debug form changes
-    this.zoneForm.valueChanges.subscribe(values => {
-      console.log('Form values:', values);
+    this.zoneForm = this.fb.group({
+      code: ['', [
+        Validators.required,
+        Validators.maxLength(10),
+        Validators.pattern(/^[a-zA-Z0-9-_\s]*$/)
+      ]],
+      name: ['', [Validators.required, Validators.maxLength(100)]], // Added Validators.required for name
+      status: ['active', [Validators.required]],
+      mainCoordinators: [[]], // New form control for main coordinators
+      deputyCoordinators: [[]] // New form control for deputy coordinators
     });
-    this.zoneForm.statusChanges.subscribe(status => {
-      console.log('Form status:', status);
+
+    // Debug form changes - keep one for development, remove for production
+    this.zoneForm.valueChanges.subscribe(val => {
+      console.log('FORM VALUE:', val);
+      console.log('FORM VALID:', this.zoneForm.valid);
+      console.log('FORM ERRORS:', this.zoneForm.errors);
+      Object.keys(this.zoneForm.controls).forEach(key => {
+        const control = this.zoneForm.get(key);
+        console.log(`${key} valid: ${control?.valid}, errors:`, control?.errors);
+      });
     });
   }
 
@@ -96,7 +90,7 @@ this.zoneForm.valueChanges.subscribe(val => {
 
   loadData(): void {
     this.isLoading = true;
-    
+
     this.pastorService.getPastors().subscribe({
       next: (pastors) => {
         this.pastors = pastors;
@@ -131,7 +125,8 @@ this.zoneForm.valueChanges.subscribe(val => {
       code: '',
       name: '',
       status: 'active',
-      coordinators: []
+      mainCoordinators: [], // Reset main coordinators
+      deputyCoordinators: [] // Reset deputy coordinators
     });
     this.zoneForm.markAsPristine();
     this.zoneForm.markAsUntouched();
@@ -141,13 +136,12 @@ this.zoneForm.valueChanges.subscribe(val => {
     this.isEditing = true;
     this.currentZoneId = zone.id;
 
-    const coordinators = zone.coordinators || [];
-
     this.zoneForm.patchValue({
       code: zone.code,
       name: zone.name,
       status: zone.status,
-      coordinators: coordinators
+      mainCoordinators: zone.mainCoordinators || [], // Populate main coordinators
+      deputyCoordinators: zone.deputyCoordinators || [] // Populate deputy coordinators
     });
   }
 
@@ -158,7 +152,6 @@ this.zoneForm.valueChanges.subscribe(val => {
   }
 
   saveZone(): void {
-
     // Mark all fields as touched to show validation messages
     this.zoneForm.markAllAsTouched();
 
@@ -180,10 +173,10 @@ this.zoneForm.valueChanges.subscribe(val => {
       this.cancelEdit();
       this.loadZones();
     })
-    .catch(error => {
-      console.error('Operation failed:', error);
-      this.showError(`Failed to ${this.currentZoneId ? 'update' : 'create'} zone: ${error.message}`);
-    });
+      .catch(error => {
+        console.error('Operation failed:', error);
+        this.showError(`Failed to ${this.currentZoneId ? 'update' : 'create'} zone: ${error.message}`);
+      });
   }
 
   deleteZone(id: string): void {
@@ -208,13 +201,13 @@ this.zoneForm.valueChanges.subscribe(val => {
     });
   }
 
-  getCoordinatorNames(coordinators: string[]): string {
-    if (!coordinators || !coordinators.length) return 'None assigned';
-  
-    return coordinators
+  getCoordinatorNames(coordinatorIds: string[] | undefined): string {
+    if (!coordinatorIds || coordinatorIds.length === 0) return 'None assigned';
+
+    return coordinatorIds
       .map(id => {
         const pastor = this.pastors.find(p => p.id === id);
-        return pastor ? pastor.name : 'Unknown'; // Use pastor.name instead of firstName and lastName
+        return pastor ? pastor.name : 'Unknown';
       })
       .filter(name => name && name !== 'Unknown')
       .join(', ') || 'None assigned';
@@ -222,8 +215,9 @@ this.zoneForm.valueChanges.subscribe(val => {
 
   comparePastors(p1: any, p2: any): boolean {
     if (!p1 || !p2) return false;
-    const p1Id = p1.id || p1;
-    const p2Id = p2.id || p2;
+    // Assuming p1 and p2 can be the full pastor object or just their ID
+    const p1Id = typeof p1 === 'object' ? p1.id : p1;
+    const p2Id = typeof p2 === 'object' ? p2.id : p2;
     return p1Id === p2Id;
   }
 

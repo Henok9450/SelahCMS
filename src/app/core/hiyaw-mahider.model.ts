@@ -14,4 +14,7 @@ export interface HiyawMahider {
   studyDay: string | null;
   studyTime: string | null;
   createdDate: string | Date;
+  HostName?: string | null; // Name of the host or leader
+  HostContactNumber?: string | null; // Contact number of the host
+
 }

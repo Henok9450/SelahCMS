@@ -1,117 +1,328 @@
-/* login.component.css */
+/*
+ * Styles for the login.component.css
+ *
+ * NOTE: The 'html, body' styles for overall page centering should ideally be in your global styles.css
+ * to avoid conflicts and ensure they apply correctly across the application when needed.
+ * However, if they MUST be defined here, ensure they are compatible with app.component.css.
+ * The best practice is to put the centering below on :host.
+ */
 
+/* * IMPORTANT: This :host rule in login.component.css will make the <app-login> element 
+ * responsible for centering its content within the space it's given by its parent (usually <app-root>).
+ * This is the most Angular-idiomatic way to center your component.
+ *
+ * Ensure that your app.component.css's :host rule does NOT override this
+ * or apply a conflicting flex-direction when the login page is displayed.
+ */
 :host {
-  display: flex;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center;     /* Centers content vertically */
+    min-height: 100vh;       /* Makes <app-login> take full viewport height */
+    width: 100%;             /* Makes <app-login> take full width */
+    overflow: hidden;        /* Prevents scrollbars for this component */
+    /* Remove padding here if you want perfect pixel centering from align-items: center */
+    /* If you want breathing room around the whole login-container, add padding to .login-container itself. */
 }
 
-.login-card {
-  max-width: 420px;
-  width: 90%;
-  margin: auto;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  background: white;
-  animation: fadeIn 0.5s ease-in-out;
+
+/* Main Container - Neumorphic */
+.login-container {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    max-width: 900px;
+    min-height: 500px; /* Using min-height for responsiveness */
+    background: #2F5C5B;
+    border-radius: 30px;
+    box-shadow:
+        8px 8px 15px rgba(163, 177, 198, 0.7),
+        -8px -8px 15px rgba(255, 255, 255, 0.8);
+    overflow: hidden; /* Keep content within rounded corners */
 }
 
-.login-card mat-card-header {
-  justify-content: center;
-  margin-bottom: 2rem;
+/* Left Hero Section */
+.login-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(145deg, #2F5C5B, #3a6d6c);
+    padding: 20px;
+    color: #e6e7ee; /* Lighter color for text on dark background */
+    text-align: center;
+    position: relative;
+    min-width: 250px;
+    box-shadow:
+        inset 3px 3px 5px rgba(0, 0, 0, 0.1),
+        inset -3px -3px 5px rgba(255, 255, 255, 0.1);
 }
 
-.login-card mat-card-title {
-  font-size: 1.8rem;
-  font-weight: 600;
-  color: #3f51b5;
-  margin-bottom: 0.5rem;
+.logo-container {
+    /* This is a placeholder for the logo's container, if any specific styling is needed */
 }
 
-.login-card mat-form-field {
-  margin-bottom: 1.5rem;
+.logo {
+    max-width: 200px;
+    height: auto;
+    border-radius: 50%;
+    box-shadow:
+        8px 8px 15px rgba(0, 0, 0, 0.2),
+        -5px -5px 10px rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+    background: #2F5C5B;
 }
 
-.login-card .full-width {
-  width: 100%;
+.welcome-message {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    text-shadow:
+        2px 2px 3px rgba(0, 0, 0, 0.5),
+        -1px -1px 2px rgba(255, 255, 255, 0.3);
 }
 
-.login-card input {
-  font-size: 1rem;
+.welcome-message span {
+    display: block;
 }
 
-.login-card button[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  margin-top: 1rem;
-  background: linear-gradient(to right, #3f51b5, #2196f3);
-  transition: all 0.3s ease;
+.login-prompt {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 15px;
+    max-width: 80%;
+    line-height: 1.5;
 }
 
-.login-card button[type="submit"]:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+/* Right Form Section */
+.login-form-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px; /* Adjusted padding for the form container */
+    box-sizing: border-box;
+    background: #e6e7ee;
 }
 
-.login-card button[type="submit"]:disabled {
-  background: #ccc;
-  transform: none;
-  box-shadow: none;
+/* Angular Material Card */
+mat-card.login-card {
+    width: 100%;
+    max-width: 380px;
+    padding: 30px; /* Equal padding all around */
+    border-radius: 20px;
+    background: #e6e7ee;
+    box-shadow:
+        8px 8px 15px rgba(163, 177, 198, 0.7),
+        -8px -8px 15px rgba(255, 255, 255, 0.8);
+    border: none;
 }
 
+/* Angular Material Card Header */
+mat-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 0;
+    text-align: center;
+}
+
+mat-card-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #2F5C5B;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    text-shadow:
+        1px 1px 2px rgba(163, 177, 198, 0.7),
+        -1px -1px 1px rgba(255, 255, 255, 0.8);
+}
+
+mat-card-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Angular Material Form Fields */
+.full-width {
+    width: 100%;
+}
+
+/* Angular Material specific input styling for neumorphism */
+/* These styles override Angular Material's default appearance for neumorphism */
+.mat-form-field-appearance-outline .mat-form-field-outline {
+    background: #e6e7ee;
+    border-radius: 15px;
+    box-shadow:
+        inset 3px 3px 5px rgba(163, 177, 198, 0.7),
+        inset -3px -3px 5px rgba(255, 255, 255, 0.8);
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline-thick {
+    color: transparent !important; /* Hides the default outline focus color */
+}
+
+.mat-form-field-label {
+    color: #666 !important; /* Label color */
+}
+
+.mat-input-element {
+    color: #333 !important; /* Input text color */
+    caret-color: #2F5C5B !important; /* Cursor color */
+}
+
+/* Button - Neumorphic */
+button.neumorphic-button { /* Target your custom class on the button */
+    width: 100%;
+    height: 50px;
+    font-size: 1.1em;
+    margin-top: 20px;
+    border-radius: 15px;
+    background: #e6e7ee;
+    color: #2F5C5B;
+    border: none;
+    box-shadow:
+        5px 5px 10px rgba(163, 177, 198, 0.7),
+        -5px -5px 10px rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex; /* For centering content (Login text or spinner) */
+    justify-content: center;
+    align-items: center;
+}
+
+button.neumorphic-button:hover {
+    box-shadow:
+        2px 2px 5px rgba(163, 177, 198, 0.7),
+        -2px -2px 5px rgba(255, 255, 255, 0.8);
+}
+
+button.neumorphic-button:active {
+    box-shadow:
+        inset 3px 3px 5px rgba(163, 177, 198, 0.7),
+        inset -3px -3px 5px rgba(255, 255, 255, 0.8);
+}
+
+button.neumorphic-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Error Message - Neumorphic */
 .error-message {
-  color: #f44336;
-  margin: 1rem 0;
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 0.5rem;
-  background-color: rgba(244, 67, 54, 0.1);
-  border-radius: 4px;
-  border-left: 4px solid #f44336;
+    color: #d32f2f;
+    background: #e6e7ee;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    box-shadow:
+        inset 2px 2px 5px rgba(163, 177, 198, 0.7),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+    text-align: center;
+    font-size: 0.9em;
+    /* In Angular, this will be controlled by *ngIf, so no display: none here */
 }
 
-.mat-card-actions {
-  display: flex;
-  justify-content: center;
-  padding: 1rem 0 0;
+/* Forgot Password Link */
+mat-card-actions.forgot-password-link-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    padding: 0;
 }
 
-.mat-card-actions a {
-  color: #3f51b5;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
+a.forgot-password-link {
+    color: #2F5C5B;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.2s ease;
 }
 
-.mat-card-actions a:hover {
-  color: #2196f3;
-  text-decoration: underline;
+a.forgot-password-link:hover {
+    text-decoration: underline;
+    text-shadow:
+        1px 1px 1px rgba(163, 177, 198, 0.5),
+        -1px -1px 1px rgba(255, 255, 255, 0.5);
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Angular Material Spinner */
+mat-spinner {
+    margin: 0 auto; /* Centers the spinner horizontally within its container */
+    /* In Angular, this will be controlled by *ngIf, so no display: none here */
 }
 
-/* Responsive adjustments */
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: #2F5C5B !important; /* Spinner color */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        width: 95%;
+        max-width: 450px;
+        height: auto; /* Auto height on mobile */
+        min-height: 500px; /* Ensure a minimum height */
+        border-radius: 20px;
+    }
+
+    .login-hero {
+        min-height: 180px;
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .logo {
+        max-width: 120px;
+        margin-bottom: 15px;
+    }
+
+    .welcome-message {
+        font-size: 1.5rem;
+    }
+
+    .login-prompt {
+        font-size: 0.9rem;
+    }
+
+    .login-form-container {
+        padding: 15px; /* Reduced padding on smaller screens */
+        border-radius: 0 0 20px 20px;
+    }
+
+    mat-card-title {
+        font-size: 1.5rem;
+    }
+}
+
 @media (max-width: 480px) {
-  .login-card {
-    padding: 1.5rem;
-    margin: 1rem auto;
-  }
-  
-  .login-card mat-card-title {
-    font-size: 1.5rem;
-  }
+    .login-form-container {
+        padding: 20px; /* Re-adjust for very small screens */
+    }
+
+    mat-card.login-card {
+        padding: 20px 15px;
+    }
+
+    mat-card-title {
+        font-size: 1.3rem;
+    }
+
+    mat-card-header p {
+        font-size: 0.9rem;
+    }
+}
+
+/* Tighten the form spacing */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Reduced gap between form fields */
 }

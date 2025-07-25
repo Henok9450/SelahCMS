@@ -18,6 +18,8 @@ import { HiyawMahider, HiyawMahiderStatus } from '../core/hiyaw-mahider.model';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { docData } from '@angular/fire/firestore'; // Import docData
+import { first } from 'rxjs/operators'; // Import first
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +86,8 @@ export class HiyawMahiderService {
 
     const docRef = await addDoc(collection(this.firestore, this.collectionName), {
       ...hiyawMahider,
+      hostName: hiyawMahider.HostName,  
+    hostContactNumber: hiyawMahider.HostContactNumber,  
       nameLower: this.normalizeSearchTerm(hiyawMahider.name),
       locationLower: this.normalizeSearchTerm(hiyawMahider.location),
       codeLower: normalizedCode,
@@ -101,46 +105,44 @@ export class HiyawMahiderService {
   async updateHiyawMahider(id: string, data: Partial<HiyawMahider>): Promise<HiyawMahider> {
     // Create a clean update object without undefined values
     const updateData: any = {};
-    
+  
     // Add only defined fields to the update object
-    if (data.name !== undefined) {
+    if (data.name !== undefined && data.name !== null) {
       updateData.name = data.name;
       updateData.nameLower = this.normalizeSearchTerm(data.name);
     }
-    
-    if (data.location !== undefined) {
+    if (data.HostName !== undefined && data.HostName !== null) {
+      updateData.HostName = data.HostName;  
+    }
+    if (data.HostContactNumber !== undefined && data.HostContactNumber !== null) {
+      updateData.HostContactNumber = data.HostContactNumber;  
+    }
+    if (data.location !== undefined && data.location !== null) {
       updateData.location = data.location;
       updateData.locationLower = this.normalizeSearchTerm(data.location);
     }
-
-    if (data.zone !== undefined) {
+    if (data.zone !== undefined && data.zone !== null) {
       updateData.zone = data.zone;
     }
-    
-    if (data.code !== undefined) {
+    if (data.code !== undefined && data.code !== null) {
       updateData.code = data.code;
       updateData.codeLower = this.normalizeSearchTerm(data.code);
     }
-    
-    if (data.status !== undefined) {
+    if (data.status !== undefined && data.status !== null) {
       updateData.status = data.status;
     }
-    
-    if (data.pastor !== undefined) {
+    if (data.pastor !== undefined && data.pastor !== null) {
       updateData.pastor = data.pastor;
       updateData.pastorLower = data.pastor ? this.normalizeSearchTerm(data.pastor) : '';
     }
-    
-    if (data.deputyPastor !== undefined) {
+    if (data.deputyPastor !== undefined && data.deputyPastor !== null) {
       updateData.deputyPastor = data.deputyPastor;
       updateData.deputyPastorLower = data.deputyPastor ? this.normalizeSearchTerm(data.deputyPastor) : '';
     }
-    
-    if (data.studyDay !== undefined) {
+    if (data.studyDay !== undefined && data.studyDay !== null) {
       updateData.studyDay = data.studyDay;
     }
-    
-    if (data.studyTime !== undefined) {
+    if (data.studyTime !== undefined && data.studyTime !== null) {
       updateData.studyTime = data.studyTime;
     }
   
@@ -164,7 +166,7 @@ export class HiyawMahiderService {
     if (Object.keys(updateData).length > 0) {
       await updateDoc(doc(this.firestore, this.collectionName, id), updateData);
     }
-    
+  
     // Return the updated document
     const updatedDoc = await this.getHiyawMahiderById(id);
     if (!updatedDoc) {
@@ -172,7 +174,6 @@ export class HiyawMahiderService {
     }
     return updatedDoc;
   }
-
   async deleteHiyawMahider(id: string): Promise<void> {
     await deleteDoc(doc(this.firestore, this.collectionName, id));
   }
@@ -261,6 +262,8 @@ export class HiyawMahiderService {
         location: d.location,
         zone: d.zone,
         status: d.status,
+        HostName: d.HostName || '',  
+      HostContactNumber: d.HostContactNumber || '', 
         pastor: d.pastor,
         deputyPastor: d.deputyPastor,
         studyDay: d.studyDay,
@@ -300,6 +303,8 @@ export class HiyawMahiderService {
           zone: d.zone || '',
           status: d.status || '',
           pastor: d.pastor || '',
+          hostName: d.HostName || '',
+          hostContactNumber: d.HostContactNumber || '',
           deputyPastor: d.deputyPastor || '',
           studyDay: d.studyDay || '',
           studyTime: d.studyTime || '',
@@ -319,24 +324,25 @@ export class HiyawMahiderService {
       collection(this.firestore, this.collectionName),
       orderBy('createdDate', 'desc')
     );
-    
+  
     return collectionData(q, { idField: 'id' }).pipe(
       map((data: any[]) => data.map(d => ({
         id: d.id,
-        name: d.name,
-        code: d.code,
-        location: d.location,
-        zone: d.zone,
-        status: d.status,
-        pastor: d.pastor,
-        deputyPastor: d.deputyPastor,
-        studyDay: d.studyDay,
-        studyTime: d.studyTime,
-        createdDate: d.createdDate?.toDate()
+        name: d.name || 'Unnamed',
+        code: d.code || '',
+        location: d.location || '',
+        zone: d.zone || '',
+        status: d.status || '',
+        pastor: d.pastor || '',
+        deputyPastor: d.deputyPastor || '',
+        studyDay: d.studyDay || '',
+        studyTime: d.studyTime || '',
+        createdDate: d.createdDate?.toDate() || null,
+        HostName: d.HostName || '',  
+      HostContactNumber: d.HostContactNumber || '',  
       } as HiyawMahider)))
     );
   }
-
 
   async getHiyawMahiderById(id: string): Promise<HiyawMahider | null> {
     const docRef = doc(this.firestore, this.collectionName, id);
@@ -357,5 +363,20 @@ export class HiyawMahiderService {
 
   getStatusOptions(): HiyawMahiderStatus[] {
     return ['Active', 'Inactive', 'On Hold', 'Closed'];
+  }
+
+  getHiyawMahiderName(hiyawMahiderId: string): Observable<string> {
+    if (!hiyawMahiderId) {
+      return of(''); // Return empty string if no ID is provided
+    }
+    const hiyawMahiderDocRef = doc(this.firestore, `hiyawMahiders/${hiyawMahiderId}`);
+    return docData(hiyawMahiderDocRef).pipe(
+      first(), // Take only the first value and complete
+      map(data => (data as any)?.name || ''), // Assume 'name' field exists
+      catchError(error => {
+        console.error(`Error fetching Hiyaw Mahider name for ID ${hiyawMahiderId}:`, error);
+        return of(''); // Return empty string on error
+      })
+    );
   }
 }

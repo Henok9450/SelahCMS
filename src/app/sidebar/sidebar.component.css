@@ -1,764 +1,256 @@
-:root {
-  --primary-color: #4361ee;
-  --secondary-color: #3f37c9;
-  --accent-color: #4895ef;
-  --dark-color: #2b2d42;
-  --light-color: #f8f9fa;
-  --success-color: #4cc9f0;
-  --warning-color: #f8961e;
-  --danger-color: #f72585;
-  --gray-color: #adb5bd;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
-  --border-radius: 12px;
-  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
+/* sidebar.component.css */
 
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: var(--light-color);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* Header Styles */
-.dashboard-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
-  padding: 0.75rem 1.5rem;
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-  background-color: rgba(67, 97, 238, 0.9);
-  
-  .header-content {
+/* Host element styling for the app-sidebar component */
+:host {
+    display: block;
+    width: 280px; /* Default desktop width */
+    background-color: white;
+    box-shadow: var(--shadow-sm);
+    padding: 1.5rem 0;
+    height: 100%;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-right: 1px solid rgba(0,0,0,0.05);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  
-  .logo-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    
-    .logo {
-      height: 36px;
-      width: auto;
-      transition: var(--transition);
-    }
-    
-    h1 {
-      font-size: 1.25rem;
-      margin: 0;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-  }
-  
-  .user-info {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    
-    .user-greeting {
-      display: flex;
-      flex-direction: column;
-      text-align: right;
-      
-      .user-name {
-        font-weight: 500;
-        font-size: 0.95rem;
-      }
-      
-      .user-role {
-        font-size: 0.75rem;
-        opacity: 0.9;
-        font-weight: 400;
-      }
-    }
-    
-    .user-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      border: 2px solid rgba(255,255,255,0.3);
-      cursor: pointer;
-      transition: var(--transition);
-      
-      &:hover {
-        transform: scale(1.05);
-      }
-      
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
+    flex-direction: column;
 }
 
-/* Main Content Area */
-.main-content {
-  display: flex;
-  flex: 1;
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 1.5rem;
-}
-
-/* Side Navigation */
-.side-nav {
-  width: 280px;
-  background-color: white;
-  box-shadow: var(--shadow-sm);
-  padding: 1.5rem 0;
-  border-radius: var(--border-radius);
-  margin: 1.5rem 0;
-  height: fit-content;
-  position: sticky;
-  top: 80px;
-  
-  ul {
+/* Styles for the main navigation list inside the sidebar */
+:host ul {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  
-  .nav-item {
+    flex-grow: 1;
+}
+
+/* Styles for individual navigation items */
+:host .nav-item {
     margin: 0.25rem 1rem;
     border-radius: 8px;
     overflow: hidden;
-    
-    a {
-      display: flex;
-      align-items: center;
-      padding: 0.875rem 1.25rem;
-      color: var(--dark-color);
-      text-decoration: none;
-      transition: var(--transition);
-      font-weight: 500;
-      font-size: 0.95rem;
-      
-      mat-icon {
-        margin-right: 1rem;
-        color: var(--gray-color);
-        transition: var(--transition);
-      }
-      
-      &:hover {
-        background-color: rgba(67, 97, 238, 0.05);
-        color: var(--primary-color);
-        transform: translateX(4px);
-        
-        mat-icon {
-          color: var(--primary-color);
-        }
-      }
-    }
-    
-    &.active a {
-      background-color: rgba(67, 97, 238, 0.1);
-      color: var(--primary-color);
-      
-      mat-icon {
-        color: var(--primary-color);
-      }
-    }
-  }
+    display: block;
 }
 
-/* Content Area */
-.content-area {
-  flex: 1;
-  padding: 1.5rem;
-  margin: 1.5rem 0;
-}
-
-/* Quick Stats Cards */
-.quick-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  
-  .stat-card {
-    background-color: white;
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
+/* Styles for the anchor links within navigation items */
+:host .nav-item a {
     display: flex;
     align-items: center;
+    padding: 0.875rem 1.25rem;
+    color: var(--dark-color);
+    text-decoration: none;
     transition: var(--transition);
+    font-weight: 500;
+    font-size: 0.81rem;
+}
+
+/* Styles for Material Icons within navigation items */
+:host .nav-item a mat-icon {
+    margin-right: 1rem;
+    color: var(--gray-color);
+    transition: var(--transition);
+}
+
+/* Hover states */
+:host .nav-item a:hover {
+    background-color: rgba(67, 97, 238, 0.05);
+    color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+:host .nav-item a:hover mat-icon {
+    color: var(--primary-color);
+}
+
+/* Active navigation item state */
+:host .nav-item.active a {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
     border-left: 4px solid var(--primary-color);
-    
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      background-color: rgba(67, 97, 238, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1.25rem;
-      flex-shrink: 0;
-      
-      mat-icon {
-        color: var(--primary-color);
-        font-size: 28px;
-      }
-      
-      &.success {
-        background-color: rgba(76, 201, 240, 0.1);
-        mat-icon { color: var(--success-color); }
-      }
-      
-      &.warning {
-        background-color: rgba(248, 150, 30, 0.1);
-        mat-icon { color: var(--warning-color); }
-      }
-      
-      &.danger {
-        background-color: rgba(247, 37, 133, 0.1);
-        mat-icon { color: var(--danger-color); }
-      }
-    }
-    
-    .stat-info {
-      h3 {
-        margin: 0 0 0.25rem;
-        font-size: 1.75rem;
-        font-weight: 600;
-        color: var(--dark-color);
-      }
-      
-      p {
-        margin: 0;
-        color: var(--gray-color);
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-    }
-  }
+    padding-left: calc(1.25rem - 4px);
 }
 
-/* Dashboard Widgets */
-.dashboard-widgets {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.75rem;
-  
-  .widget {
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
-    transition: var(--transition);
-    
-    &:hover {
-      box-shadow: var(--shadow-md);
-    }
-    
-    .widget-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      
-      h2 {
-        margin: 0;
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: var(--dark-color);
-      }
-      
-      .widget-actions {
-        display: flex;
-        gap: 0.5rem;
-        
-        button {
-          background: none;
-          border: none;
-          color: var(--gray-color);
-          cursor: pointer;
-          transition: var(--transition);
-          
-          &:hover {
-            color: var(--primary-color);
-          }
-        }
-      }
-    }
-    
-    .widget-content {
-      padding: 1.25rem;
-      
-      mat-list-item {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        
-        &:last-child {
-          border-bottom: none;
-        }
-      }
-    }
-  }
+:host .nav-item.active a mat-icon {
+    color: var(--primary-color);
 }
 
-/* Progress Container */
-.progress-container {
-  display: flex;
-  align-items: center;
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  
-  .progress-chart {
-    width: 140px;
-    height: 140px;
-    margin-right: 2rem;
-    flex-shrink: 0;
-  }
-  
-  .progress-stats {
-    flex: 1;
-    
-    .progress-stat {
-      margin-bottom: 1.25rem;
-      
-      .stat-value {
-        display: block;
-        font-size: 1.4rem;
-        font-weight: 600;
-        color: var(--dark-color);
-        margin-bottom: 0.25rem;
-      }
-      
-      .stat-label {
-        font-size: 0.9rem;
-        color: var(--gray-color);
-        font-weight: 500;
-      }
-    }
-  }
+/* Submenu styles (e.g., for "Reports") */
+:host .nav-item .has-submenu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Announcements */
-.announcement-footer {
-  margin-top: 0.75rem;
-  font-size: 0.85rem;
-  color: var(--gray-color);
-  text-align: right;
-  font-style: italic;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .main-content {
-    padding: 0 1rem;
-  }
-  
-  .side-nav {
-    width: 240px;
-  }
-  
-  .content-area {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .quick-stats {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-  
-  .dashboard-widgets {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  }
-  
-  .progress-container {
-    flex-direction: column;
-    text-align: center;
-    
-    .progress-chart {
-      margin-right: 0;
-      margin-bottom: 1.5rem;
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    flex-direction: column;
-    padding: 0;
-  }
-  
-  .dashboard-header {
-    padding: 0.75rem 1rem;
-    
-    .logo-section h1 {
-      font-size: 1.1rem;
-    }
-    
-    .user-info {
-      gap: 1rem;
-      
-      .user-greeting {
-        display: none;
-      }
-    }
-  }
-  
-  .side-nav {
-    width: 100%;
-    margin: 0;
-    border-radius: 0;
-    padding: 0.5rem 0;
-    position: static;
-    
-    ul {
-      display: flex;
-      overflow-x: auto;
-      padding: 0 0.5rem;
-      -webkit-overflow-scrolling: touch;
-      
-      &::-webkit-scrollbar {
-        display: none;
-      }
-    }
-    
-    .nav-item {
-      margin: 0.25rem;
-      flex-shrink: 0;
-      
-      a {
-        padding: 0.75rem 1rem;
-        
-        &:hover {
-          transform: none;
-        }
-      }
-      
-      &.active a {
-        border-left: none;
-        border-bottom: 3px solid var(--primary-color);
-      }
-    }
-  }
-  
-  .content-area {
-    margin: 0;
-    padding: 1rem;
-  }
-  
-  .quick-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .dashboard-widgets {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 576px) {
-  .quick-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .stat-card {
-    padding: 1.25rem;
-    
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-    }
-  }
-  
-  .progress-container {
-    padding: 1.25rem;
-    
-    .progress-chart {
-      width: 120px;
-      height: 120px;
-    }
-  }
-}
-
-/* Animation Enhancements */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dashboard-widgets .widget,
-.quick-stats .stat-card,
-.progress-container {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-.dashboard-widgets .widget:nth-child(2) { animation-delay: 0.1s; }
-.dashboard-widgets .widget:nth-child(3) { animation-delay: 0.2s; }
-.quick-stats .stat-card:nth-child(2) { animation-delay: 0.1s; }
-.quick-stats .stat-card:nth-child(3) { animation-delay: 0.2s; }
-.quick-stats .stat-card:nth-child(4) { animation-delay: 0.3s; }
-
-/* Update the existing CSS with these changes */
-
-/* Add these new styles */
-.mobile-menu-toggle {
-  display: none;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.5rem;
-  cursor: pointer;
-  margin-right: 1rem;
-}
-
-.side-nav {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-/* Mobile navigation styles */
-@media (max-width: 768px) {
-  .mobile-menu-toggle {
-    display: block;
-  }
-  
-  .side-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 1000;
-    transform: translateX(-100%);
-    opacity: 0;
-    margin: 0;
-    padding-top: 70px;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-    
-    ul {
-      flex-direction: column;
-      overflow-y: auto;
-      height: calc(100vh - 70px);
-    }
-    
-    .nav-item {
-      margin: 0;
-      
-      a {
-        padding: 1rem 1.5rem;
-        
-        &:hover {
-          transform: none !important;
-        }
-      }
-      
-      &.active a {
-        border-left: 4px solid var(--primary-color);
-        border-bottom: none;
-      }
-    }
-    
-    &.mobile-open {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    
-    &.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-  }
-}
-
-/* For very small mobile devices */
-@media (max-width: 480px) {
-  .side-nav {
-    width: 260px;
-  }
-  
-  .dashboard-header .logo-section h1 {
-    display: none;
-  }
-}
-
-/* Add these to your existing styles */
-
-.mobile-menu-toggle {
-  display: none;
-  margin-right: 1rem;
-  
-  mat-icon {
-    color: white;
-  }
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 998;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  
-  &.active {
-    opacity: 1;
-    pointer-events: all;
-  }
-}
-
-@media (max-width: 768px) {
-  .mobile-menu-toggle {
-    display: block;
-  }
-  
-  .side-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    height: 100vh;
-    z-index: 999;
-    transform: translateX(-100%);
+:host .submenu-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
     transition: transform 0.3s ease;
-    padding-top: 70px;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-    
-    &.mobile-open {
-      transform: translateX(0);
+}
+
+:host .submenu-icon.rotated {
+    transform: rotate(90deg);
+}
+
+:host .submenu {
+    max-height: 0;
+    overflow: hidden;
+    padding-left: 20px;
+    transition: max-height 0.3s ease;
+    background-color: rgba(0,0,0,0.03); /* Slight background for submenus */
+}
+
+:host .submenu.show {
+    max-height: 500px; /* Adjust based on your content for smooth transition */
+}
+
+:host .submenu li {
+    list-style-type: none;
+}
+
+/* Default submenu link styles (will be overridden for reports below) */
+:host .submenu a {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    color: inherit;
+    text-decoration: none;
+}
+
+:host .submenu a:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+:host .submenu .active {
+    background-color: rgba(25, 118, 210, 0.1);
+    color: #1976d2; /* Assuming a blue accent for active submenu items */
+}
+
+:host .submenu .active mat-icon {
+    color: #1976d2;
+}
+
+---
+
+:host .submenu li a {
+    color: red;
+}
+
+:host .submenu li a mat-icon {
+    color: red;
+}
+
+/* Hover state for red reports submenu items */
+:host .submenu li a:hover {
+    background-color: rgba(255, 0, 0, 0.05); /* Light red background on hover */
+    color: darkred; /* Slightly darker red on hover */
+}
+
+:host .submenu li a:hover mat-icon {
+    color: darkred; /* Darker red icon on hover */
+}
+
+/* Active state for red reports submenu items */
+:host .submenu .active {
+    background-color: rgba(255, 0, 0, 0.1); /* Light red background for active item */
+    color: darkred; /* Darker red for active text */
+}
+
+:host .submenu .active mat-icon {
+    color: darkred;
+}
+
+
+
+@media (max-width: 1200px) {
+    :host {
+        width: 240px;
     }
-    
-    ul {
-      flex-direction: column;
-      height: calc(100vh - 70px);
-      overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout - Sidebar collapses or becomes overlay */
+    :host { /* This is the <app-sidebar> element */
+        position: fixed; /* Overlay sidebar for mobile */
+        top: 0;
+        left: 0;
+        width: 280px; /* Fixed width for mobile overlay */
+        height: 100vh;
+        z-index: 999; /* Ensure it's above content and overlay */
+        transform: translateX(-100%); /* Hide off-screen by default */
+        transition: transform 0.3s ease;
+        padding-top: 60px; /* Space for the header if header is fixed */
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        border-right: none; /* Remove border when it's an overlay */
+        display: flex;
+        flex-direction: column;
     }
-    
-    .nav-item {
-      margin: 0;
-      
-      a {
-        padding: 1rem 1.5rem;
-        
-        &:hover {
-          transform: none !important;
-        }
-      }
-      
-      &.active a {
+
+    :host.mobile-open { /* When the mobile menu is open */
+        transform: translateX(0); /* Slide into view */
+    }
+
+    :host ul { /* Target the ul inside the mobile sidebar */
+        height: calc(100vh - 60px); /* Adjust height for content below header */
+        overflow-y: auto;
+        padding: 0 1rem; /* Adjust padding for mobile items */
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    :host .nav-item {
+        margin: 0; /* Remove horizontal margins for full width mobile items */
+        margin-bottom: 0.5rem; /* Add some vertical spacing */
+    }
+
+    :host .nav-item a {
+        padding: 1rem 1.25rem; /* Adjust padding for better touch targets */
+        transform: none; /* No horizontal movement on mobile hover for overlay nav */
+    }
+
+    :host .nav-item a:hover { /* Override desktop hover transform */
+      transform: none;
+    }
+
+    :host .nav-item.active a {
         border-left: 4px solid var(--primary-color);
+        padding-left: calc(1.25rem - 4px);
         border-bottom: none;
-      }
     }
-  }
-  
-  .content-area {
-    &.menu-open {
-      transform: translateX(280px);
+
+    /* Adjust submenu item padding for mobile if desired */
+    :host .submenu li a {
+      padding: 0.75rem 1.5rem 0.75rem 2.5rem; /* More indent for submenu items */
+      font-size: 0.9rem;
     }
-  }
+
+    /* Ensure red color applies on mobile too for reports submenu */
+    :host.mobile-open .submenu li a {
+      color: red;
+    }
+
+    :host.mobile-open .submenu li a mat-icon {
+      color: red;
+    }
+
+    :host.mobile-open .submenu li a:hover {
+      background-color: rgba(255, 0, 0, 0.05);
+      color: darkred;
+    }
+
+    :host.mobile-open .submenu .active {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: darkred;
+    }
+
+    :host.mobile-open .submenu .active mat-icon {
+      color: darkred;
+    }
 }
 
 @media (max-width: 480px) {
-  .side-nav {
-    width: 85%;
-  }
-  
-  .content-area {
-    &.menu-open {
-      transform: translateX(85%);
+    :host {
+        width: 85%; /* Make mobile sidebar slightly narrower for very small screens */
     }
-  }
-  
-  .dashboard-header .logo-section h1 {
-    display: none;
-  }
-}
-.nav-item .has-submenu {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.submenu-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.submenu {
-  max-height: 0;
-  overflow: hidden;
-  padding-left: 20px;
-  transition: max-height 0.3s ease;
-}
-
-.submenu.show {
-  max-height: 500px; /* Adjust based on your content */
-}
-
-.submenu li {
-  list-style: none;
-}
-
-.submenu a {
-  padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.submenu a:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.submenu .active {
-  background-color: rgba(25, 118, 210, 0.1);
-  color: #1976d2;
-}
-
-.submenu .active mat-icon {
-  color: #1976d2;
 }

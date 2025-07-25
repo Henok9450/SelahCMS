@@ -1,74 +1,69 @@
-
 <nav class="side-nav">
-    <ul>
-      <li class="nav-item active">
-        <a routerLink="/home">
-          <mat-icon>home</mat-icon>
-          <span>Home</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="../pages/dashboard">
-          <mat-icon>person</mat-icon>
-          <span>My Profile</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="../pages/user-management">
-          <mat-icon>manage_accounts</mat-icon>
-          <span>User Management</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="../pages/zone">
-          <mat-icon>location_on</mat-icon>
-          <span>Zones</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="../pages/hiyaw-mahider">
-          <mat-icon>diversity_3</mat-icon>
-          <span>Hiyaw Mahider</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="../pages/attendance">
-          <mat-icon>how_to_reg<</mat-icon>
-          <span>Attendance</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a routerLink="../pages/pastors">
-          <mat-icon>book</mat-icon> <!-- Alternative: "elderly" or "diversity_3" -->
-          <span>Pastors</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="/members">
-          <mat-icon>group</mat-icon>
-          <span>Members</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="../pages/tasks">
-          <mat-icon>assignment</mat-icon>
-          <span>Tasks</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="../pages/events">
-          <mat-icon>event</mat-icon>
-          <span>Events</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="/progress">
-          <mat-icon>trending_up</mat-icon>
-          <span>Progress</span>
-        </a>
-      </li>
-    <!-- Reports Section -->
-    <li class="nav-item" [class.active]="showReportsSubmenu">
+  <ul>
+    <li class="nav-item active">
+      <a routerLink="/home" (click)="onNavLinkClick()">
+        <mat-icon>home</mat-icon>
+        <span>Home</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/user-management" (click)="onNavLinkClick()">
+        <mat-icon>manage_accounts</mat-icon>
+        <span>User Management</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/zone" (click)="onNavLinkClick()">
+        <mat-icon>location_on</mat-icon>
+        <span>Zones</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/hiyaw-mahider" (click)="onNavLinkClick()">
+        <mat-icon>diversity_3</mat-icon>
+        <span>Hiyaw Mahider</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="isAdminOrLeadership$ | async">
+      <a routerLink="../pages/attendance" (click)="onNavLinkClick()">
+        <mat-icon>how_to_reg</mat-icon>
+        <span>Attendance</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/pastors" (click)="onNavLinkClick()">
+        <mat-icon>book</mat-icon>
+        <span>Pastors</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a routerLink="../pages/members-list" (click)="onNavLinkClick()">
+        <mat-icon>group</mat-icon>
+        <span>Members</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="(authService.isAdmin$ | async) || (isPastorOrDeputy$ | async)">
+      <a routerLink="../pages/tasks" (click)="onNavLinkClick()">
+        <mat-icon>assignment</mat-icon>
+        <span>Tasks</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/events" (click)="onNavLinkClick()">
+        <mat-icon>event</mat-icon>
+        <span>Events</span>
+      </a>
+    </li>
+
+    <li class="nav-item" [class.active]="showReportsSubmenu" *ngIf="isAdminOrLeadership$ | async">
       <a (click)="toggleReports()" class="has-submenu">
         <mat-icon>assessment</mat-icon>
         <span>Reports</span>
@@ -78,32 +73,26 @@
       </a>
       <ul class="submenu" [class.show]="showReportsSubmenu">
         <li *ngFor="let report of reports">
-          <a [routerLink]="['/reports', report.id]" routerLinkActive="active">
+          <a [routerLink]="['/reports', report.id]" routerLinkActive="active" (click)="onNavLinkClick()">
             <mat-icon>{{report.icon}}</mat-icon>
             <span>{{report.title}}</span>
           </a>
         </li>
       </ul>
     </li>
-      <li class="nav-item" >
-        <a routerLink="../pages/study-materials">
-          <mat-icon>menu_book</mat-icon>
-          <span>Study Materials</span>
-        </a>
-      </li>
-      <li class="nav-item" >
-        <a routerLink="/certificates">
-          <mat-icon>verified</mat-icon>
-          <span>Certificates</span>
-        </a>
-      </li>
-      <div class="overlay"></div>
-<button class="mobile-menu-toggle">☰</button>
-      <li class="nav-item" >
-        <a routerLink="/admin">
-          <mat-icon>admin_panel_settings</mat-icon>
-          <span>Admin</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+
+    <li class="nav-item">
+      <a routerLink="../pages/study-materials" (click)="onNavLinkClick()">
+        <mat-icon>menu_book</mat-icon>
+        <span>Study Materials</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </a>
+    </li>
+  </ul>
+</nav>

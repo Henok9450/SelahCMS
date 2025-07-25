@@ -1,421 +1,470 @@
 <div class="container">
-  <h2 class="page-title">Hiyaw Mahider Management</h2>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Hiyaw Mahider Management</mat-card-title>
+    </mat-card-header>
+  </mat-card>
 
-  <!-- Edit Form -->
-  <div *ngIf="isEditMode && editingItem" class="card edit-form-card">
-    <h3>Edit Hiyaw Mahider</h3>
-    
-    <form (ngSubmit)="saveEdit()">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="editCode">Code *</label>
-          <input type="text" id="editCode" 
-                 [(ngModel)]="editingItem.code" 
-                 name="editCode" 
-                 required>
-        </div>
-        
-        <div class="form-group">
-          <label for="editName">Name *</label>
-          <input type="text" id="editName" 
-                 [(ngModel)]="editingItem.name" 
-                 name="editName" 
-                 required>
-        </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="editLocation">Location *</label>
-          <input type="text" id="editLocation" 
-                 [(ngModel)]="editingItem.location" 
-                 name="editLocation" 
-                 required>
-        </div>
-        
-        <div class="form-group">
-          <label for="editZone">Zone</label>
-          <select id="editZone" [(ngModel)]="editingItem.zone" name="editZone">
-            <option value="">Select Zone</option>
-            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
-          </select>
-        </div>
-      </div>
+  <mat-card *ngIf="isEditMode && editingItem" class="edit-form-card">
+    <mat-card-header>
+      <mat-card-title>Edit Hiyaw Mahider</mat-card-title>
+    </mat-card-header>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="editStatus">Status</label>
-          <select id="editStatus" 
-                  [(ngModel)]="editingItem.status" 
-                  name="editStatus">
-            <option *ngFor="let status of statusOptions" [value]="status">
-              {{ status }}
-            </option>
-          </select>
+    <mat-card-content>
+      <form (ngSubmit)="saveEdit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Code *</mat-label>
+            <input matInput type="text" id="editCode"
+                   [(ngModel)]="editingItem.code"
+                   name="editCode"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Name *</mat-label>
+            <input matInput type="text" id="editName"
+                   [(ngModel)]="editingItem.name"
+                   name="editName"
+                   required>
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="editPastor">Pastor</label>
-          <div class="dropdown-container">
-            <input type="text" id="editPastor" 
-                   [ngModel]="editingItem.pastor || ''" 
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Location *</mat-label>
+            <input matInput type="text" id="editLocation"
+                   [(ngModel)]="editingItem.location"
+                   name="editLocation"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Host Name *</mat-label>
+            <input matInput type="text" id="editHostName"
+                   [(ngModel)]="editingItem.HostName"
+                   name="editHostName"
+                   required>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Host Contact Number *</mat-label>
+            <input matInput type="text" id="editHostContactNumber"
+                   [(ngModel)]="editingItem.HostContactNumber"
+                   name="editHostContactNumber"
+                   required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Zone</mat-label>
+            <mat-select id="editZone" [(ngModel)]="editingItem.zone" name="editZone">
+              <mat-option value="">Select Zone</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select id="editStatus"
+                        [(ngModel)]="editingItem.status"
+                        name="editStatus">
+              <mat-option *ngFor="let status of statusOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Pastor</mat-label>
+            <input matInput type="text" id="editPastor"
+                   [ngModel]="editingItem.pastor || ''"
                    (ngModelChange)="editingItem.pastor = $event || null"
                    name="editPastor"
-                   (click)="toggleDropdown('editPastor')"
-                   (input)="handlePastorInput($event, 'pastor')">
-            
-            <div *ngIf="showPastorDropdown && activePastorField === 'editPastor'" class="dropdown-list">
-              <div *ngFor="let pastor of filteredPastors" 
-                   class="dropdown-item"
-                   (click)="selectPastor(pastor, 'editPastor')">
+                   [matAutocomplete]="autoPastorEdit"
+                   (input)="handlePastorInput($event, 'pastor', 'edit')">
+            <mat-autocomplete #autoPastorEdit="matAutocomplete">
+              <mat-option *ngFor="let pastor of filteredPastorsEdit"
+                          (click)="selectPastor(pastor, 'editPastor')">
                 {{ pastor.name }}
-              </div>
-              <div *ngIf="filteredPastors.length === 0" class="dropdown-item">
+              </mat-option>
+              <mat-option *ngIf="filteredPastorsEdit.length === 0">
                 No pastors found
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="editDeputyPastor">Deputy Pastor</label>
-          <div class="dropdown-container">
-            <input type="text" id="editDeputyPastor" 
-                   [ngModel]="editingItem.deputyPastor || ''" 
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Deputy Pastor</mat-label>
+            <input matInput type="text" id="editDeputyPastor"
+                   [ngModel]="editingItem.deputyPastor || ''"
                    (ngModelChange)="editingItem.deputyPastor = $event || null"
                    name="editDeputyPastor"
-                   (click)="toggleDropdown('editDeputyPastor')"
-                   (input)="handlePastorInput($event, 'deputyPastor')">
-            
-            <div *ngIf="showDeputyPastorDropdown && activePastorField === 'editDeputyPastor'" class="dropdown-list">
-              <div *ngFor="let pastor of filteredDeputyPastors" 
-                   class="dropdown-item"
-                   (click)="selectPastor(pastor, 'editDeputyPastor')">
+                   [matAutocomplete]="autoDeputyPastorEdit"
+                   (input)="handlePastorInput($event, 'deputyPastor', 'edit')">
+            <mat-autocomplete #autoDeputyPastorEdit="matAutocomplete">
+              <mat-option *ngFor="let pastor of filteredDeputyPastorsEdit"
+                          (click)="selectPastor(pastor, 'editDeputyPastor')">
                 {{ pastor.name }}
-              </div>
-              <div *ngIf="filteredDeputyPastors.length === 0" class="dropdown-item">
+              </mat-option>
+              <mat-option *ngIf="filteredDeputyPastorsEdit.length === 0">
                 No pastors found
-              </div>
-            </div>
-          </div>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="editStudyDay">Study Day</label>
-          <select id="editStudyDay" 
-                  [ngModel]="editingItem.studyDay || ''" 
-                  (ngModelChange)="editingItem.studyDay = $event || null"
-                  name="editStudyDay">
-            <option value="">Select day</option>
-            <option *ngFor="let day of daysOfWeek" [value]="day">
-              {{ day }}
-            </option>
-          </select>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Study Day</mat-label>
+            <mat-select id="editStudyDay"
+                        [ngModel]="editingItem.studyDay || ''"
+                        (ngModelChange)="editingItem.studyDay = $event || null"
+                        name="editStudyDay">
+              <mat-option value="">Select day</mat-option>
+              <mat-option *ngFor="let day of daysOfWeek" [value]="day">
+                {{ day }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Study Time</mat-label>
+            <input matInput type="time" id="editStudyTime"
+                   [ngModel]="editingItem.studyTime || ''"
+                   (ngModelChange)="editingItem.studyTime = $event || null"
+                   name="editStudyTime">
+          </mat-form-field>
         </div>
-        
-        <div class="form-group">
-          <label for="editStudyTime">Study Time</label>
-          <input type="time" id="editStudyTime" 
-                 [ngModel]="editingItem.studyTime || ''" 
-                 (ngModelChange)="editingItem.studyTime = $event || null"
-                 name="editStudyTime">
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
+          <button mat-button type="button" (click)="cancelEdit()">
+            Cancel
+          </button>
         </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="isLoading">
-          {{ isLoading ? 'Saving...' : 'Save Changes' }}
-        </button>
-        <button type="button" (click)="cancelEdit()" class="btn-secondary">
-          Cancel
-        </button>
-      </div>
-    </form>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div *ngIf="errorMessage">
+    <mat-error class="alert-error">
+      {{ errorMessage }}
+    </mat-error>
+  </div>
+  <div *ngIf="successMessage">
+    <mat-card class="alert-success">
+      {{ successMessage }}
+    </mat-card>
   </div>
 
-  <!-- Error and Success Messages -->
-  <div *ngIf="errorMessage" class="alert alert-error">
-    {{ errorMessage }}
-  </div>
-  <div *ngIf="successMessage" class="alert alert-success">
-    {{ successMessage }}
-  </div>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Search Hiyaw Mahiders</mat-card-title>
+    </mat-card-header>
 
-  <!-- Search Section -->
-  <div class="card search-card">
-    <h3 class="section-title">Search Hiyaw Mahiders</h3>
-    <div class="search-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="searchName">Name</label>
-          <input type="text" id="searchName" [(ngModel)]="searchFilters.name" name="searchName" 
-                 placeholder="Search by name (partial matches accepted)">
-        </div>
-        
-        <div class="form-group">
-          <label for="searchPastor">Pastor</label>
-          <input type="text" id="searchPastor" [(ngModel)]="searchFilters.pastor" name="searchPastor" 
-                 placeholder="Search by pastor">
-        </div>
-      </div>
+    <mat-card-content>
+      <form class="search-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Name</mat-label>
+            <input matInput type="text" id="searchName" [(ngModel)]="searchFilters.name" name="searchName"
+                   placeholder="Search by name (partial matches accepted)">
+          </mat-form-field>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="searchDeputyPastor">Deputy Pastor</label>
-          <input type="text" id="searchDeputyPastor" [(ngModel)]="searchFilters.deputyPastor" 
-                 name="searchDeputyPastor" placeholder="Search by deputy pastor">
+          <mat-form-field appearance="outline">
+            <mat-label>Pastor</mat-label>
+            <input matInput type="text" id="searchPastor" [(ngModel)]="searchFilters.pastor" name="searchPastor"
+                   placeholder="Search by pastor">
+          </mat-form-field>
         </div>
-        
-        <div class="form-group">
-          <label for="searchLocation">Location</label>
-          <input type="text" id="searchLocation" [(ngModel)]="searchFilters.location" 
-                 name="searchLocation" placeholder="Search by location">
-        </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="searchCode">Code</label>
-          <input type="text" id="searchCode" [(ngModel)]="searchFilters.code" name="searchCode" 
-                 placeholder="Search by code">
-        </div>
-        
-        <div class="form-group">
-          <label for="searchStatus">Status</label>
-          <select id="searchStatus" [(ngModel)]="searchFilters.status" name="searchStatus">
-            <option value="">All Statuses</option>
-            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-          </select>
-        </div>
-      </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Deputy Pastor</mat-label>
+            <input matInput type="text" id="searchDeputyPastor" [(ngModel)]="searchFilters.deputyPastor"
+                   name="searchDeputyPastor" placeholder="Search by deputy pastor">
+          </mat-form-field>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="searchZone">Zone</label>
-          <select id="searchZone" [(ngModel)]="searchFilters.zone" name="searchZone">
-            <option value="">All Zones</option>
-            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
-          </select>
+          <mat-form-field appearance="outline">
+            <mat-label>Location</mat-label>
+            <input matInput type="text" id="searchLocation" [(ngModel)]="searchFilters.location"
+                   name="searchLocation" placeholder="Search by location">
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="button" (click)="onSearch()" [disabled]="isLoading">
-          {{ isLoading ? 'Searching...' : 'Search' }}
-        </button>
-        <button type="button" (click)="resetSearch()" class="btn-secondary">Reset</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- Results Section -->
-  <div class="card results-card">
-    <h3 class="section-title">Hiyaw Mahiders</h3>
-    
-    <div *ngIf="isLoading" class="loading-indicator">
-      <div class="spinner"></div>
-      <span>Loading Hiyaw Mahiders...</span>
-    </div>
-    
-    <ng-container *ngIf="hiyawMahiders$ | async as hiyawMahiders">
-      <div *ngIf="hiyawMahiders.length === 0" class="empty-state">
-        No Hiyaw Mahiders found
-        <span *ngIf="hasActiveFilters()">matching your search criteria</span>
-      </div>
-      <div *ngIf="hiyawMahiders.length > 0 && !hasActiveFilters() && !showAllResults" class="search-prompt">
-      </div>
-      <div class="results-grid">
-        <div *ngFor="let hm of hiyawMahiders" class="hm-card">
-          <div class="hm-card-header">
-            <h4>{{ hm.code }} - {{ hm.name }}</h4>
-            <span class="status-badge {{ hm.status.toLowerCase() }}">{{ hm.status }}</span>
-          </div>
-          
-          <div class="hm-card-body">
-            <div class="hm-detail">
-              <span class="detail-label">Location:</span>
-              <span class="detail-value">{{ hm.location }}</span>
-            </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Code</mat-label>
+            <input matInput type="text" id="searchCode" [(ngModel)]="searchFilters.code" name="searchCode"
+                   placeholder="Search by code">
+          </mat-form-field>
 
-            <div class="hm-detail">
-              <span class="detail-label">Zone:</span>
-              <span class="detail-value">{{ getZoneName(hm.zone) || 'Not specified' }}</span>
-            </div>
-            
-            <div class="hm-detail">
-              <span class="detail-label">Pastor:</span>
-              <span class="detail-value">{{ hm.pastor || 'Not specified' }}</span>
-            </div>
-
-            <div class="hm-detail">
-              <span class="detail-label">Deputy Pastor:</span>
-              <span class="detail-value">{{ hm.deputyPastor || 'Not specified' }}</span>
-            </div>
-            
-            <div *ngIf="hm.studyDay" class="hm-detail">
-              <span class="detail-label">Study:</span>
-              <span class="detail-value">
-                {{ hm.studyDay }} at {{ hm.studyTime || 'unspecified time' }}
-              </span>
-            </div>
-            
-            <div class="hm-detail">
-              <span class="detail-label">Created:</span>
-              <span class="detail-value">{{ (getSafeDate(hm.createdDate) | toDate) | date:'mediumDate' }}</span>
-            </div>
-          </div>
-          <div class="hm-actions">
-            <button type="button" 
-                    class="btn-edit" 
-                    (click)="startEdit(hm)"
-                    [disabled]="processingIds.has(hm.id)">
-              {{ processingIds.has(hm.id) ? 'Editing...' : 'Edit' }}
-            </button>
-            <button type="button" 
-                    class="btn-delete" 
-                    (click)="onDelete(hm.id, hm.name)"
-                    [disabled]="processingIds.has(hm.id)">
-              {{ processingIds.has(hm.id) ? 'Deleting...' : 'Delete' }}
-            </button>
-          </div>
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select id="searchStatus" [(ngModel)]="searchFilters.status" name="searchStatus">
+              <mat-option value="">All Statuses</mat-option>
+              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Zone</mat-label>
+            <mat-select id="searchZone" [(ngModel)]="searchFilters.zone" name="searchZone">
+              <mat-option value="">All Zones</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="button" (click)="onSearch()" [disabled]="isLoading">
+            {{ isLoading ? 'Searching...' : 'Search' }}
+          </button>
+          <button mat-button type="button" (click)="resetSearch()">Reset</button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Hiyaw Mahiders</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-indicator">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Loading Hiyaw Mahiders...</span>
       </div>
 
-      <!-- Show All button -->
-      <div *ngIf="hiyawMahiders.length === 4 && !showAllResults && !hasActiveFilters()"
-           class="show-more-container">
-        <button type="button" (click)="showAll()" class="btn-show-more">
-          Show All Hiyaw Mahiders
-        </button>
-      </div>
-    </ng-container>
-  </div>
+      <ng-container *ngIf="dataSource.data.length === 0 && (hasActiveFilters() || initialLoadComplete)" class="empty-state">
+        <div class="empty-state">
+          No Hiyaw Mahiders found
+          <span *ngIf="hasActiveFilters()">matching your search criteria</span>
+        </div>
+      </ng-container>
 
-  <!-- Create New Section -->
-  <div class="card form-card">
-    <h3 class="section-title">Create New Hiyaw Mahider</h3>
-    
-    <form (ngSubmit)="onSubmit()">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="code">Code *</label>
-          <input type="text" id="code" 
-                 [(ngModel)]="newHiyawMahider.code" 
-                 name="code" 
-                 required
-                 placeholder="Enter unique code (e.g., ETH-001)">
-          <small class="error-hint" *ngIf="codeError">{{ codeError }}</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="name">Name *</label>
-          <input type="text" id="name" [(ngModel)]="newHiyawMahider.name" name="name" required>
-        </div>
+      <div *ngIf="dataSource.data.length > 0" class="mat-elevation-z2">
+        <table mat-table [dataSource]="dataSource" class="full-width-table">
+
+          <ng-container matColumnDef="code">
+            <th mat-header-cell *matHeaderCellDef> Code </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.code }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.name }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef> Location </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.location }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hostName">
+            <th mat-header-cell *matHeaderCellDef> Host Name </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.HostName }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hostContactNumber">
+            <th mat-header-cell *matHeaderCellDef> Host Contact </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.HostContactNumber }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="zone">
+            <th mat-header-cell *matHeaderCellDef> Zone </th>
+            <td mat-cell *matCellDef="let hm"> {{ getZoneName(hm.zone) || 'N/A' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <td mat-cell *matCellDef="let hm">
+              <span class="status-badge {{ hm.status.toLowerCase().replace(' ', '-') }}">{{ hm.status }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="pastor">
+            <th mat-header-cell *matHeaderCellDef> Pastor </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.pastor || 'N/A' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="deputyPastor">
+            <th mat-header-cell *matHeaderCellDef> Deputy Pastor </th>
+            <td mat-cell *matCellDef="let hm"> {{ hm.deputyPastor || 'N/A' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="study">
+            <th mat-header-cell *matHeaderCellDef> Study </th>
+            <td mat-cell *matCellDef="let hm">
+              <span *ngIf="hm.studyDay">{{ hm.studyDay }} at {{ hm.studyTime || 'unspecified' }}</span>
+              <span *ngIf="!hm.studyDay">N/A</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef> Created </th>
+            <td mat-cell *matCellDef="let hm"> {{ (getSafeDate(hm.createdDate) | date:'mediumDate') || 'N/A' }} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let hm">
+              <button mat-icon-button color="primary" (click)="startEdit(hm)" [disabled]="processingIds.has(hm.id)" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="onDelete(hm.id, hm.name)" [disabled]="processingIds.has(hm.id)" matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
       </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="location">Location *</label>
-          <input type="text" id="location" [(ngModel)]="newHiyawMahider.location" name="location" required>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Create New Hiyaw Mahider</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Code *</mat-label>
+            <input matInput type="text" id="code"
+                   [(ngModel)]="newHiyawMahider.code"
+                   name="code"
+                   required
+                   placeholder="Enter unique code (e.g., ETH-001)">
+            <mat-error *ngIf="codeError">{{ codeError }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Name *</mat-label>
+            <input matInput type="text" id="name" [(ngModel)]="newHiyawMahider.name" name="name" required>
+          </mat-form-field>
         </div>
-        
-        <div class="form-group">
-          <label for="zone">Zone</label>
-          <select id="zone" [(ngModel)]="newHiyawMahider.zone" name="zone">
-            <option value="">Select Zone</option>
-            <option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</option>
-          </select>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Host Name *</mat-label>
+            <input matInput type="text" id="HostName" [(ngModel)]="newHiyawMahider.HostName" name="HostName" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Host Contact Number *</mat-label>
+            <input matInput type="text" id="HostContactNumber" [(ngModel)]="newHiyawMahider.HostContactNumber" name="HostContactNumber" required>
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" [(ngModel)]="newHiyawMahider.status" name="status">
-            <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-          </select>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Location *</mat-label>
+            <input matInput type="text" id="location" [(ngModel)]="newHiyawMahider.location" name="location" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Zone</mat-label>
+            <mat-select id="zone" [(ngModel)]="newHiyawMahider.zone" name="zone">
+              <mat-option value="">Select Zone</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="pastor">Pastor</label>
-          <div class="dropdown-container">
-            <input type="text" id="pastor" 
-                   [ngModel]="newHiyawMahider.pastor || ''" 
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select id="status" [(ngModel)]="newHiyawMahider.status" name="status">
+              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Pastor</mat-label>
+            <input matInput type="text" id="pastor"
+                   [ngModel]="newHiyawMahider.pastor || ''"
                    (ngModelChange)="newHiyawMahider.pastor = $event || null"
                    name="pastor"
-                   (click)="toggleDropdown('pastor')"
-                   (input)="handlePastorInput($event, 'pastor')">
-            
-            <div *ngIf="showPastorDropdown && activePastorField === 'pastor'" class="dropdown-list">
-              <div *ngFor="let pastor of filteredPastors" 
-                   class="dropdown-item"
-                   (click)="selectPastor(pastor, 'pastor')">
+                   [matAutocomplete]="autoPastor"
+                   (input)="handlePastorInput($event, 'pastor', 'create')">
+            <mat-autocomplete #autoPastor="matAutocomplete">
+              <mat-option *ngFor="let pastor of filteredPastorsCreate"
+                          (click)="selectPastor(pastor, 'pastor')">
                 {{ pastor.name }}
-              </div>
-              <div *ngIf="filteredPastors.length === 0" class="dropdown-item">
+              </mat-option>
+              <mat-option *ngIf="filteredPastorsCreate.length === 0">
                 No pastors found
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="deputyPastor">Deputy Pastor</label>
-          <div class="dropdown-container">
-            <input type="text" id="deputyPastor" 
-                   [ngModel]="newHiyawMahider.deputyPastor || ''" 
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Deputy Pastor</mat-label>
+            <input matInput type="text" id="deputyPastor"
+                   [ngModel]="newHiyawMahider.deputyPastor || ''"
                    (ngModelChange)="newHiyawMahider.deputyPastor = $event || null"
                    name="deputyPastor"
-                   (click)="toggleDropdown('deputyPastor')"
-                   (input)="handlePastorInput($event, 'deputyPastor')">
-            
-            <div *ngIf="showDeputyPastorDropdown && activePastorField === 'deputyPastor'" class="dropdown-list">
-              <div *ngFor="let pastor of filteredDeputyPastors" 
-                   class="dropdown-item"
-                   (click)="selectPastor(pastor, 'deputyPastor')">
+                   [matAutocomplete]="autoDeputyPastor"
+                   (input)="handlePastorInput($event, 'deputyPastor', 'create')">
+            <mat-autocomplete #autoDeputyPastor="matAutocomplete">
+              <mat-option *ngFor="let pastor of filteredDeputyPastorsCreate"
+                          (click)="selectPastor(pastor, 'deputyPastor')">
                 {{ pastor.name }}
-              </div>
-              <div *ngIf="filteredDeputyPastors.length === 0" class="dropdown-item">
+              </mat-option>
+              <mat-option *ngIf="filteredDeputyPastorsCreate.length === 0">
                 No pastors found
-              </div>
-            </div>
-          </div>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
         </div>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-group">
-          <label for="studyDay">Study Day</label>
-          <select id="studyDay" 
-                  [ngModel]="newHiyawMahider.studyDay || ''" 
-                  (ngModelChange)="newHiyawMahider.studyDay = $event || null"
-                  name="studyDay">
-            <option value="">Select day</option>
-            <option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</option>
-          </select>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Study Day</mat-label>
+            <mat-select id="studyDay"
+                        [ngModel]="newHiyawMahider.studyDay || ''"
+                        (ngModelChange)="newHiyawMahider.studyDay = $event || null"
+                        name="studyDay">
+              <mat-option value="">Select day</mat-option>
+              <mat-option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Study Time</mat-label>
+            <input matInput type="time" id="studyTime"
+                   [ngModel]="newHiyawMahider.studyTime || ''"
+                   (ngModelChange)="newHiyawMahider.studyTime = $event || null"
+                   name="studyTime">
+          </mat-form-field>
         </div>
-        
-        <div class="form-group">
-          <label for="studyTime">Study Time</label>
-          <input type="time" id="studyTime" 
-                 [ngModel]="newHiyawMahider.studyTime || ''" 
-                 (ngModelChange)="newHiyawMahider.studyTime = $event || null"
-                 name="studyTime">
+
+        <div class="form-actions">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+            {{ isLoading ? 'Creating...' : 'Create Hiyaw Mahider' }}
+          </button>
+          <button mat-button type="button" (click)="resetForm()">Reset Form</button>
         </div>
-      </div>
-      
-      <div class="form-actions">
-        <button type="submit" [disabled]="isLoading">
-          {{ isLoading ? 'Creating...' : 'Create Hiyaw Mahider' }}
-        </button>
-        <button type="button" (click)="resetForm()" class="btn-secondary">Reset Form</button>
-      </div>
-    </form>
-  </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 </div>

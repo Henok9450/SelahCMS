@@ -1,0 +1,48 @@
+<!-- members-list.component.html -->
+<div class="members-list-container">
+  <h2>Members List</h2>
+
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-spinner diameter="30"></mat-spinner> Loading members...
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <mat-icon>error_outline</mat-icon> {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!isLoading && !errorMessage && (members$ | async) as members">
+    <div *ngIf="members.length === 0" class="no-members-found">
+      No members found for your assigned Hiyaw Mahider.
+    </div>
+
+    <div *ngIf="members.length > 0">
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Contact (Phone)</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let member of paginatedMembers">
+            <td>{{ member?.fullName || 'N/A' }}</td>
+            <td>{{ member?.phoneNumber || 'N/A' }}</td>
+            <td>{{ member?.role || 'N/A' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Add the paginator here -->
+      <mat-paginator 
+        [length]="totalMembers"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        [pageIndex]="pageIndex"
+        (page)="onPageChange($event)"
+        aria-label="Select page"
+        class="custom-paginator">
+      </mat-paginator>
+    </div>
+  </ng-container>
+</div>

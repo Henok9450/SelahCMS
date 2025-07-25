@@ -1,46 +1,31 @@
-// import { Injectable } from '@angular/core';
-// import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-// import { AuthService } from './auth.service';
-// import { UserService } from '../core/user.service';
-// import { map, switchMap, take } from 'rxjs/operators';
-// import { Observable, of } from 'rxjs';
-// import { User } from '../core/user.model';
+import { Injectable } from '@angular/core';
+import { CanActivate, ActivatedRouteSnapshot, Router } from '@angular/router';
+import { AuthService } from '../core/auth.service';
+import { map, take } from 'rxjs/operators';
+import { AppRole } from '../core/role.utils';
 
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class RoleGuard implements CanActivate {
-//   constructor(
-//     private authService: AuthService,
-//     private userService: UserService,
-//     private router: Router
-//   ) {}
+@Injectable({ providedIn: 'root' })
+export class RoleGuard implements CanActivate {
+  constructor(private auth: AuthService, private router: Router) {}
 
-//   canActivate(
-//     next: ActivatedRouteSnapshot,
-//     state: RouterStateSnapshot
-//   ): Observable<boolean> {
-//     const allowedRoles = next.data['roles'] as string[];
+  canActivate(route: ActivatedRouteSnapshot) {
+    const requiredRoles = route.data['roles'] as AppRole[];
     
-//     return this.authService.authState.pipe(
-//       take(1),
-//       switchMap(user => {
-//         if (!user) {
-//           this.router.navigate(['/login']);
-//           return of(false);
-//         }
-//         return this.userService.getUser(user.uid).pipe(
-//           map(userDoc => this.checkUserRole(userDoc, allowedRoles))
-//         );
-//       })
-//     );
-//   }
-
-//   private checkUserRole(userDoc: User | undefined, allowedRoles: string[]): boolean {
-//     if (userDoc && allowedRoles.includes(userDoc.role)) {
-//       return true;
-//     }
-//     this.router.navigate(['/unauthorized']);
-//     return false;
-//   }
-// }
+    return this.auth.authState$.pipe(
+      take(1),
+      map(user => {
+        if (!user) {
+          this.router.navigate(['/login']);
+          return false;
+        }
+        
+        if (!requiredRoles || requiredRoles.includes(user.role)) {
+          return true;
+        }
+        
+        this.router.navigate(['/unauthorized']);
+        return false;
+      })
+    );
+  }
+}

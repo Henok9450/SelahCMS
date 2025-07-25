@@ -13,11 +13,11 @@
   <mat-card class="search-panel">
     <div class="search-controls">
       <!-- Username Search -->
-      <mat-form-field appearance="outline" class="search-field">
+      <!-- <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search by Username</mat-label>
         <input matInput [(ngModel)]="searchParams.username" (input)="applyFilters()">
         <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      </mat-form-field> -->
 
       <!-- Hiyaw Mahider Search -->
       <mat-form-field appearance="outline" class="search-field">
@@ -60,7 +60,7 @@
     <div class="table-container">
       <table mat-table [dataSource]="(users$ | async) || []" class="mat-elevation-z0">
         <!-- Username Column -->
-        <ng-container matColumnDef="userName">
+        <!-- <ng-container matColumnDef="userName">
           <th mat-header-cell *matHeaderCellDef>Username</th>
           <td mat-cell *matCellDef="let user" class="username-cell">
             <span class="username">{{user.userName}}</span>
@@ -68,12 +68,25 @@
               {{user.role}}
             </span>
           </td>
-        </ng-container>
+        </ng-container> -->
 
         <!-- Full Name Column -->
         <ng-container matColumnDef="fullName">
           <th mat-header-cell *matHeaderCellDef>Full Name</th>
-          <td mat-cell *matCellDef="let user">{{user.fullName}}</td>
+          <td mat-cell *matCellDef="let user">
+            <div class="full-name-cell"> <span class="full-name">{{user.fullName}}</span>
+              <span class="role-badge" [ngClass]="'role-' + user.role?.toLowerCase()">
+                {{user.role}}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Email Column -->
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>Email</th>
+          <td mat-cell *matCellDef="let user">{{user.email}}</td>
         </ng-container>
 
         <!-- Contact Column -->

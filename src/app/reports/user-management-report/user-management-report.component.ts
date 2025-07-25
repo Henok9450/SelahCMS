@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
-import { ReportService } from '../../core/report.service';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { UserReportService, TransformedUser } from '../../core/user-report.service';
+import { firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ReportFiltersComponent } from '../report-filters.component';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-user-management-report',
@@ -20,78 +24,145 @@ import { MatIconModule } from '@angular/material/icon';
     ReportFiltersComponent,
     MatCardModule,
     MatButtonModule,
+    MatChipsModule,
     MatTableModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatIconModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTooltipModule,
     DatePipe
   ],
   templateUrl: './user-management-report.component.html',
   styleUrls: ['./user-management-report.component.css'],
 })
-export class UserManagementReportComponent {
-  reportData$ = new BehaviorSubject<any>(null);
+export class UserManagementReportComponent implements AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  dataSource = new MatTableDataSource<TransformedUser>([]);
   displayedColumns: string[] = [
-    'username', 
-    'fullName', 
+    'email',
+    'fullName',
     'phoneNumber',
     'role',
     'hiyawMahider',
-    'status', 
+    'status',
     'createdAt'
   ];
   loading = false;
   filters: any = {};
   error: string | null = null;
   showIds: boolean = false;
+  pageSizeOptions = [5, 10, 25, 100];
+  defaultPageSize = 10;
+
+  totalUsers: number = 0;
+  activeUsers: number = 0;
+  inactiveUsers: number = 0;
 
   constructor(
-    private reportService: ReportService,
-    private snackBar: MatSnackBar
-  ) {
+    private userReportService: UserReportService,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef 
+  ) {}
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.loadUsers();
   }
 
   onFiltersChanged(filters: any) {
-    this.filters = filters;
+    // Convert empty/ALL values to undefined
+    this.filters = {
+      status: filters.status === 'ALL' ? undefined : filters.status,
+      role: filters.role === 'ALL' ? undefined : filters.role,
+      hiyawMahiderId: filters.hiyawMahiderId === 'ALL' ? undefined : filters.hiyawMahiderId,
+      startDate: filters.startDate || undefined,
+      endDate: filters.endDate || undefined
+    };
+    
+    console.log('Applying filters:', this.filters); 
     this.loadUsers();
   }
 
   async loadUsers() {
-    this.loading = true;
-    this.error = null;
     
+    setTimeout(() => {
+      this.loading = true;
+      this.cdr.detectChanges(); 
+    });
+    
+    this.error = null;
+    this.dataSource.data = [];
+
     try {
-      const users = await firstValueFrom(
-        this.reportService.getUsers(this.filters).pipe(
-          finalize(() => this.loading = false)
-        )
-      );
-      
-      // Transform users with resolved Hiyaw Mahider names
-      const transformedUsers = await Promise.all(
+      const users: TransformedUser[] = await this.userReportService.getUsers(this.filters);
+
+      console.log('Raw users data from API (via UserReportService):', users);
+
+      if (!users || users.length === 0) {
+        this.error = 'No records found matching your filter criteria';
+        this.snackBar.open(this.error, 'Dismiss', { duration: 5000 });
+        this.updateSummaryData(0, 0, 0, []);
+        // Set loading to false here as no data was found
+        this.loading = false; 
+        return;
+      }
+
+      const transformedUsers: TransformedUser[] = await Promise.all(
         users.map(async user => {
-          const transformed = user;
-          if (transformed.hiyawMahiderId && transformed.hiyawMahiderId !== 'N/A') {
-            transformed.hiyawMahider = await this.reportService.getHiyawMahiderName(transformed.hiyawMahiderId);
+          if (user.hiyawMahiderId && user.hiyawMahiderId !== 'N/A') {
+            user.hiyawMahider = await this.userReportService.getHiyawMahiderName(user.hiyawMahiderId);
+          } else {
+            user.hiyawMahider = 'N/A';
           }
-          return transformed;
+          console.log('Transformed user with Hiyaw Mahider name:', user);
+          return user;
         })
       );
-      
-      const reportData = this.reportService.generateUserReport(transformedUsers);
-      this.reportData$.next(reportData);
+
+      console.log('All transformed users (final):', transformedUsers);
+
+      const activeUsers = transformedUsers.filter(u => u.status === 'Active').length;
+      const inactiveUsers = transformedUsers.filter(u => u.status === 'Inactive').length;
+
+      this.updateSummaryData(
+        transformedUsers.length,
+        activeUsers,
+        inactiveUsers,
+        transformedUsers
+      );
+
     } catch (err) {
       console.error('Error loading users:', err);
       this.error = 'Failed to load user data';
       this.snackBar.open(this.error, 'Dismiss', { duration: 5000 });
+      this.updateSummaryData(0, 0, 0, []);
+    } finally {
+        // Ensure loading is set to false whether success or error
+        this.loading = false; 
+    }
+  }
+
+  private updateSummaryData(total: number, active: number, inactive: number, userList: TransformedUser[]) {
+    console.log('Updating data with:', { total, active, inactive, userList });
+    this.totalUsers = total;
+    this.activeUsers = active;
+    this.inactiveUsers = inactive;
+    this.dataSource.data = userList;
+
+    if (this.paginator) {
+      this.paginator.length = total;
+      this.paginator.firstPage();
     }
   }
 
   exportToCSV() {
-    const currentData = this.reportData$.value;
-    if (currentData?.userList?.length) {
-      this.reportService.exportToCSV(currentData.userList, 'user-management-report');
+    if (this.dataSource.data.length) {
+      this.userReportService.exportToCSV(this.dataSource.data, 'user-management-report');
     } else {
       this.snackBar.open('No data available to export', 'Dismiss', { duration: 3000 });
     }

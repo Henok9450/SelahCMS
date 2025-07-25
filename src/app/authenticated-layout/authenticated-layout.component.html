@@ -1,0 +1,19 @@
+<div class="layout-container">
+    <!-- Show loading spinner while verifying auth state -->
+    <div *ngIf="isLoading" class="loading-overlay">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  
+    <!-- Main layout (only shown when authenticated) -->
+    <div *ngIf="authService.authState$ | async as user" class="main-layout">
+      <!-- Sidebar Navigation -->
+      <app-sidebar class="sidebar"></app-sidebar>
+  
+      
+  
+      <!-- Main Content Area -->
+      <main class="content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>

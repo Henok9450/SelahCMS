@@ -1,0 +1,385 @@
+/* General Body and Container Styling */
+body {
+  font-family: 'Roboto', sans-serif; /* Angular Material's default font */
+  margin: 0;
+  background-color: #f5f5f5; /* Light grey background */
+}
+
+.follow-up-container {
+  padding: 16px;
+  max-width: 1200px; /* Max width for larger screens */
+  margin: 16px auto; /* Center the container */
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border-radius: 8px; /* Slightly rounded corners */
+}
+
+h2 {
+  color: #3f51b5; /* Primary Material Design color */
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #616161;
+  margin-bottom: 24px;
+  font-size: 0.9em;
+}
+
+/* Filter Section Styling */
+.filter-section {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  gap: 16px; /* Space between form fields */
+  margin-bottom: 24px;
+  align-items: flex-end; /* Align input fields at the bottom */
+}
+
+.mat-form-field {
+  flex: 1 1 calc(50% - 16px); /* Two items per row on medium screens */
+  min-width: 250px; /* Minimum width for form fields */
+}
+
+/* Adjust for small screens: one form field per row */
+@media (max-width: 600px) {
+  .mat-form-field {
+      flex: 1 1 100%; /* Full width on small screens */
+  }
+}
+
+/* Button Group Styling */
+.button-group {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  gap: 8px;
+  width: 100%; /* Ensure buttons take full width if filters wrap */
+  margin-top: 16px;
+}
+
+.button-group button {
+  padding: 8px 16px; /* Adjust button padding */
+}
+
+/* Loading Spinner Styling */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #3f51b5;
+}
+
+.loading-spinner span {
+  margin-top: 10px;
+  font-size: 1.1em;
+}
+
+/* Report Sections (Accordion) Styling */
+.report-sections {
+  margin-top: 32px;
+}
+
+mat-expansion-panel {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden; /* Ensures border-radius applies to content */
+}
+
+mat-expansion-panel-header {
+  background-color: #e8eaf6; /* Light indigo for header */
+  color: #3f51b5;
+}
+
+mat-panel-title {
+  font-weight: 500; /* Medium font weight for titles */
+}
+
+mat-panel-description {
+  color: #616161;
+}
+
+/* Table Styling */
+.follow-up-table {
+  width: 100%;
+  /* Ensure table itself doesn't cause horizontal scroll on small screens */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  box-shadow: none; /* Remove default table shadow if any */
+}
+
+/* Responsive Table Cells */
+.mat-header-cell, .mat-cell {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  white-space: nowrap; /* Prevent text wrapping in cells by default */
+}
+
+/* Data-specific columns can allow wrapping if content is long */
+.mat-column-reason,
+.mat-column-fullName {
+  white-space: normal;
+}
+
+/* For small screens, make table columns stack or scroll */
+@media (max-width: 768px) {
+  .follow-up-table {
+      border: 1px solid #e0e0e0; /* Add a border to the table on small screens */
+  }
+
+  /* Hide some less critical columns on smaller screens, or make them responsive */
+  .mat-column-zone,
+  .mat-column-hiyawMahiderName {
+      /* You can choose to hide them or make them smaller */
+      /* display: none; */
+      min-width: 100px; /* Ensure they still have some width if not hidden */
+  }
+
+  /* You could also consider a "card" like layout for rows on very small screens,
+     but this requires more complex Angular Material table customization.
+     For now, horizontal scrolling is a simpler responsive approach for tables. */
+}
+
+.no-results {
+  padding: 20px;
+  text-align: center;
+  color: #757575;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  font-style: italic;
+}
+
+/* Member Details Card Styling - Enhanced */
+.member-details-card {
+    margin-top: 40px; /* Slightly more space from previous section */
+    max-width: 650px; /* A bit wider for content */
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 12px; /* More rounded corners */
+    overflow: hidden; /* Ensures header/footer radius applies */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Deeper, softer shadow */
+    transition: transform 0.3s ease-in-out; /* Subtle hover effect for engagement */
+}
+
+.member-details-card:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.member-details-card mat-card-header {
+    background: linear-gradient(45deg, #3f51b5, #5c6bc0); /* Gradient background */
+    color: white;
+    padding: 24px; /* More padding for header */
+    display: flex;
+    flex-direction: column; /* Stack title and subtitle */
+    align-items: flex-start; /* Align text to the left */
+    gap: 4px; /* Space between title and subtitle */
+}
+
+.member-details-card mat-card-title {
+    font-size: 1.8em; /* Larger title font */
+    font-weight: 700; /* Bolder title */
+    color: white;
+    letter-spacing: -0.5px; /* Tighter letter spacing for impact */
+}
+
+.member-details-card mat-card-subtitle {
+    font-size: 1.1em; /* Slightly larger subtitle */
+    color: rgba(255, 255, 255, 0.85); /* Whiter subtitle */
+    font-weight: 300; /* Lighter font weight */
+}
+
+.member-details-card mat-card-content {
+    padding: 24px; /* More internal padding */
+    background-color: #fcfcfc; /* Slightly off-white background for content */
+}
+
+.member-details-card mat-list {
+    padding: 0; /* Remove default list padding */
+}
+
+.member-details-card mat-list-item {
+    height: auto !important;
+    padding: 12px 0; /* More vertical padding for items */
+    border-bottom: 1px solid #e0e0e0; /* Subtle divider between items */
+    display: flex; /* Use flexbox for alignment of icon, title, and line */
+    align-items: flex-start; /* Align items to the top */
+}
+
+.member-details-card mat-list-item:last-child {
+    border-bottom: none; /* No border for the last item */
+}
+
+/* Style for the icon container within mat-list-item */
+.member-details-card mat-list-item .item-icon {
+    margin-right: 12px; /* Space between icon and text */
+    flex-shrink: 0; /* Prevent icon from shrinking */
+    padding-top: 4px; /* Adjust icon vertical alignment */
+}
+
+/* Style for SVG icons */
+.member-details-card mat-list-item .item-icon svg {
+    width: 24px; /* Standard icon size */
+    height: 24px;
+    fill: #616161; /* Grey color for icons */
+}
+
+
+.member-details-card mat-list-item .mat-list-item-content {
+    display: flex;
+    flex-direction: column; /* Stack title and line */
+    align-items: flex-start;
+    padding: 0; /* Remove default content padding */
+    flex-grow: 1; /* Allow content to take available space */
+}
+
+.member-details-card mat-list-item .mat-list-item-content span[matListItemTitle] {
+    font-weight: 600; /* Bolder label */
+    color: #424242; /* Darker grey for labels */
+    font-size: 0.9em; /* Slightly smaller label */
+    margin-bottom: 4px; /* Space between label and value */
+    text-transform: uppercase; /* Make labels uppercase */
+    letter-spacing: 0.5px; /* Add slight letter spacing */
+}
+
+.member-details-card mat-list-item .mat-list-item-content span[matListItemLine] {
+    font-size: 1.2em; /* Larger value font for prominence */
+    color: #212121; /* Darker color for the actual value */
+    font-weight: 500; /* Medium font weight for values */
+    word-wrap: break-word; /* Allow long words to break */
+    white-space: normal; /* Allow text to wrap */
+}
+
+.member-details-card mat-card-actions {
+    padding: 16px 24px 24px; /* More padding for actions section */
+    display: flex;
+    justify-content: flex-end;
+    background-color: #f5f5f5; /* Light grey background for actions */
+    border-top: 1px solid #e0e0e0; /* Divider above actions */
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.member-details-card mat-card-actions button[mat-button] {
+    color: #3f51b5; /* Primary color for the button */
+    font-weight: 500;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.member-details-card mat-card-actions button[mat-button]:hover {
+    background-color: rgba(63, 81, 181, 0.08); /* Light hover effect */
+}
+
+/* Button Group - already defined, but reinforcing properties */
+.button-group {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap to the next line on small screens */
+  justify-content: flex-end; /* Aligns to the right by default */
+  gap: 12px; /* Increased gap for better visual separation */
+  margin-top: 24px; /* More space above the buttons */
+  margin-bottom: 16px; /* Space below if report starts immediately */
+}
+
+/* Individual Button Styling (overriding Material defaults where necessary) */
+.button-group button {
+  /* Base styles for both button types */
+  font-size: 1rem; /* Ensure readable font size */
+  padding: 10px 20px; /* Slightly more padding for better touch targets */
+  border-radius: 4px; /* Standard Material Design border-radius */
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transitions */
+  min-width: 120px; /* Ensure buttons have a minimum width */
+  height: 40px; /* Standard height for Material buttons */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Specific styles for Primary Button (Generate Report) */
+button[mat-raised-button][color="primary"] {
+  background-color: #3f51b5; /* Material Design Primary Blue */
+  color: white;
+  /* Box shadow is handled by mat-raised-button, no need to add here unless you want to override */
+}
+
+button[mat-raised-button][color="primary"]:hover {
+  background-color: #303f9f; /* Darker shade on hover */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow on hover */
+}
+
+button[mat-raised-button][color="primary"]:disabled {
+  background-color: #9fa8da; /* Lighter primary color for disabled state */
+  color: rgba(255, 255, 255, 0.5); /* Faded text for disabled state */
+  cursor: not-allowed;
+  box-shadow: none; /* No shadow when disabled */
+}
+
+/* Specific styles for Stroked Button (Reset Filters) */
+button[mat-stroked-button] {
+  border-color: #3f51b5; /* Primary color for border */
+  color: #3f51b5; /* Primary color for text */
+  background-color: transparent; /* Ensure transparent background */
+}
+
+button[mat-stroked-button]:hover {
+  background-color: rgba(63, 81, 181, 0.04); /* Very light primary background on hover */
+  /* Angular Material usually adds a subtle shadow/ripple, can override if needed */
+}
+
+button[mat-stroked-button]:disabled {
+  border-color: #bdbdbd; /* Grey border for disabled state */
+  color: #bdbdbd; /* Grey text for disabled state */
+  cursor: not-allowed;
+}
+
+
+/* Responsive Adjustments for Buttons */
+@media (max-width: 600px) {
+  .button-group {
+      flex-direction: column; /* Stack buttons vertically on small screens */
+      align-items: stretch; /* Make buttons take full width */
+      gap: 12px; /* Keep gap between stacked buttons */
+  }
+
+  .button-group button {
+      width: 100%; /* Full width for stacked buttons */
+      min-width: unset; /* Remove min-width when stacked */
+  }
+}
+
+/* Responsive adjustments for the card */
+@media (max-width: 600px) {
+    .member-details-card {
+        margin-top: 24px; /* Less margin on small screens */
+        border-radius: 0; /* Full width, no rounded corners on very small screens */
+        box-shadow: none; /* No shadow to blend with body */
+    }
+
+    .member-details-card mat-card-header,
+    .member-details-card mat-card-content,
+    .member-details-card mat-card-actions {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .member-details-card mat-card-header {
+        border-radius: 0;
+    }
+
+    .member-details-card mat-card-actions {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .member-details-card mat-card-title {
+        font-size: 1.5em; /* Adjust font size for smaller screens */
+    }
+
+    .member-details-card mat-card-subtitle {
+        font-size: 1em;
+    }
+
+    .member-details-card mat-list-item .mat-list-item-content span[matListItemLine] {
+        font-size: 1em; /* Adjust value font size */
+    }
+}

@@ -1,0 +1,62 @@
+.unauthorized-card {
+    max-width: 600px;
+    margin: 2rem auto;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .error-icon {
+    color: #f44336; /* Material red */
+    font-size: 2.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    vertical-align: middle;
+    margin-right: 1rem;
+  }
+  
+  mat-card-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  mat-card-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .error-message {
+    font-size: 1.1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .current-role {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  mat-card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .unauthorized-card {
+      margin: 1rem;
+      padding: 1rem;
+    }
+    
+    mat-card-title {
+      font-size: 1.5rem;
+    }
+    
+    mat-card-actions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }

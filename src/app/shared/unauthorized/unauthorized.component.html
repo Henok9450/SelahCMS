@@ -1,0 +1,29 @@
+<mat-card class="unauthorized-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="error-icon">warning</mat-icon>
+        Access Denied
+      </mat-card-title>
+      <mat-card-subtitle>You don't have permission to view this page</mat-card-subtitle>
+    </mat-card-header>
+  
+    <mat-card-content>
+      <p class="error-message">
+        The page you're trying to access requires special permissions.
+      </p>
+      <p *ngIf="authService.authState$ | async as user" class="current-role">
+        Your current role: <strong>{{ user.role }}</strong>
+      </p>
+    </mat-card-content>
+  
+    <mat-card-actions>
+      <button mat-raised-button color="primary" routerLink="/home">
+        <mat-icon>home</mat-icon>
+        Return to Home
+      </button>
+      <button *ngIf="(authService.isAdmin$ | async)" mat-button routerLink="/pages/user-management">
+        <mat-icon>manage_accounts</mat-icon>
+        Request Access
+      </button>
+    </mat-card-actions>
+  </mat-card>

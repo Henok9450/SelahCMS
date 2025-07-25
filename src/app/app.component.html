@@ -1,29 +1,30 @@
-<header class="dashboard-header">
+<header class="dashboard-header" *ngIf="showHeaderAndSidebar">
+  <button class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
   <div class="header-content">
     <div class="logo-section">
       <a href="#" class="logo"></a>
-      <!-- <img src="./logo.png" alt="Hiyaw Mahider Logo" class="logo"> -->
-      <h1>ሕያው ማህደር (Hiyaw Mahider) Learning System</h1>
+      <h1>SelahCMS</h1>
     </div>
     <div class="user-info">
-      <!-- <div *ngIf="authService.authState | async as user; else loginButton" class="user-greeting">
-        <span>Welcome, {{ user.displayName || user.email }}</span>
-        <span class="user-role">{{ user.role || 'User' }}</span>
-      </div> -->
+      <div *ngIf="authService.authState$ | async as user; else loginButton" class="user-greeting">
+        <span>Welcome, {{ user.fullName || user.displayName || user.email || 'User' }}</span>
+        <span class="user-role">{{ user.role }}</span>
+      </div>
       <ng-template #loginButton>
         <button mat-button routerLink="/login">
           <mat-icon>login</mat-icon>
           Login
         </button>
       </ng-template>
-      <!-- <button mat-icon-button [matMenuTriggerFor]="userMenu" *ngIf="authService.authState | async"> -->
-      <mat-icon>account_circle</mat-icon>
-      <!-- </button> -->
+
+      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User account menu">
+        <mat-icon>account_circle</mat-icon>
+      </button>
+
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item (click)="viewProfile()">
-          <mat-icon>person</mat-icon>
-          <span>My Profile</span>
-        </button>
         <button mat-menu-item (click)="changePassword()">
           <mat-icon>lock</mat-icon>
           <span>Change Password</span>
@@ -37,22 +38,17 @@
   </div>
 </header>
 
-<main class="content" style="
-  display: flex;
-  flex-direction: row;
-  background-color: #f5f5f5;">
-  
-  <div class="sidebar">
-    <app-sidebar></app-sidebar>
-  </div>
+<div class="main-layout-wrapper" [class.no-sidebar-layout]="!showHeaderAndSidebar">
+  <app-sidebar *ngIf="showHeaderAndSidebar" [isMobileMenuOpen]="isMobileMenuOpen" (navLinkClicked)="closeMobileMenu()"></app-sidebar>
 
-  <div class="content-area" style="flex: 1;">
+  <main class="content-area">
     <router-outlet></router-outlet>
-  </div>
-
-</main>
-
+  </main>
+</div>
 
 <footer *ngIf="showFooter" class="footer">
-  <p>© {{currentYear}} Hiyaw Mahider ሕያው ማህደር Learning System</p>
+  <p>© {{currentYear}} SelahCMS v{{ appVersion }} </p>
+  <p>GoodNews Innovations, All rights reserved.</p>
 </footer>
+
+<div class="overlay" [class.active]="isMobileMenuOpen" (click)="closeMobileMenu()"></div>

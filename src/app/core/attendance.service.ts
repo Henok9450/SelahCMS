@@ -1,17 +1,63 @@
-import { Injectable } from '@angular/core';
-import { Firestore, collection, doc, setDoc, updateDoc, query, where, getDocs, Timestamp, writeBatch, deleteField } from '@angular/fire/firestore';
+import { Injectable, NgZone } from '@angular/core';
+import { 
+  Firestore, 
+  collection, 
+  doc, 
+  setDoc, 
+  updateDoc, 
+  query, 
+  where, 
+  getDocs, 
+  getDoc,
+  Timestamp, 
+  writeBatch, 
+  deleteField 
+} from '@angular/fire/firestore';
 import { Attendance, HiyawMahiderStudyDay } from '../core/attendance.model';
 import { User } from '../core/user.model';
 import { HiyawMahider } from '../core/hiyaw-mahider.model';
+import { Observable, of, from } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+
+export interface MemberAttendance {
+  userId: string;
+  fullName: string;
+  userName?: string;
+  status: string;
+  reason?: string;
+}
+
+export type SearchAttendanceResult = {
+  id: string;
+  date: Date;
+  hiyawMahiderName: string;
+  hiyawMahiderId: string;
+  memberId: string;
+  memberName: string;
+  status: string;
+  reason: string;
+  members: MemberAttendance[];
+};
+
+export interface PaginatedAttendanceResponse {
+  results: SearchAttendanceResult[];
+  totalCount: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AttendanceService {
-  constructor(private firestore: Firestore) {}
+  constructor(private firestore: Firestore, private ngZone: NgZone) {}
 
   private convertFirestoreDate(date: Date | Timestamp): Date {
     return date instanceof Timestamp ? date.toDate() : date;
+  }
+
+  private async getAttendanceDoc(attendanceDocId: string): Promise<Attendance | null> {
+    const docRef = doc(this.firestore, 'attendances', attendanceDocId);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() as Attendance : null;
   }
 
   async createAttendance(attendance: Omit<Attendance, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
@@ -34,14 +80,13 @@ export class AttendanceService {
     });
   }
 
-  async updateAttendanceMembers(attendanceId: string, members: any[]): Promise<void> {
+  async updateAttendanceMembers(attendanceId: string, members: MemberAttendance[]): Promise<void> {
     const attendanceRef = doc(this.firestore, 'attendances', attendanceId);
     return updateDoc(attendanceRef, {
       members: members,
       updatedAt: new Date()
     });
   }
-
 
   async getAttendanceForHiyawMahiderAndDate(hiyawMahiderId: string, date: Date): Promise<Attendance | null> {
     const startOfDay = new Date(date);
@@ -73,14 +118,18 @@ export class AttendanceService {
     return null;
   }
 
-  async searchAttendance(params: {
-    hiyawMahiderId?: string;
-    memberId?: string;
-    fromDate?: Date;
-    toDate?: Date;
-  }): Promise<SearchAttendanceResult[]> {
+  async searchAttendance(
+    params: {
+      hiyawMahiderId?: string;
+      memberId?: string;
+      fromDate?: Date;
+      toDate?: Date;
+    },
+    pageIndex: number,
+    pageSize: number
+  ): Promise<PaginatedAttendanceResponse> {
     const conditions = [];
-    
+
     if (params.hiyawMahiderId) {
       conditions.push(where('hiyawMahiderId', '==', params.hiyawMahiderId));
     }
@@ -94,42 +143,38 @@ export class AttendanceService {
       conditions.push(where('date', '<=', endDate));
     }
 
-    const attendancesCollection = collection(this.firestore, 'attendances');
-    // Note: If you add order by and limit, ensure proper indexing in Firestore
-    const q = query(attendancesCollection, ...conditions);
+    const q = query(collection(this.firestore, 'attendances'), ...conditions);
     const querySnapshot = await getDocs(q);
-    const results: SearchAttendanceResult[] = [];
-
+    
+    const allResults: SearchAttendanceResult[] = [];
+    
     querySnapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data();
       const convertedDate = this.convertFirestoreDate(data['date']);
-    
-      const attendanceData = {
-        ...data,
-        date: convertedDate,
-        members: data['members'] || []
-      } as Attendance;
-    
-      attendanceData.members.forEach((member) => {
+      
+      (data['members'] || []).forEach((member: any) => {
         if (!params.memberId || member.userId === params.memberId) {
-          results.push({
-            id: docSnapshot.id, // The ID of the attendance document
+          allResults.push({
+            id: docSnapshot.id,
             date: convertedDate,
-            hiyawMahiderName: attendanceData.hiyawMahiderName,
-            memberId: member.userId, // Added memberId for targeting specific member
+            hiyawMahiderName: data['hiyawMahiderName'],
+            memberId: member.userId,
             memberName: member.fullName,
             status: member.status,
-            hiyawMahiderId: attendanceData.hiyawMahiderId,
-            members: attendanceData.members,
+            hiyawMahiderId: data['hiyawMahiderId'],
+            members: data['members'] || [],
             reason: member.reason || '-'
           });
         }
       });
     });
+
+    allResults.sort((a, b) => b.date.getTime() - a.date.getTime());
     
-    // Sort results by date in descending order
-    results.sort((a, b) => b.date.getTime() - a.date.getTime());
-    return results;
+    return {
+      results: allResults.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize),
+      totalCount: allResults.length
+    };
   }
 
   async updateMemberAttendanceStatus(
@@ -139,48 +184,52 @@ export class AttendanceService {
     newReason: string
   ): Promise<void> {
     const attendanceRef = doc(this.firestore, 'attendances', attendanceDocId);
-    const docSnap = await getDocs(query(collection(this.firestore, 'attendances'), where('__name__', '==', attendanceDocId)));
+    const attendanceData = await this.getAttendanceDoc(attendanceDocId);
 
-    if (!docSnap.empty) {
-      const attendanceData = docSnap.docs[0].data() as Attendance;
-      const members = attendanceData.members || [];
-      const memberIndex = members.findIndex(m => m.userId === userId);
-
-      if (memberIndex > -1) {
-        members[memberIndex].status = newStatus;
-        members[memberIndex].reason = newReason;
-        await updateDoc(attendanceRef, { members: members, updatedAt: new Date() });
-      } else {
-        throw new Error('Member not found in this attendance record for the specified day.');
-      }
-    } else {
-      throw new Error('Attendance document not found.');
+    if (!attendanceData) {
+      throw new Error(`Attendance document ${attendanceDocId} not found`);
     }
+
+    const members = attendanceData.members || [];
+    const memberIndex = members.findIndex(m => m.userId === userId);
+
+    if (memberIndex === -1) {
+      throw new Error(`Member ${userId} not found in attendance record`);
+    }
+
+    members[memberIndex] = { 
+      ...members[memberIndex],
+      status: newStatus,
+      reason: newReason
+    };
+
+    await updateDoc(attendanceRef, { 
+      members,
+      updatedAt: new Date() 
+    });
   }
 
   async deleteMemberAttendanceRecord(attendanceDocId: string, userId: string): Promise<void> {
     const attendanceRef = doc(this.firestore, 'attendances', attendanceDocId);
-    const docSnap = await getDocs(query(collection(this.firestore, 'attendances'), where('__name__', '==', attendanceDocId)));
+    const attendanceData = await this.getAttendanceDoc(attendanceDocId);
 
-    if (!docSnap.empty) {
-      const attendanceData = docSnap.docs[0].data() as Attendance;
-      let members = attendanceData.members || [];
-      
-      const initialLength = members.length;
-      members = members.filter(m => m.userId !== userId);
+    if (!attendanceData) {
+      throw new Error(`Attendance document ${attendanceDocId} not found`);
+    }
 
-      if (members.length < initialLength) {
-        if (members.length === 0) {
-          // If no members left, delete the entire attendance document
-          await this.deleteAttendanceDocument(attendanceDocId);
-        } else {
-          await updateDoc(attendanceRef, { members: members, updatedAt: new Date() });
-        }
-      } else {
-        throw new Error('Member not found in this attendance record.');
-      }
+    const members = (attendanceData.members || []).filter(m => m.userId !== userId);
+
+    if (members.length === attendanceData.members?.length) {
+      throw new Error(`Member ${userId} not found in attendance record`);
+    }
+
+    if (members.length === 0) {
+      await this.deleteAttendanceDocument(attendanceDocId);
     } else {
-      throw new Error('Attendance document not found.');
+      await updateDoc(attendanceRef, { 
+        members,
+        updatedAt: new Date() 
+      });
     }
   }
 
@@ -191,57 +240,73 @@ export class AttendanceService {
     await batch.commit();
   }
 
-
   async setSpecialStudyDay(hiyawMahiderId: string, date: Date, studyDay: string, reason: string): Promise<void> {
-    const studyDayRef = doc(this.firestore, 'hiyawMahiderStudyDays', hiyawMahiderId);
-    const currentSettings = await getDocs(query(
-      collection(this.firestore, 'hiyawMahiderStudyDays'), 
+    const studyDayQuery = query(
+      collection(this.firestore, 'hiyawMahiderStudyDays'),
       where('hiyawMahiderId', '==', hiyawMahiderId)
-    ));
-    
-    if (currentSettings.empty) {
-      await setDoc(studyDayRef, {
+    );
+    const studyDaySnapshot = await getDocs(studyDayQuery);
+
+    if (studyDaySnapshot.empty) {
+      const newDocRef = doc(collection(this.firestore, 'hiyawMahiderStudyDays'));
+      await setDoc(newDocRef, {
         hiyawMahiderId,
         defaultDay: 'Monday',
-        specialDays: [{ date, studyDay, reason }]
+        specialDays: [{ date: Timestamp.fromDate(date), studyDay, reason }]
       });
     } else {
-      const existingData = currentSettings.docs[0].data() as HiyawMahiderStudyDay;
-      await updateDoc(studyDayRef, { 
-        specialDays: [
-          ...(existingData.specialDays || []),
-          { date, studyDay, reason }
-        ] 
+      const existingDocRef = studyDaySnapshot.docs[0].ref;
+      const existingData = studyDaySnapshot.docs[0].data() as HiyawMahiderStudyDay;
+      const currentSpecialDays = existingData.specialDays || [];
+
+      const updatedSpecialDays = currentSpecialDays.map(sd => {
+        const specialDayDate = this.convertFirestoreDate(sd.date);
+        return specialDayDate.toDateString() === date.toDateString() 
+          ? { date: Timestamp.fromDate(date), studyDay, reason }
+          : sd;
+      });
+
+      if (!updatedSpecialDays.some(sd => 
+        this.convertFirestoreDate(sd.date).toDateString() === date.toDateString()
+      )) {
+        updatedSpecialDays.push({ date: Timestamp.fromDate(date), studyDay, reason });
+      }
+
+      await updateDoc(existingDocRef, {
+        specialDays: updatedSpecialDays
       });
     }
   }
 
-  async addMembersToAttendance(attendanceDocId: string, newMembers: any[]): Promise<void> {
+  async addMembersToAttendance(attendanceDocId: string, newMembers: MemberAttendance[]): Promise<void> {
     const attendanceRef = doc(this.firestore, 'attendances', attendanceDocId);
-  
-    // Fetch the existing attendance document
-    const docSnap = await getDocs(query(collection(this.firestore, 'attendances'), where('__name__', '==', attendanceDocId)));
-  
-    if (!docSnap.empty) {
-      const attendanceData = docSnap.docs[0].data() as Attendance;
-      const existingMembers = attendanceData.members || [];
-  
-      // Add the new members to the existing members array
-      const updatedMembers = [...existingMembers, ...newMembers];
-  
-      // Update the attendance document with the new members
-      await updateDoc(attendanceRef, { members: updatedMembers, updatedAt: new Date() });
-    } else {
-      throw new Error('Attendance document not found.');
+    const attendanceData = await this.getAttendanceDoc(attendanceDocId);
+
+    if (!attendanceData) {
+      throw new Error('Attendance document not found');
     }
+
+    const existingMembers = attendanceData.members || [];
+    const uniqueNewMembers = newMembers.filter(nM =>
+      !existingMembers.some(eM => eM.userId === nM.userId)
+    );
+
+    if (uniqueNewMembers.length === 0) {
+      return;
+    }
+
+    await updateDoc(attendanceRef, { 
+      members: [...existingMembers, ...uniqueNewMembers],
+      updatedAt: new Date() 
+    });
   }
 
   async getStudyDayForDate(hiyawMahiderId: string, date: Date): Promise<string> {
     const studyDaySettings = await getDocs(query(
-      collection(this.firestore, 'hiyawMahiderStudyDays'), 
+      collection(this.firestore, 'hiyawMahiderStudyDays'),
       where('hiyawMahiderId', '==', hiyawMahiderId)
     ));
-    
+
     if (!studyDaySettings.empty) {
       const settings = studyDaySettings.docs[0].data() as HiyawMahiderStudyDay;
       const specialDay = settings.specialDays?.find(sd => {
@@ -252,69 +317,101 @@ export class AttendanceService {
     }
     return 'Monday';
   }
+
   async getAttendanceForMemberAndDate(memberId: string, date: Date): Promise<SearchAttendanceResult[]> {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-  
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
-  
-    const attendancesCollection = collection(this.firestore, 'attendances');
+
     const q = query(
-      attendancesCollection,
-      where('members', 'array-contains', { userId: memberId }),
+      collection(this.firestore, 'attendances'),
       where('date', '>=', startOfDay),
       where('date', '<=', endOfDay)
     );
-  
+
     const querySnapshot = await getDocs(q);
     const results: SearchAttendanceResult[] = [];
-  
+
     querySnapshot.forEach((docSnapshot) => {
       const data = docSnapshot.data();
       const convertedDate = this.convertFirestoreDate(data['date']);
-  
-      const attendanceData = {
-        ...data,
-        date: convertedDate,
-        members: data['members'] || []
-      } as Attendance;
-  
-      attendanceData.members.forEach((member) => {
+
+      (data['members'] || []).forEach((member: any) => {
         if (member.userId === memberId) {
           results.push({
             id: docSnapshot.id,
             date: convertedDate,
-            hiyawMahiderName: attendanceData.hiyawMahiderName,
+            hiyawMahiderName: data['hiyawMahiderName'],
             memberId: member.userId,
             memberName: member.fullName,
             status: member.status,
-            hiyawMahiderId: attendanceData.hiyawMahiderId,
-            members: attendanceData.members,
+            hiyawMahiderId: data['hiyawMahiderId'],
+            members: data['members'] || [],
             reason: member.reason || '-'
           });
         }
       });
     });
-  
+
     return results;
   }
 
+  getAttendanceCountsByHiyawMahider(
+    hiyawMahiderId: string, 
+    userId: string
+  ): Observable<{ 
+    present: number;
+    absent: number;
+    excused: number;
+    late: number;
+    'new-guest': number;
+    'follow-up-needed': number;
+    rawRecords: any[];
+  }> {
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 4);
 
+    const q = query(
+      collection(this.firestore, 'attendances'),
+      where('hiyawMahiderId', '==', hiyawMahiderId),
+      where('date', '>=', threeMonthsAgo)
+    );
+
+    return new Observable(observer => {
+      getDocs(q)
+        .then(querySnapshot => {
+          const counts = {
+            present: 0,
+            absent: 0,
+            excused: 0,
+            late: 0,
+            'new-guest': 0,
+            'follow-up-needed': 0,
+          };
+
+          const rawRecords: any[] = [];
+
+          querySnapshot.forEach(docSnapshot => {
+            const record = docSnapshot.data();
+            rawRecords.push(record);
+            
+            (record['members'] || []).forEach((member: any) => {
+              if (member.userId === userId) {
+                const status = member['status'] as keyof typeof counts;
+                if (status && counts.hasOwnProperty(status)) {
+                  counts[status]++;
+                }
+              }
+            });
+          });
+
+          observer.next({ ...counts, rawRecords });
+          observer.complete();
+        })
+        .catch(error => {
+          observer.error(error);
+        });
+    });
+  }
 }
-
-
-
-
-
-export type SearchAttendanceResult = {
-  id: string;
-  date: Date;
-  hiyawMahiderName: string;
-  hiyawMahiderId: string;
-  memberId: string;
-  memberName: string;
-  status: string;
-  reason: string;
-  members: any[]; 
-};

@@ -1,24 +1,31 @@
 <div class="user-form-container">
   <h2 mat-dialog-title>{{ isEditMode ? 'Edit User' : 'Create New User' }}</h2>
-  
+
   <mat-dialog-content>
     <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
       <div class="form-row">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Full Name</mat-label>
           <input matInput formControlName="fullName" required>
-          <mat-error *ngIf="userForm.get('fullName')?.invalid">
+          <mat-error *ngIf="userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched">
             Full name is required
           </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" required type="email">
+          <mat-error *ngIf="userForm.get('email')?.hasError('required') && userForm.get('email')?.touched">Email is required</mat-error>
+          <mat-error *ngIf="userForm.get('email')?.hasError('email') && userForm.get('email')?.touched">Please enter a valid email</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
           <mat-label>Phone Number</mat-label>
           <input matInput formControlName="phoneNumber" type="tel" required>
-          <mat-error *ngIf="userForm.get('phoneNumber')?.hasError('pattern')">
-            Phone number must start with 09 and be exactly 10 digits.
+          <mat-error *ngIf="userForm.get('phoneNumber')?.hasError('pattern') && userForm.get('phoneNumber')?.touched">
+            Phone number must start with 07 or 09 and be exactly 10 digits.
           </mat-error>
-          <mat-error *ngIf="userForm.get('phoneNumber')?.hasError('required')">
+          <mat-error *ngIf="userForm.get('phoneNumber')?.hasError('required') && userForm.get('phoneNumber')?.touched">
             Phone number is required.
           </mat-error>
         </mat-form-field>
@@ -28,7 +35,7 @@
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Residency Location</mat-label>
           <input matInput formControlName="residencyLocation" required>
-          <mat-error *ngIf="userForm.get('residencyLocation')?.invalid">
+          <mat-error *ngIf="userForm.get('residencyLocation')?.invalid && userForm.get('residencyLocation')?.touched">
             Location is required
           </mat-error>
         </mat-form-field>
@@ -40,7 +47,7 @@
               {{ status }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="userForm.get('maritalStatus')?.invalid">
+          <mat-error *ngIf="userForm.get('maritalStatus')?.invalid && userForm.get('maritalStatus')?.touched">
             Marital status is required
           </mat-error>
         </mat-form-field>
@@ -63,7 +70,7 @@
               {{ hm.name }} ({{ hm.code }})
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="userForm.get('assignedHiyawMahider')?.invalid">
+          <mat-error *ngIf="userForm.get('assignedHiyawMahider')?.invalid && userForm.get('assignedHiyawMahider')?.touched">
             Hiyaw Mahider is required
           </mat-error>
         </mat-form-field>
@@ -75,7 +82,7 @@
               {{ role }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="userForm.get('role')?.invalid">
+          <mat-error *ngIf="userForm.get('role')?.invalid && userForm.get('role')?.touched">
             Role is required
           </mat-error>
         </mat-form-field>
@@ -92,6 +99,7 @@
           <input matInput formControlName="deputyPastor" readonly>
         </mat-form-field>
       </div>
+
       <div class="form-row" *ngIf="isEditMode">
         <mat-form-field appearance="outline" class="form-field">
           <mat-label>Status</mat-label>
@@ -102,33 +110,20 @@
         </mat-form-field>
       </div>
 
-      <div class="form-row" *ngIf="!isEditMode || userForm.get('password')?.value">
-        <mat-form-field appearance="outline" class="form-field password-field">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="passwordVisible ? 'text' : 'password'" 
-                 formControlName="password" required>
-          <button mat-icon-button matSuffix (click)="passwordVisible = !passwordVisible"
-                  [attr.aria-label]="'Hide password'" [attr.aria-pressed]="passwordVisible">
-            <mat-icon>{{ passwordVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-hint>Minimum 6 characters</mat-hint>
-          <mat-error *ngIf="userForm.get('password')?.invalid">
-            Password must be at least 6 characters
-          </mat-error>
-        </mat-form-field>
-
-
-        <mat-checkbox formControlName="active" class="active-checkbox" *ngIf="isEditMode">
-          Active User
-        </mat-checkbox>
+      <div class="form-row" *ngIf="!isEditMode">
+        <p class="info-text">
+          Upon creation, a login link will be sent to the user's email address,
+          allowing them to set their own secure password and access the system.
+        </p>
       </div>
+
     </form>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-raised-button color="primary" 
-            (click)="onSubmit()" 
+    <button mat-raised-button color="primary"
+            (click)="onSubmit()"
             [disabled]="userForm.invalid || loading">
       <span *ngIf="loading">
         <mat-spinner diameter="20"></mat-spinner>

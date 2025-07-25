@@ -19,7 +19,7 @@
         <mat-select formControlName="memberId" [panelClass]="'attendance-select-panel'">
           <mat-option value="">All Members</mat-option>
           <mat-option *ngFor="let member of (filteredSearchMembers | async)" [value]="member.id">
-            {{ member.fullName }} ({{ member.userName }})
+            {{ member.fullName }} 
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -49,10 +49,10 @@
       </div>
     </form>
 
-    <div *ngIf="searchResults.length > 0" class="search-results">
-      <h4>Search Results ({{ searchResults.length }} records found)</h4>
+    <div *ngIf="dataSource.data.length > 0" class="search-results">
+      <h4>Search Results ({{ totalResults }} records found)</h4>
       <div class="results-table">
-        <table mat-table [dataSource]="searchResults" class="mat-elevation-z1">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
           <ng-container matColumnDef="date">
             <th mat-header-cell *matHeaderCellDef>Date</th>
             <td mat-cell *matCellDef="let record">{{ record.date | date:'mediumDate' }}</td>
@@ -103,6 +103,13 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
       </div>
+      <!-- Mat Paginator moved outside of the inner results-table div but still inside the *ngIf for the whole search-results section -->
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" 
+               [pageSize]="pageSize" 
+               [length]="totalResults"
+               (page)="onPageChange($event)"
+               aria-label="Select page of search results">
+</mat-paginator>
     </div>
   </div>
 
@@ -121,14 +128,20 @@
 
     <mat-form-field appearance="fill">
       <mat-label>Hiyaw Mahider</mat-label>
-      <mat-select [formControl]="hiyawMahiderIdControl" (selectionChange)="onHiyawMahiderSelect($event.value)" required>
+      <mat-select [formControl]="hiyawMahiderIdControl" 
+                  (selectionChange)="onHiyawMahiderSelect($event.value)" 
+                  required>
+        <mat-option value="">-- Select Hiyaw Mahider --</mat-option>
         <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
           {{ hm.name }} ({{ hm.code }}) - Study Day: {{ hm.studyDay }}
         </mat-option>
       </mat-select>
-      <mat-error *ngIf="attendanceForm.get('hiyawMahiderId')?.invalid && (attendanceForm.get('hiyawMahiderId')?.dirty || attendanceForm.get('hiyawMahiderId')?.touched)">Hiyaw Mahider is required</mat-error>
+      <mat-error *ngIf="attendanceForm.get('hiyawMahiderId')?.invalid && 
+                        (attendanceForm.get('hiyawMahiderId')?.dirty || 
+                         attendanceForm.get('hiyawMahiderId')?.touched)">
+        Hiyaw Mahider is required
+      </mat-error>
     </mat-form-field>
-
     <div *ngIf="selectedHiyawMahider" class="study-day-info">
       <p>Study Day: <strong>{{ selectedHiyawMahider.studyDay }}</strong></p>
     </div>
@@ -158,7 +171,7 @@
           </mat-form-field>
         </mat-option>
         <mat-option *ngFor="let member of filteredMembersInAttendanceForm | async" [value]="member.id">
-          {{ member.fullName }} ({{ member.userName }})
+          {{ member.fullName }} 
         </mat-option>
       </mat-select>
     </mat-form-field>
@@ -170,7 +183,7 @@
              [id]="'member-row-' + member.get('userId')?.value">
           <div class="member-info">
             <span class="name">{{ member.get('fullName')?.value }}</span>
-            <span class="username">{{ member.get('userName')?.value }}</span>
+          
           </div>
 
           <div class="status-container">
@@ -198,13 +211,14 @@
         </div>
       </div>
 
-      <div class="form-actions"> <button mat-raised-button color="primary"
-                (click)="submitAttendance()"
-                [disabled]="attendanceForm.invalid || loading">
-          <span *ngIf="!loading && !attendanceAlreadyTaken">Submit Attendance</span>
-          <span *ngIf="!loading && attendanceAlreadyTaken">Update Attendance</span>
-          <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-        </button>
+      <div class="form-actions"> 
+        <button mat-raised-button color="primary"
+        (click)="submitAttendance()"
+        [disabled]="loading || membersFormArray.length === 0">
+  <span *ngIf="!loading && !attendanceAlreadyTaken">Submit Attendance</span>
+  <span *ngIf="!loading && attendanceAlreadyTaken">Update Attendance</span>
+  <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+</button>
         <button mat-stroked-button color="warn" (click)="clearAttendanceForm()" [disabled]="loading">
           Clear Form
         </button>
@@ -212,8 +226,13 @@
     </form>
   </div>
 
-  <div *ngIf="loading && (!selectedHiyawMahider || membersForSelectedHiyawMahider.length === 0)" class="loading-overlay">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading data...</p>
+  <div *ngIf="attendanceForm.invalid" class="validation-errors">
+    <div *ngFor="let control of membersFormArray.controls; let i = index">
+      <h4>Member {{i}} Errors:</h4>
+      <pre>Status: {{ control.get('status')?.errors | json }}</pre>
+      <pre>User ID: {{ control.get('userId')?.errors | json }}</pre>
+      
+      <pre>Full Name: {{ control.get('fullName')?.errors | json }}</pre>
+    </div>
   </div>
 </div>

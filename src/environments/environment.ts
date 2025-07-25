@@ -1,5 +1,6 @@
 export const environment = {
     production: false,
+    appVersion: '1.0.0',
     firebase: {
       apiKey: "AIzaSyDHyYAWXygqNqpgnndb2QPf_hTv9l6A_3M",
       authDomain: "hiyaw-mahider-learning-system.firebaseapp.com",

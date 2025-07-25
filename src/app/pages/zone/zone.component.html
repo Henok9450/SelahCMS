@@ -6,7 +6,6 @@
     </button>
   </div>
 
-  <!-- Edit/Create Form -->
   <mat-card *ngIf="isEditing" class="form-card">
     <mat-card-header>
       <mat-card-title>{{ currentZoneId ? 'Edit Zone' : 'Create New Zone' }}</mat-card-title>
@@ -30,16 +29,16 @@
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Zone Name *</mat-label>
           <input matInput formControlName="name">
-        
+
           <mat-error *ngIf="zoneForm.get('name')?.hasError('required')">
             Zone name is required
           </mat-error>
-        
+
           <mat-error *ngIf="zoneForm.get('name')?.hasError('maxlength')">
             Maximum 100 characters allowed
           </mat-error>
         </mat-form-field>
-        
+
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Status *</mat-label>
@@ -53,10 +52,19 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Zone Coordinators</mat-label>
-          <mat-select formControlName="coordinators" multiple [compareWith]="comparePastors">
+          <mat-label>Main Coordinator</mat-label>
+          <mat-select formControlName="mainCoordinators" multiple [compareWith]="comparePastors">
             <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
-              {{ pastor.name }} 
+              {{ pastor.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Deputy Coordinator</mat-label>
+          <mat-select formControlName="deputyCoordinators" multiple [compareWith]="comparePastors">
+            <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+              {{ pastor.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -64,38 +72,33 @@
     </mat-card-content>
     <mat-card-actions align="end">
       <button mat-button (click)="cancelEdit()">Cancel</button>
-      <button mat-raised-button 
-        color="primary" 
-        (click)="saveZone()" 
+      <button mat-raised-button
+        color="primary"
+        (click)="saveZone()"
         [disabled]="!zoneForm.valid">
-  <mat-icon>{{ currentZoneId ? 'save' : 'add' }}</mat-icon>
-  {{ currentZoneId ? 'Update' : 'Save' }}
-</button>
+        <mat-icon>{{ currentZoneId ? 'save' : 'add' }}</mat-icon>
+        {{ currentZoneId ? 'Update' : 'Save' }}
+      </button>
     </mat-card-actions>
   </mat-card>
 
-  <!-- Loading State -->
   <mat-card *ngIf="isLoading">
     <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     <div class="loading-text">Loading zones...</div>
   </mat-card>
 
-  <!-- Zones List -->
   <div *ngIf="!isLoading && !isEditing">
     <table mat-table [dataSource]="zones" class="mat-elevation-z8">
-      <!-- Zone Code Column -->
       <ng-container matColumnDef="code">
         <th mat-header-cell *matHeaderCellDef> Code </th>
         <td mat-cell *matCellDef="let zone"> {{ zone.code }} </td>
       </ng-container>
 
-      <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef> Name </th>
         <td mat-cell *matCellDef="let zone"> {{ zone.name || 'N/A' }} </td>
       </ng-container>
 
-      <!-- Status Column -->
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef> Status </th>
         <td mat-cell *matCellDef="let zone">
@@ -105,15 +108,20 @@
         </td>
       </ng-container>
 
-      <!-- Coordinators Column -->
-      <ng-container matColumnDef="coordinators">
-        <th mat-header-cell *matHeaderCellDef> Coordinators </th>
+      <ng-container matColumnDef="mainCoordinators">
+        <th mat-header-cell *matHeaderCellDef> Main Coordinator </th>
         <td mat-cell *matCellDef="let zone">
-          {{ getCoordinatorNames(zone.coordinators) }}
+          {{ getCoordinatorNames(zone.mainCoordinators) }}
         </td>
       </ng-container>
 
-      <!-- Actions Column -->
+      <ng-container matColumnDef="deputyCoordinators">
+        <th mat-header-cell *matHeaderCellDef> Deputy Coordinator </th>
+        <td mat-cell *matCellDef="let zone">
+          {{ getCoordinatorNames(zone.deputyCoordinators) }}
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> Actions </th>
         <td mat-cell *matCellDef="let zone">

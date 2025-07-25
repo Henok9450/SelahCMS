@@ -1,32 +1,65 @@
-<mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>Hiyaw Mahider Login</mat-card-title>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <form (ngSubmit)="login()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" [(ngModel)]="email" name="email" required>
-        </mat-form-field>
-  
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" [(ngModel)]="password" name="password" required>
-        </mat-form-field>
-  
-        <div *ngIf="errorMessage" class="error-message">
-          {{ errorMessage }}
+<!-- login.component.html -->
+<div class="login-container">
+    <div class="login-hero">
+        <div class="logo-container">
+            <!-- Using a placeholder image for the logo. In a real Angular app,
+                you'd ensure this path is correct or use an asset pipeline. -->
+            <img src="/assets/images/logo.png" alt="Company Logo" class="logo" />
         </div>
-  
-        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-          <span *ngIf="!isLoading">Login</span>
-          <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
-        </button>
-      </form>
-    </mat-card-content>
-  
-    <mat-card-actions>
-      <a mat-button routerLink="/forgot-password">Forgot Password?</a>
-    </mat-card-actions>
-  </mat-card>
+        <h2 class="welcome-message">
+            <!-- <span>Welcome Back!</span>
+            <span>To Our Amazing App</span> -->
+        </h2>
+        <!-- <p class="login-prompt">
+            We're excited to see you again. Please log in to continue your journey with us.
+        </p> -->
+    </div>
+
+    <div class="login-form-container">
+        <!-- Angular Material Card for the login form -->
+        <mat-card class="login-card">
+            <mat-card-header>
+                <!-- <h1 class="mat-card-title">Please login to access your account</h1> -->
+            </mat-card-header>
+
+            <mat-card-content>
+                <!-- Angular form with ngSubmit and ngModel bindings -->
+                <form (ngSubmit)="login()">
+                    <!-- Email input field -->
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Email</mat-label>
+                        <!-- [(ngModel)] binds the input to the 'email' property in your component's TypeScript -->
+                        <input matInput [(ngModel)]="email" name="email" required>
+                    </mat-form-field>
+
+                    <!-- Password input field -->
+                    <mat-form-field appearance="outline" class="full-width">
+                        <mat-label>Password</mat-label>
+                        <!-- type="password" hides the input, [(ngModel)] binds to 'password' property -->
+                        <input matInput type="password" [(ngModel)]="password" name="password" required>
+                    </mat-form-field>
+
+                    <!-- Error message display, shown only if errorMessage has a value -->
+                    <div *ngIf="errorMessage" class="error-message">
+                        {{ errorMessage }}
+                    </div>
+
+                    <!-- Login button with loading spinner -->
+                    <button mat-raised-button color="primary" type="submit" [disabled]="isLoading" class="neumorphic-button">
+                        <!-- Shows "Login" text if not loading, otherwise shows a spinner -->
+                        <span *ngIf="!isLoading">Login</span>
+                        <!-- mat-spinner for loading indication -->
+                        <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+                    </button>
+                </form>
+            </mat-card-content>
+
+            <mat-card-actions class="forgot-password-link-container">
+  <a mat-button routerLink="/forgot-password" class="forgot-password-link">
+    <mat-icon>lock_reset</mat-icon>
+    Forgot Password?
+  </a>
+</mat-card-actions>
+        </mat-card>
+    </div>
+</div>

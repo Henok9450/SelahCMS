@@ -1,14 +1,25 @@
-// sidebar.component.ts
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, Input, HostBinding, Output, EventEmitter } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { ReportService } from '../../app/core/report.service';
+import { AuthService } from '../core/auth.service';
+import { Observable, combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+interface Report {
+  id: string;
+  title: string;
+  icon: string;
+}
+
 @Component({
   selector: 'app-sidebar',
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.css',
   standalone: true,
   imports: [
     CommonModule,
@@ -18,19 +29,73 @@ import { ReportService } from '../../app/core/report.service';
     MatButtonModule,
     MatListModule,
   ],
-  templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.css'
-})export class SidebarComponent {
-  reports: any[] = []; // Initialize as an empty array
-  showReportsSubmenu: boolean = false; // Add this property
+})
+export class SidebarComponent implements OnInit {
+  authService = inject(AuthService);
+  reportService = inject(ReportService);
 
-  constructor(private reportService: ReportService) {}
+  @Input() isMobileMenuOpen: boolean = false;
+  @Output() navLinkClicked = new EventEmitter<void>();
 
-  ngOnInit() {
-    this.reports = this.reportService.getAvailableReports(); // Initialize reports here
+  @HostBinding('class.side-nav') readonly hostClassSideNav = true; 
+  @HostBinding('class.mobile-open') get mobileOpenClass() {
+    return this.isMobileMenuOpen;
+  }
+
+  showReportsSubmenu = false;
+  reports: Report[] = [];
+
+  isAdminOrLeadership$: Observable<boolean> = combineLatest([
+    this.authService.isAdmin$,
+    this.authService.isPastor$,
+    this.authService.isDeputyPastor$
+  ]).pipe(
+    map(([isAdmin, isPastor, isDeputyPastor]) => isAdmin || isPastor || isDeputyPastor)
+  );
+
+  isPastorOrDeputy$: Observable<boolean> = combineLatest([
+    this.authService.isPastor$,
+    this.authService.isDeputyPastor$
+  ]).pipe(
+    map(([isPastor, isDeputyPastor]) => isPastor || isDeputyPastor)
+  );
+
+  ngOnInit(): void {
+    combineLatest([
+      this.authService.isAdmin$,
+      this.isPastorOrDeputy$
+    ]).subscribe(([isAdmin, isPastorOrDeputy]) => {
+      if (isAdmin) {
+        this.reports = [
+          { id: 'user-management', title: 'User Management Report', icon: 'person' },
+          { id: 'attendance', title: 'Attendance Report', icon: 'how_to_reg' },
+          { id: 'hiyaw-mahider', title: 'Hiyaw Mahider Report', icon: 'diversity_3' },
+          { id: 'follow-up', title: 'Follow-Up Report', icon: 'next_plan' },
+        ];
+      } else if (isPastorOrDeputy) {
+        this.reports = [
+          { id: 'attendance', title: 'Attendance Report', icon: 'how_to_reg' }
+        ];
+      } else {
+        this.reports = [];
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.onNavLinkClick(); // Close menu on logout
   }
 
   toggleReports() {
-    this.showReportsSubmenu = !this.showReportsSubmenu; // Toggle the submenu visibility
+    this.showReportsSubmenu = !this.showReportsSubmenu;
+  }
+
+  // Method to emit event when a nav link is clicked (to close menu on mobile)
+  onNavLinkClick() {
+    // Only emit if it's a mobile view
+    if (window.innerWidth <= 768) {
+      this.navLinkClicked.emit();
+    }
   }
 }
