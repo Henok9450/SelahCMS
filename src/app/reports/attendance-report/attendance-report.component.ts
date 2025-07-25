@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AttendanceReportService, AttendanceRecord, HiyawMahider, AttendanceReportSummary } from '../../core/attendance-report.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { DatePipe, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -32,7 +32,6 @@ import { ROLES } from '../../core/role.utils'; // Assuming this provides role co
     MatTableModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    DatePipe
   ],
   templateUrl: './attendance-report.component.html',
   styleUrls: ['./attendance-report.component.css']

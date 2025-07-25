@@ -9,9 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { filter } from 'rxjs/operators';
 import { CoreModule } from './core/core.module';
-import { HomeComponent } from "./home/home.component";
 import { SidebarComponent } from "./sidebar/sidebar.component";
-import { HasRoleDirective } from '../../src/app/directives/has-role.directive';
+
 import { Observable } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field'; 
 import { MatInputModule } from '@angular/material/input'; 
@@ -32,8 +31,6 @@ import { environment } from '../environments/environment';
     MatIconModule,
     MatMenuModule,
     MatInputModule,
-    HasRoleDirective,
-    HomeComponent,
     SidebarComponent
   ],
   templateUrl: './app.component.html',

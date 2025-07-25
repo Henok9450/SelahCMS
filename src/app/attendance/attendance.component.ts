@@ -52,7 +52,6 @@ import { User } from '../core/user.model';
     MatTooltipModule,
     MatTableModule,
     MatPaginatorModule,
-    ConfirmDialogComponent
   ]
 })
 export class AttendanceComponent implements OnInit, AfterViewInit {

@@ -8,7 +8,6 @@ import { HiyawMahider, HiyawMahiderStatus } from '../../core/hiyaw-mahider.model
 import { Pastor } from '../../core/pastor.model';
 import { Zone } from '../../core/zone.model';
 import { Observable, catchError, of, tap } from 'rxjs';
-import { ToDatePipe } from '../../shared/pipes/to-date.pipe';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -28,7 +27,6 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'; 
   imports: [
     CommonModule,
     FormsModule,
-    ToDatePipe,
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
