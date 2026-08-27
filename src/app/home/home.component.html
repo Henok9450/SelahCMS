@@ -23,14 +23,17 @@
 
     <!-- Quick Action Buttons on Hero -->
     <div class="hero-actions">
-      <button mat-raised-button color="accent" routerLink="/pages/tasks" class="hero-btn" *ngIf="canModifyContent()">
+      <button mat-raised-button color="accent" routerLink="/pages/tasks" class="hero-btn" *ngIf="canModifyContent() && hasPermission('tasks')">
         <mat-icon>add_task</mat-icon> New Task
       </button>
-      <button mat-stroked-button routerLink="/pages/attendance" class="hero-btn-outline">
+      <button mat-stroked-button routerLink="/pages/attendance" class="hero-btn-outline" *ngIf="hasPermission('attendance')">
         <mat-icon>fact_check</mat-icon> Attendance
       </button>
-      <button mat-stroked-button routerLink="/reports/attendance" class="hero-btn-outline" *ngIf="showReportsMenu">
+      <button mat-stroked-button routerLink="/reports/attendance" class="hero-btn-outline" *ngIf="hasPermission('reports')">
         <mat-icon>assessment</mat-icon> Reports
+      </button>
+      <button mat-stroked-button routerLink="/pages/study-materials" class="hero-btn-outline" *ngIf="hasPermission('study-materials') && !hasPermission('attendance')">
+        <mat-icon>menu_book</mat-icon> Study Materials
       </button>
     </div>
   </div>
@@ -50,8 +53,8 @@
 
   <!-- ── Quick Metric Stat Cards ───────────────────── -->
   <div class="stats-row" *ngIf="showQuickStats && !isLoading">
-    <!-- Total Members Card -->
-    <div class="metric-card member-metric mat-elevation-z2" routerLink="/pages/members-list" matTooltip="View Members Directory">
+    <!-- Total Members Card (Leadership roles) -->
+    <div class="metric-card member-metric mat-elevation-z2" routerLink="/pages/members-list" matTooltip="View Members Directory" *ngIf="hasPermission('members') && userRole !== 'Member'">
       <div class="metric-icon-wrap">
         <mat-icon>groups</mat-icon>
       </div>
@@ -65,7 +68,7 @@
     </div>
 
     <!-- Upcoming Events Card -->
-    <div class="metric-card event-metric mat-elevation-z2" routerLink="/pages/events" matTooltip="View All Events">
+    <div class="metric-card event-metric mat-elevation-z2" routerLink="/pages/events" matTooltip="View All Events" *ngIf="hasPermission('events')">
       <div class="metric-icon-wrap">
         <mat-icon>event_available</mat-icon>
       </div>
@@ -79,7 +82,7 @@
     </div>
 
     <!-- Tasks Card -->
-    <div class="metric-card task-metric mat-elevation-z2" routerLink="/pages/tasks" matTooltip="View Task Board">
+    <div class="metric-card task-metric mat-elevation-z2" routerLink="/pages/tasks" matTooltip="View Task Board" *ngIf="hasPermission('tasks')">
       <div class="metric-icon-wrap">
         <mat-icon>assignment_turned_in</mat-icon>
       </div>
@@ -93,9 +96,9 @@
     </div>
 
     <!-- Progress / Attendance Card -->
-    <div class="metric-card progress-metric mat-elevation-z2" routerLink="/reports/attendance" matTooltip="View Attendance Report" *ngIf="showReportsMenu">
+    <div class="metric-card progress-metric mat-elevation-z2" [routerLink]="hasPermission('reports') ? '/reports/attendance' : '/pages/study-materials'" [matTooltip]="hasPermission('reports') ? 'View Attendance Report' : 'View Study Materials'" *ngIf="hasPermission('study-materials') || hasPermission('reports')">
       <div class="metric-icon-wrap">
-        <mat-icon>trending_up</mat-icon>
+        <mat-icon>{{ hasPermission('reports') ? 'trending_up' : 'menu_book' }}</mat-icon>
       </div>
       <div class="metric-data">
         <span class="metric-number">{{ progressPercentage || 0 }}%</span>
@@ -111,7 +114,7 @@
   <div class="widgets-grid">
 
     <!-- ── LEFT COLUMN 1: UPCOMING EVENTS ────────────── -->
-    <div class="widget-card mat-elevation-z2" *ngIf="showEventsWidget && (userRole === 'Admin' || userRole === 'Pastor' || userRole === 'Deputy Pastor' || userRole === 'Zone Coordinator' || userRole === 'Member')">
+    <div class="widget-card mat-elevation-z2" *ngIf="showEventsWidget && hasPermission('events')">
       <!-- Widget Header Bar -->
       <div class="widget-header">
         <div class="widget-title">
@@ -378,7 +381,8 @@
     </div>
 
     <div class="quick-hub-grid">
-      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/members-list">
+      <!-- Members Directory -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/members-list" *ngIf="hasPermission('members')">
         <div class="hub-icon-wrap member-hub"><mat-icon>diversity_3</mat-icon></div>
         <div class="hub-info">
           <h4>Members Directory</h4>
@@ -387,7 +391,8 @@
         <mat-icon class="hub-arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/attendance">
+      <!-- Attendance Tracker -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/attendance" *ngIf="hasPermission('attendance')">
         <div class="hub-icon-wrap attendance-hub"><mat-icon>fact_check</mat-icon></div>
         <div class="hub-info">
           <h4>Attendance Tracker</h4>
@@ -396,7 +401,8 @@
         <mat-icon class="hub-arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/tasks">
+      <!-- Fellowship Tasks -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/tasks" *ngIf="hasPermission('tasks')">
         <div class="hub-icon-wrap tasks-hub"><mat-icon>task</mat-icon></div>
         <div class="hub-info">
           <h4>Fellowship Tasks</h4>
@@ -405,7 +411,48 @@
         <mat-icon class="hub-arrow">chevron_right</mat-icon>
       </div>
 
-      <div class="hub-item-card mat-elevation-z2" routerLink="/reports/attendance" *ngIf="showReportsMenu">
+      <!-- Study Materials -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/study-materials" *ngIf="hasPermission('study-materials')">
+        <div class="hub-icon-wrap" style="background: #ccfbf1; color: #0f766e;"><mat-icon>menu_book</mat-icon></div>
+        <div class="hub-info">
+          <h4>Study Materials</h4>
+          <p>Access Bible curriculum & lesson materials</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <!-- Hiyaw Mahider Management -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/hiyaw-mahider" *ngIf="hasPermission('hiyaw-mahider')">
+        <div class="hub-icon-wrap member-hub"><mat-icon>groups</mat-icon></div>
+        <div class="hub-info">
+          <h4>Hiyaw Mahider</h4>
+          <p>Manage cell groups, leaders & locations</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <!-- Zone Management -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/zone" *ngIf="hasPermission('zone')">
+        <div class="hub-icon-wrap tasks-hub"><mat-icon>location_on</mat-icon></div>
+        <div class="hub-info">
+          <h4>Zone Management</h4>
+          <p>Oversee geographic church zones & coordinators</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <!-- Pastors Directory -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/pastors" *ngIf="hasPermission('pastors')">
+        <div class="hub-icon-wrap" style="background: #f3e8ff; color: #9333ea;"><mat-icon>supervisor_account</mat-icon></div>
+        <div class="hub-info">
+          <h4>Pastors Directory</h4>
+          <p>Manage pastoral staff and ministry assignments</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <!-- Attendance Report / Analytics -->
+      <div class="hub-item-card mat-elevation-z2" routerLink="/reports/attendance" *ngIf="hasPermission('reports')">
         <div class="hub-icon-wrap reports-hub"><mat-icon>assessment</mat-icon></div>
         <div class="hub-info">
           <h4>Attendance Report</h4>

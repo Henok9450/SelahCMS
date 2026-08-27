@@ -20,6 +20,7 @@ import { MemberService } from '../core/services/member.service';
 import { Event as AppEvent } from '../core/models/events.model';
 import { Task } from '../core/models/tasks.model';
 import { AttendanceDetailsDialogComponent } from './attendance-details-dialog.component';
+import { hasPermission, AppRole, ROLE_PERMISSIONS } from '../core/utils/role.utils';
 
 interface AttendanceRecord {
   id?: string;
@@ -357,78 +358,56 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
 
-            // Default permissions for non-admin/pastor are stricter
-            this.showAdminMenu = false; // Default to false
-            this.showReportsMenu = false; // Default to false
-            this.eventsConfig.showDescription = false; // Default to false
-            this.tasksConfig.showPriority = false; // Default to false
-            this.showAttendanceWidget = false; // Default to false
+            // Align permissions strictly with the Role Matrix
+            this.showAdminMenu = this.hasPermission('admin-logs') || this.userRole === 'Admin';
+            this.showReportsMenu = this.hasPermission('reports');
+            this.showEventsWidget = this.hasPermission('events');
+            this.showTasksWidget = this.hasPermission('tasks');
+            this.showAttendanceWidget = this.hasPermission('attendance');
+            this.showProgressWidget = this.hasPermission('study-materials');
+            this.showMembersMenu = this.hasPermission('members');
+            this.eventsConfig.showDescription = ['Admin', 'Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(this.userRole);
+            this.tasksConfig.showPriority = ['Admin', 'Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(this.userRole);
 
             // Always update TasksService with current user's role and HiyawMahiderId
             this.tasksService.setCurrentUserRole(this.userRole);
             this.tasksService.setCurrentUserHiyawMahiderId(userData.assignedHiyawMahiderId || null);
 
             if (this.userRole === 'Admin') {
-              console.log('User role is Admin.');
-              this.showAdminMenu = true;
-              this.showReportsMenu = true;
-              this.eventsConfig.showDescription = true;
-              this.tasksConfig.showPriority = true;
-              this.showAttendanceWidget = true;
-
-              // Admin might see all members, or members in their main mahider if assigned
+              console.log('User role is Admin. Full system access.');
               if (userData.assignedHiyawMahiderId && user?.uid) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId);
                 this.loadAttendanceData(userData.assignedHiyawMahiderId, user.uid, userData.memberId);
               } else {
-                // Admins might not have a primary Mahider, or see all data
-                // For now, if no mahider, memberCount/attendance will be 0 or global (if implemented)
-                this.memberCount = 0; // Or fetch total members if desired
+                this.memberCount = 0;
                 this.initializeEmptyAttendanceData();
                 this.calculateLearningProgressAndDaysActive([]);
               }
-            } else if (this.userRole === 'Pastor' || this.userRole === 'Deputy Pastor') {
+            } else if (this.userRole === 'Pastor' || this.userRole === 'Deputy Pastor' || this.userRole === 'Zone Coordinator') {
               console.log(`User role is ${this.userRole}. Fetching data for assigned Hiyaw Mahider.`);
-              this.showReportsMenu = true;
-              this.eventsConfig.showDescription = true;
-              this.showAttendanceWidget = true;
-
               if (userData.assignedHiyawMahiderId && user.uid) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId as string);
                 this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
-                console.warn(`${this.userRole} user has no assigned Hiyaw Mahider ID. Displaying general data or zeros.`);
+                console.warn(`${this.userRole} user has no assigned Hiyaw Mahider ID. Displaying general data.`);
                 this.memberCount = 0;
                 this.initializeEmptyAttendanceData();
                 this.calculateLearningProgressAndDaysActive([]);
               }
             } else if (this.userRole === 'Member') {
-              console.log('User role is Member.');
-              this.showAdminMenu = false;
-              this.showReportsMenu = false;
-              this.memberCount = 0; // Members don't typically see total member count
-              this.showAttendanceWidget = true; // Members can see their own attendance
-
+              console.log('User role is Member. Personal progress and fellowship access only.');
+              this.memberCount = 0; // Members view their own assignments & progress
               if (userData.assignedHiyawMahiderId && user.uid) {
-                console.log('Member role: Calling loadAttendanceData for user:', user.uid, 'in Hiyaw Mahider:', userData.assignedHiyawMahiderId);
                 this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
                 this.initializeEmptyAttendanceData();
                 this.calculateLearningProgressAndDaysActive([]);
               }
             } else {
-              console.log('User role is not Member, Pastor, Deputy Pastor, or Admin. Defaulting permissions.');
-              // This block covers roles like 'Guest' or undefined roles
-              if (userData.assignedHiyawMahiderId && user.uid) {
-                console.log('Default role, but found Hiyaw Mahider ID. Loading data for user:', user.uid, 'in Hiyaw Mahider:', userData.assignedHiyawMahiderId);
-                this.loadMemberCount(userData.assignedHiyawMahiderId as string);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
-              } else {
-                console.warn('Default role user has no assigned Hiyaw Mahider ID. Displaying general data or zeros.');
-                this.memberCount = 0;
-                this.initializeEmptyAttendanceData();
-                this.calculateLearningProgressAndDaysActive([]);
-              }
+              console.log('User role is Guest or default.');
+              this.memberCount = 0;
+              this.initializeEmptyAttendanceData();
+              this.calculateLearningProgressAndDaysActive([]);
             }
             this.isLoading = false;
             this.cdr.detectChanges();
@@ -857,8 +836,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedEvent = null;
   }
 
+  hasPermission(permission: string): boolean {
+    return hasPermission(this.userRole, permission);
+  }
+
   canModifyContent(): boolean {
-    return ['Admin', 'Pastor', 'Deputy Pastor'].includes(this.userRole);
+    return ['Admin', 'Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(this.userRole);
   }
 
   createEvent(): void {

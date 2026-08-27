@@ -19,30 +19,48 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'tasks',
     'zone',
     'attendance',
-    'admin-logs'
+    'admin-logs',
+    'members',
+    'events'
   ],
   'Pastor': [
     'hiyaw-mahider',
     'tasks',
     'study-materials',
-    'attendance'
+    'attendance',
+    'members',
+    'reports',
+    'events'
   ],
   'Deputy Pastor': [
     'hiyaw-mahider',
     'tasks',
     'study-materials',
-    'attendance'
+    'attendance',
+    'members',
+    'reports',
+    'events'
   ],
   'Zone Coordinator': [
     'hiyaw-mahider',
     'tasks',
     'study-materials',
     'attendance',
-    'zone'
+    'zone',
+    'members',
+    'events'
   ],
   'Member': [
     'members',
     'study-materials',
-    'tasks'
+    'tasks',
+    'events'
   ]
 };
+
+export function hasPermission(role: AppRole | string | undefined | null, permission: string): boolean {
+  if (!role) return false;
+  const permissions = ROLE_PERMISSIONS[role as AppRole];
+  if (!permissions) return false;
+  return permissions.includes(permission);
+}

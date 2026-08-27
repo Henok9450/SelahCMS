@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
 import { ReportService } from '../../app/core/services/report.service';
 import { AuthService } from '../core/services/auth.service';
+import { hasPermission } from '../core/utils/role.utils';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -46,19 +47,26 @@ export class SidebarComponent implements OnInit {
   showReportsSubmenu = false;
   reports: Report[] = [];
 
-  isAdminOrLeadership$: Observable<boolean> = combineLatest([
-    this.authService.isAdmin$,
-    this.authService.isPastor$,
-    this.authService.isDeputyPastor$
-  ]).pipe(
-    map(([isAdmin, isPastor, isDeputyPastor]) => isAdmin || isPastor || isDeputyPastor)
-  );
+  hasPermission$(permission: string): Observable<boolean> {
+    return this.authService.authState$.pipe(
+      map(user => hasPermission(user?.role, permission))
+    );
+  }
 
-  isPastorOrDeputy$: Observable<boolean> = combineLatest([
-    this.authService.isPastor$,
-    this.authService.isDeputyPastor$
-  ]).pipe(
-    map(([isPastor, isDeputyPastor]) => isPastor || isDeputyPastor)
+  canViewZones$ = this.hasPermission$('zone');
+  canViewHiyawMahider$ = this.hasPermission$('hiyaw-mahider');
+  canViewPastors$ = this.hasPermission$('pastors');
+  canViewAdminLogs$ = this.hasPermission$('admin-logs');
+  canViewAttendance$ = this.hasPermission$('attendance');
+  canViewMembers$ = this.hasPermission$('members');
+  canViewTasks$ = this.hasPermission$('tasks');
+  canViewEvents$ = this.hasPermission$('events');
+  canViewReports$ = this.hasPermission$('reports');
+  canViewStudyMaterials$ = this.hasPermission$('study-materials');
+
+  isAdminOrLeadership$: Observable<boolean> = this.hasPermission$('reports');
+  isPastorOrDeputy$: Observable<boolean> = this.authService.authState$.pipe(
+    map(user => user?.role === 'Pastor' || user?.role === 'Deputy Pastor')
   );
 
   ngOnInit(): void {
