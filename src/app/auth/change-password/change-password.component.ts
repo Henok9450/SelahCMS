@@ -7,6 +7,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 
@@ -20,7 +22,9 @@ import { Router } from '@angular/router';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './change-password.component.html',
   styleUrls: ['./change-password.component.css']
@@ -29,6 +33,9 @@ export class ChangePasswordComponent {
   currentPassword: string = '';
   newPassword: string = '';
   confirmPassword: string = '';
+  hideCurrentPassword: boolean = true;
+  hideNewPassword: boolean = true;
+  hideConfirmPassword: boolean = true;
   errorMessage: string = '';
   successMessage: string = '';
   isLoading: boolean = false;

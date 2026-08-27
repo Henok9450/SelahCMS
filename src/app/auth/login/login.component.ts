@@ -9,7 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-login',
@@ -24,17 +25,23 @@ import { MatIcon } from '@angular/material/icon';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIcon,
+    MatIconModule,
+    MatTooltipModule,
     RouterModule
   ]
 })
 export class LoginComponent {
   email: string = '';
   password: string = '';
+  hidePassword: boolean = true;
   isLoading: boolean = false;
   errorMessage: string = '';
 
   constructor(private authService: AuthService, private router: Router) {}
+
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
+  }
   
 
 // login.component.ts

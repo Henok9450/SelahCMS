@@ -184,6 +184,23 @@ mat-card-header p {
     caret-color: #2F5C5B !important; /* Cursor color */
 }
 
+/* Password Toggle Icon Button */
+.password-toggle-btn {
+    color: #64748b !important;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+    color: #07514d !important;
+    transform: scale(1.08);
+}
+
+.password-toggle-btn mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
 /* Button - Neumorphic */
 button.neumorphic-button { /* Target your custom class on the button */
     width: 100%;

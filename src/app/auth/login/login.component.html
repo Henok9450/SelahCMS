@@ -26,15 +26,34 @@
                     <!-- Email input field -->
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Email</mat-label>
-                        <!-- [(ngModel)] binds the input to the 'email' property in your component's TypeScript -->
-                        <input matInput [(ngModel)]="email" name="email" required>
+                        <input matInput 
+                               type="email" 
+                               [(ngModel)]="email" 
+                               name="email" 
+                               autocomplete="username"
+                               placeholder="e.g. pastor@geuc.org"
+                               required>
                     </mat-form-field>
 
-                    <!-- Password input field -->
+                    <!-- Password input field with compliant Show/Hide toggle -->
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Password</mat-label>
-                        <!-- type="password" hides the input, [(ngModel)] binds to 'password' property -->
-                        <input matInput type="password" [(ngModel)]="password" name="password" required>
+                        <input matInput 
+                               [type]="hidePassword ? 'password' : 'text'" 
+                               [(ngModel)]="password" 
+                               name="password"
+                               autocomplete="current-password" 
+                               required>
+                        <button mat-icon-button 
+                                matSuffix 
+                                type="button"
+                                (click)="togglePasswordVisibility()" 
+                                [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
+                                [attr.aria-pressed]="!hidePassword"
+                                [matTooltip]="hidePassword ? 'Show password' : 'Hide password'"
+                                class="password-toggle-btn">
+                            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                        </button>
                     </mat-form-field>
 
                     <!-- Error message display, shown only if errorMessage has a value -->
