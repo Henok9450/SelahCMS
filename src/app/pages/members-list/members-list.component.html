@@ -1,39 +1,260 @@
 <!-- members-list.component.html -->
-<div class="members-list-container">
-  <h2>Members List</h2>
-
-  <div *ngIf="isLoading" class="loading-spinner">
-    <mat-spinner diameter="30"></mat-spinner> Loading members...
+<div class="members-page-header">
+  <div class="members-header-title">
+    <mat-icon class="members-header-icon">diversity_3</mat-icon>
+    <div>
+      <h1>Members Directory</h1>
+      <span class="members-header-sub">
+        <mat-icon class="sub-icon">home_work</mat-icon>
+        {{ hiyawMahiderName ? hiyawMahiderName : 'My Fellowship Group' }}
+      </span>
+    </div>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
-    <mat-icon>error_outline</mat-icon> {{ errorMessage }}
-  </div>
-
-  <ng-container *ngIf="!isLoading && !errorMessage && (members$ | async) as members">
-    <div *ngIf="members.length === 0" class="no-members-found">
-      No members found for your assigned Hiyaw Mahider.
+  <div class="header-actions">
+    <!-- View Mode Toggle -->
+    <div class="view-toggle-group">
+      <button mat-button class="toggle-btn" [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')" matTooltip="Cards View">
+        <mat-icon>grid_view</mat-icon> Cards
+      </button>
+      <button mat-button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="setViewMode('table')" matTooltip="Table View">
+        <mat-icon>table_rows</mat-icon> Table
+      </button>
     </div>
 
-    <div *ngIf="members.length > 0">
-      <table class="members-table">
-        <thead>
-          <tr>
-            <th>Full Name</th>
-            <th>Contact (Phone)</th>
-            <th>Role</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let member of paginatedMembers">
-            <td>{{ member?.fullName || 'N/A' }}</td>
-            <td>{{ member?.phoneNumber || 'N/A' }}</td>
-            <td>{{ member?.role || 'N/A' }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Member Count Badge -->
+    <div class="header-count-badge">
+      <mat-icon>people</mat-icon>
+      <span>{{ totalCount }} Members</span>
+    </div>
+  </div>
+</div>
 
-      <!-- Add the paginator here -->
+<div class="members-main-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Loading fellowship members...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container mat-elevation-z2">
+    <mat-icon>error_outline</mat-icon>
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading && !errorMessage">
+    <!-- Stat Summary Cards -->
+    <div class="stats-grid" *ngIf="allLoadedMembers.length > 0">
+      <div class="stat-card total-card">
+        <div class="stat-icon-wrap"><mat-icon>groups</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ totalCount }}</span>
+          <span class="stat-label">Total in Fellowship</span>
+        </div>
+      </div>
+
+      <div class="stat-card pastor-card">
+        <div class="stat-icon-wrap"><mat-icon>person</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getRoleCount('Pastor') + getRoleCount('Deputy Pastor') }}</span>
+          <span class="stat-label">Pastors & Deputies</span>
+        </div>
+      </div>
+
+      <div class="stat-card member-card">
+        <div class="stat-icon-wrap"><mat-icon>how_to_reg</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getRoleCount('Member') }}</span>
+          <span class="stat-label">Core Members</span>
+        </div>
+      </div>
+
+      <div class="stat-card coordinator-card">
+        <div class="stat-icon-wrap"><mat-icon>admin_panel_settings</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ getRoleCount('Zone Coordinator') + getRoleCount('Admin') }}</span>
+          <span class="stat-label">Coordinators / Admin</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search & Filter Card -->
+    <mat-card class="filter-card mat-elevation-z2" *ngIf="allLoadedMembers.length > 0">
+      <div class="filter-inner">
+        <div class="search-box">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search members</mat-label>
+            <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by name, phone, role, email...">
+            <mat-icon matPrefix>search</mat-icon>
+            <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="searchTerm = ''; onSearchChange()" aria-label="Clear search">
+              <mat-icon>close</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <!-- Role Filter Chips -->
+        <div class="role-chips-bar">
+          <mat-chip-listbox [value]="selectedRole">
+            <mat-chip-option *ngFor="let role of availableRoles" [value]="role" (click)="setRoleFilter(role)" [selected]="selectedRole === role">
+              {{ role }} ({{ getRoleCount(role) }})
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+
+        <button *ngIf="hasActiveFilters()" mat-stroked-button color="warn" (click)="clearFilters()" class="clear-btn">
+          <mat-icon>filter_alt_off</mat-icon> Clear
+        </button>
+      </div>
+    </mat-card>
+
+    <!-- Empty State: No members assigned -->
+    <div *ngIf="allLoadedMembers.length === 0" class="empty-state mat-elevation-z2">
+      <mat-icon class="empty-icon">person_off</mat-icon>
+      <h3>No Members Found</h3>
+      <p>No members are currently assigned to your Hiyaw Mahider group.</p>
+    </div>
+
+    <!-- Empty State: Filters return 0 results -->
+    <div *ngIf="allLoadedMembers.length > 0 && filteredMembers.length === 0" class="empty-state mat-elevation-z2">
+      <mat-icon class="empty-icon">search_off</mat-icon>
+      <h3>No Matching Members</h3>
+      <p>No members matched your search or role filter.</p>
+      <button mat-stroked-button color="primary" (click)="clearFilters()" class="reset-filter-btn">
+        <mat-icon>refresh</mat-icon> Clear Filters
+      </button>
+    </div>
+
+    <!-- ── VIEW 1: DIRECTORY CARDS GRID ──────────────── -->
+    <div *ngIf="viewMode === 'grid' && filteredMembers.length > 0">
+      <div class="members-cards-grid">
+        <div class="member-profile-card mat-elevation-z2" *ngFor="let member of paginatedMembers" (click)="openMemberDetails(member)">
+          <!-- Card Header Banner -->
+          <div class="card-banner" [ngClass]="'banner-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
+            <div class="card-avatar">
+              {{ getInitials(member?.full_name || '') }}
+            </div>
+            <span class="role-pill" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
+              <mat-icon class="role-icon">{{ getRoleIcon(member?.role) }}</mat-icon>
+              {{ member?.role || 'Member' }}
+            </span>
+          </div>
+
+          <!-- Card Content -->
+          <div class="card-body">
+            <h3 class="member-title">{{ member?.full_name || 'N/A' }}</h3>
+            
+            <div class="status-row">
+              <span class="status-indicator" [ngClass]="'status-' + (member?.status || 'active').toLowerCase()">
+                <span class="status-dot"></span> {{ member?.status || 'Active' }}
+              </span>
+            </div>
+
+            <!-- Quick Contacts -->
+            <div class="contact-actions">
+              <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="contact-btn phone-btn" matTooltip="Call member">
+                <mat-icon>phone</mat-icon>
+                <span>{{ member?.phone }}</span>
+              </a>
+              <span *ngIf="!member?.phone" class="no-phone">
+                <mat-icon>phone_disabled</mat-icon> No phone
+              </span>
+
+              <a *ngIf="member?.email" [href]="'mailto:' + member?.email" (click)="$event.stopPropagation()" class="contact-btn email-btn" matTooltip="Email member">
+                <mat-icon>email</mat-icon>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer">
+            <button mat-button color="primary" class="view-profile-btn" (click)="openMemberDetails(member); $event.stopPropagation()">
+              <mat-icon>visibility</mat-icon> View Info
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator 
+        [length]="totalMembers"
+        [pageSize]="pageSize"
+        [pageSizeOptions]="pageSizeOptions"
+        [pageIndex]="pageIndex"
+        (page)="onPageChange($event)"
+        aria-label="Select page"
+        class="custom-paginator mat-elevation-z1">
+      </mat-paginator>
+    </div>
+
+    <!-- ── VIEW 2: TABULAR LIST ─────────────────────── -->
+    <div class="members-table-card mat-elevation-z2" *ngIf="viewMode === 'table' && filteredMembers.length > 0">
+      <div class="table-card-header">
+        <div class="table-header-title">
+          <mat-icon>view_list</mat-icon>
+          <h3>Member Directory ({{ totalMembers }})</h3>
+        </div>
+      </div>
+
+      <div class="table-scroll-wrapper">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th class="col-avatar"></th>
+              <th class="col-name">Full Name</th>
+              <th class="col-phone">Contact Phone</th>
+              <th class="col-email">Email</th>
+              <th class="col-role">Role</th>
+              <th class="col-status">Status</th>
+              <th class="col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let member of paginatedMembers" (click)="openMemberDetails(member)" class="clickable-row">
+              <td class="col-avatar">
+                <div class="member-avatar">
+                  {{ getInitials(member?.full_name || '') }}
+                </div>
+              </td>
+              <td class="col-name">
+                <span class="member-name">{{ member?.full_name || 'N/A' }}</span>
+              </td>
+              <td class="col-phone">
+                <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="phone-link">
+                  <mat-icon class="phone-icon">phone</mat-icon>
+                  <span>{{ member.phone }}</span>
+                </a>
+                <span class="text-muted" *ngIf="!member?.phone">—</span>
+              </td>
+              <td class="col-email">
+                <a *ngIf="member?.email" [href]="'mailto:' + member?.email" (click)="$event.stopPropagation()" class="email-link">
+                  <mat-icon class="email-icon">email</mat-icon>
+                  <span>{{ member.email }}</span>
+                </a>
+                <span class="text-muted" *ngIf="!member?.email">—</span>
+              </td>
+              <td class="col-role">
+                <span class="role-badge" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
+                  <mat-icon class="inline-role-icon">{{ getRoleIcon(member?.role) }}</mat-icon>
+                  {{ member?.role || 'Member' }}
+                </span>
+              </td>
+              <td class="col-status">
+                <span class="status-chip" [ngClass]="'status-' + (member?.status || 'active').toLowerCase()">
+                  {{ member?.status || 'Active' }}
+                </span>
+              </td>
+              <td class="col-actions">
+                <button mat-icon-button color="primary" (click)="openMemberDetails(member); $event.stopPropagation()" matTooltip="View Details">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginator -->
       <mat-paginator 
         [length]="totalMembers"
         [pageSize]="pageSize"
@@ -45,4 +266,93 @@
       </mat-paginator>
     </div>
   </ng-container>
+</div>
+
+<!-- ── FULL MEMBER PROFILE MODAL OVERLAY ───────────── -->
+<div class="modal-backdrop" *ngIf="selectedMember" (click)="closeMemberDetails()">
+  <div class="profile-modal-card mat-elevation-z4" (click)="$event.stopPropagation()">
+    <!-- Modal Banner -->
+    <div class="modal-banner" [ngClass]="'banner-' + (selectedMember.role || 'member').toLowerCase().replace(' ', '-')">
+      <button mat-icon-button class="close-btn" (click)="closeMemberDetails()" aria-label="Close modal">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="modal-avatar-wrap">
+        <div class="modal-avatar">
+          {{ getInitials(selectedMember.full_name || '') }}
+        </div>
+      </div>
+      <h2 class="modal-name">{{ selectedMember.full_name }}</h2>
+      <div class="modal-badges">
+        <span class="role-pill" [ngClass]="'role-' + (selectedMember.role || 'member').toLowerCase().replace(' ', '-')">
+          <mat-icon class="role-icon">{{ getRoleIcon(selectedMember.role) }}</mat-icon>
+          {{ selectedMember.role || 'Member' }}
+        </span>
+        <span class="status-chip" [ngClass]="'status-' + (selectedMember.status || 'active').toLowerCase()">
+          {{ selectedMember.status || 'Active' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Modal Content Details -->
+    <div class="modal-content">
+      <!-- Section 1: Contact Information -->
+      <div class="info-section">
+        <div class="section-heading">
+          <mat-icon>contact_phone</mat-icon>
+          <h4>Contact Details</h4>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Phone Number</span>
+            <div class="info-val" *ngIf="selectedMember.phone">
+              <a [href]="'tel:' + selectedMember.phone" class="phone-link">
+                <mat-icon>phone</mat-icon> {{ selectedMember.phone }}
+              </a>
+            </div>
+            <span class="info-val text-muted" *ngIf="!selectedMember.phone">Not available</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">Email Address</span>
+            <div class="info-val" *ngIf="selectedMember.email">
+              <a [href]="'mailto:' + selectedMember.email" class="email-link">
+                <mat-icon>email</mat-icon> {{ selectedMember.email }}
+              </a>
+            </div>
+            <span class="info-val text-muted" *ngIf="!selectedMember.email">Not available</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Fellowship & Ministry -->
+      <div class="info-section">
+        <div class="section-heading">
+          <mat-icon>home_work</mat-icon>
+          <h4>Fellowship Assignment</h4>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Hiyaw Mahider</span>
+            <span class="info-val highlight-val">{{ hiyawMahiderName || 'Assigned Group' }}</span>
+          </div>
+
+          <div class="info-item" *ngIf="selectedMember.smallTeam">
+            <span class="info-label">Small Team</span>
+            <span class="info-val">{{ selectedMember.smallTeam.name || selectedMember.smallTeam }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Footer Actions -->
+    <div class="modal-footer">
+      <a *ngIf="selectedMember.phone" [href]="'tel:' + selectedMember.phone" class="btn-call">
+        <mat-icon>call</mat-icon> Call Member
+      </a>
+      <button mat-stroked-button (click)="closeMemberDetails()" class="btn-close">
+        Close
+      </button>
+    </div>
+  </div>
 </div>

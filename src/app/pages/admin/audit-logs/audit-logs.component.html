@@ -1,0 +1,143 @@
+<div class="audit-logs-container">
+  <div class="header-banner">
+    <div class="banner-title">
+      <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+      <div>
+        <h2>System Activity & Audit Logs</h2>
+        <p>Enterprise action tracking and audit history for administrators</p>
+      </div>
+    </div>
+    <button mat-raised-button color="accent" (click)="exportCSV()" [disabled]="logs.length === 0">
+      <mat-icon>download</mat-icon>
+      Export CSV
+    </button>
+  </div>
+
+  <!-- Filter Card -->
+  <mat-card class="filter-card">
+    <form [formGroup]="filterForm" class="filter-form">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option value="">All Categories</mat-option>
+          <mat-option *ngFor="let cat of categories" [value]="cat">{{ cat }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field search-field">
+        <mat-icon matPrefix class="search-prefix-icon">search</mat-icon>
+        <mat-label>Search Actor / Target</mat-label>
+        <input matInput formControlName="actorSearch" placeholder="Name or Role..." />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="pickerStart" formControlName="startDate">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerStart"></mat-datepicker-toggle>
+        <mat-datepicker #pickerStart></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="pickerEnd" formControlName="endDate">
+        <mat-datepicker-toggle matIconSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEnd></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-button class="reset-btn" (click)="resetFilters()" type="button">
+        <mat-icon>restart_alt</mat-icon>
+        Reset Filters
+      </button>
+    </form>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="loading-state">
+    <mat-spinner diameter="40"></mat-spinner>
+    <span>Loading system audit trail...</span>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && paginatedLogs.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">manage_search</mat-icon>
+    <h3>No Audit Logs Found</h3>
+    <p>No activity logs match the selected filters or date range.</p>
+  </div>
+
+  <!-- Audit Logs Table -->
+  <div class="table-card" *ngIf="!isLoading && paginatedLogs.length > 0">
+    <div class="table-scroll-wrapper">
+      <mat-table [dataSource]="paginatedLogs" class="audit-table">
+
+        <!-- Timestamp Column -->
+        <ng-container matColumnDef="timestamp">
+          <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
+          <mat-cell *matCellDef="let log" class="time-cell">
+            {{ log.timestamp | date:'medium' }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Actor Column -->
+        <ng-container matColumnDef="actor">
+          <mat-header-cell *matHeaderCellDef>Actor</mat-header-cell>
+          <mat-cell *matCellDef="let log">
+            <span class="actor-name">{{ log.actorName }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <mat-header-cell *matHeaderCellDef>Role</mat-header-cell>
+          <mat-cell *matCellDef="let log">
+            <span class="role-chip">{{ log.actorRole }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <mat-header-cell *matHeaderCellDef>Category</mat-header-cell>
+          <mat-cell *matCellDef="let log">
+            <span class="category-badge" [ngClass]="getCategoryColor(log.category)">
+              {{ log.category }}
+            </span>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Action Column -->
+        <ng-container matColumnDef="action">
+          <mat-header-cell *matHeaderCellDef>Action</mat-header-cell>
+          <mat-cell *matCellDef="let log" class="action-cell">
+            {{ log.action }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Target Column -->
+        <ng-container matColumnDef="target">
+          <mat-header-cell *matHeaderCellDef>Target</mat-header-cell>
+          <mat-cell *matCellDef="let log">
+            {{ log.targetName || log.targetId || '-' }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Details Column -->
+        <ng-container matColumnDef="details">
+          <mat-header-cell *matHeaderCellDef>Details</mat-header-cell>
+          <mat-cell *matCellDef="let log" class="details-cell">
+            <code>{{ formatDetails(log.details) }}</code>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+
+    <mat-paginator
+      [length]="totalLogs"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>

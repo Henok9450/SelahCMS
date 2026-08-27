@@ -9,6 +9,6 @@ export const environment = {
       messagingSenderId: "937721618497",
       appId: "1:937721618497:web:557421a9fedd700b83e6c0",
       measurementId: "G-N4HN35VYRY"
-    }
+    },
+    apiUrl: 'https://backend.main.api.geuc.et/api/v1' // Add this line
   };
-  

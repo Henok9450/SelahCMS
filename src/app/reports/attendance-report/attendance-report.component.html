@@ -1,177 +1,295 @@
-<div class="report-container">
-  <h2>Attendance Report</h2>
-
-  <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
-    <div class="filter-section">
-      <mat-form-field *ngIf="!isPastorOrDeputy">
-        <mat-label>Zone</mat-label>
-        <mat-select formControlName="zone" (selectionChange)="onZoneChange($event.value)">
-          <mat-option value="">All Zones</mat-option>
-          <mat-option *ngFor="let zone of zones" [value]="zone.id">
-            {{ zone.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Hiyaw Mahider</mat-label>
-        <mat-select formControlName="hiyawMahiderId" (selectionChange)="onHiyawMahiderChange($event.value)"
-                    [disabled]="isPastorOrDeputy && assignedHiyawMahiderId !== null && hiyawMahiders.length === 1">
-          <mat-option *ngIf="!isPastorOrDeputy || (isPastorOrDeputy && hiyawMahiders.length > 1)" value="">All Hiyaw Mahiders</mat-option>
-          <mat-option *ngFor="let mahider of hiyawMahiders" [value]="mahider.id">
-            {{ mahider.name }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Start Date</mat-label>
-        <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-        <mat-datepicker #startPicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>End Date</mat-label>
-        <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-        <mat-datepicker #endPicker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Study Day</mat-label>
-        <mat-select formControlName="studyDay">
-          <mat-option value="">All Days</mat-option>
-          <mat-option value="Monday">Monday</mat-option>
-          <mat-option value="Tuesday">Tuesday</mat-option>
-          <mat-option value="Wednesday">Wednesday</mat-option>
-          <mat-option value="Thursday">Thursday</mat-option>
-          <mat-option value="Friday">Friday</mat-option>
-          <mat-option value="Saturday">Saturday</mat-option>
-          <mat-option value="Sunday">Sunday</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Member</mat-label>
-        <mat-select formControlName="memberName">
-          <mat-option value="">All Members</mat-option>
-          <mat-option *ngFor="let member of members" [value]="member">
-            {{ member }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field>
-        <mat-label>Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option *ngFor="let status of statusOptions" [value]="status.value">
-            {{ status.display }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+<div class="report-page-header">
+  <div class="report-header-title">
+    <mat-icon class="report-header-icon">assessment</mat-icon>
+    <div>
+      <h1>Attendance Report</h1>
+      <span class="report-header-sub">Comprehensive attendance tracking & analytics</span>
     </div>
+  </div>
+  <div class="header-actions">
+    <button mat-raised-button color="accent" type="button" (click)="exportToCSV()"
+      [disabled]="!attendanceReport || attendanceReport.records.length === 0" class="export-btn">
+      <mat-icon>cloud_download</mat-icon> Export to CSV
+    </button>
+  </div>
+</div>
 
-    <div class="button-group">
-      <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-        {{ isLoading ? 'Generating...' : 'Generate Report' }}
-      </button>
-      <button mat-stroked-button type="button" (click)="resetFilters()">
-        Reset Filters
-      </button>
-      <button mat-raised-button type="button" (click)="exportToCSV()" [disabled]="!attendanceReport || attendanceReport.records.length === 0">
-          Export to CSV
-      </button>
+<div class="report-main-container">
+  <!-- Filter Card -->
+  <mat-card class="filter-card mat-elevation-z2">
+    <div class="card-header-bar">
+      <div class="card-header-title">
+        <mat-icon>filter_list</mat-icon>
+        <span>Report Filters</span>
+      </div>
     </div>
-  </form>
+    <mat-card-content>
+      <form [formGroup]="reportForm" (ngSubmit)="generateReport()">
+        <div class="filter-grid">
+          <mat-form-field appearance="outline" *ngIf="!isPastorOrDeputy">
+            <mat-label>Zone</mat-label>
+            <mat-select formControlName="zone" (selectionChange)="onZoneChange($event.value)">
+              <mat-option value="">All Zones</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">
+                {{ zone.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-  <div *ngIf="isLoading" class="loading-spinner">
-      <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
-      <span>Loading report...</span>
+          <mat-form-field appearance="outline">
+            <mat-label>Hiyaw Mahider</mat-label>
+            <mat-select formControlName="hiyawMahiderId" (selectionChange)="onHiyawMahiderChange($event.value)"
+              [panelClass]="'attendance-select-panel'"
+              [disabled]="isPastorOrDeputy && assignedHiyawMahiderId !== null && hiyawMahiders.length === 1">
+              <mat-option *ngIf="!isPastorOrDeputy || (isPastorOrDeputy && hiyawMahiders.length > 1)" value="">All Hiyaw
+                Mahiders</mat-option>
+              <mat-option *ngFor="let mahider of hiyawMahiders" [value]="mahider.id">
+                {{ mahider.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+            <mat-datepicker #startPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>End Date</mat-label>
+            <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+            <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+            <mat-datepicker #endPicker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Study Day</mat-label>
+            <mat-select formControlName="studyDay">
+              <mat-option value="">All Days</mat-option>
+              <mat-option value="Monday">Monday</mat-option>
+              <mat-option value="Tuesday">Tuesday</mat-option>
+              <mat-option value="Wednesday">Wednesday</mat-option>
+              <mat-option value="Thursday">Thursday</mat-option>
+              <mat-option value="Friday">Friday</mat-option>
+              <mat-option value="Saturday">Saturday</mat-option>
+              <mat-option value="Sunday">Sunday</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Member</mat-label>
+            <mat-select formControlName="memberName">
+              <mat-option value="">All Members</mat-option>
+              <mat-option *ngFor="let member of members" [value]="member">
+                {{ member }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let status of statusOptions" [value]="status.value">
+                {{ status.display }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="button-group">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading" class="submit-btn">
+            <mat-icon>{{ isLoading ? 'hourglass_top' : 'insights' }}</mat-icon>
+            {{ isLoading ? 'Generating...' : 'Generate Report' }}
+          </button>
+          <button mat-stroked-button type="button" (click)="resetFilters()" class="reset-btn">
+            <mat-icon>refresh</mat-icon> Reset Filters
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Generating report analytics...</p>
   </div>
 
-  <div *ngIf="attendanceReport" class="report-summary">
+  <!-- Summary Section -->
+  <div *ngIf="attendanceReport && !isLoading" class="report-summary-container">
+    <div class="section-title">
+      <mat-icon>analytics</mat-icon>
+      <h2>Performance & Attendance Metrics</h2>
+    </div>
+
     <div class="stats-grid">
+      <!-- Row 1: Core Counts -->
       <div class="stat-card total-records">
-        <span class="stat-value">{{ attendanceReport.totalRecords }}</span>
-        <span class="stat-label">Total Records</span>
+        <div class="stat-icon-wrap"><mat-icon>view_list</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.totalRecords }}</span>
+          <span class="stat-label">Total Records</span>
+        </div>
       </div>
+
+      <div class="stat-card expected-members">
+        <div class="stat-icon-wrap"><mat-icon>people</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.totalExpectedMembers }}</span>
+          <span class="stat-label">Expected Members</span>
+          <span class="stat-help">Excl. excused & new guests</span>
+        </div>
+      </div>
+
+      <!-- Row 2: Status Breakdown -->
       <div class="stat-card present">
-        <span class="stat-value">{{ attendanceReport.presentCount }}</span>
-        <span class="stat-label">Present</span>
+        <div class="stat-icon-wrap"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.presentCount }}</span>
+          <span class="stat-label">Present</span>
+        </div>
       </div>
+
       <div class="stat-card absent">
-        <span class="stat-value">{{ attendanceReport.absentCount }}</span>
-        <span class="stat-label">Absent</span>
+        <div class="stat-icon-wrap"><mat-icon>cancel</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.absentCount }}</span>
+          <span class="stat-label">Absent</span>
+        </div>
       </div>
-      <div class="stat-card follow-up-needed">
-        <span class="stat-value">{{ attendanceReport.followUpNeededCount }}</span>
-        <span class="stat-label">Follow Up Needed</span>
-      </div>
-      <div class="stat-card excused">
-        <span class="stat-value">{{ attendanceReport.excusedCount }}</span>
-        <span class="stat-label">Excused</span>
-      </div>
+
       <div class="stat-card late">
-        <span class="stat-value">{{ attendanceReport.lateCount }}</span>
-        <span class="stat-label">Late</span>
+        <div class="stat-icon-wrap"><mat-icon>schedule</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.lateCount }}</span>
+          <span class="stat-label">Late</span>
+        </div>
       </div>
+
+      <div class="stat-card excused">
+        <div class="stat-icon-wrap"><mat-icon>verified</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.excusedCount }}</span>
+          <span class="stat-label">Excused</span>
+        </div>
+      </div>
+
+      <!-- Row 3: Special Categories -->
       <div class="stat-card new-guest">
-        <span class="stat-value">{{ attendanceReport.newGuestCount }}</span>
-        <span class="stat-label">New Guest</span>
+        <div class="stat-icon-wrap"><mat-icon>person_add</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.newGuestCount }}</span>
+          <span class="stat-label">New Guests</span>
+        </div>
       </div>
-      <div class="stat-card attendance-rate">
-        <span class="stat-value">{{ attendanceReport.attendanceRate }}%</span>
-        <span class="stat-label">Attendance Rate</span>
+
+      <div class="stat-card follow-up-needed">
+        <div class="stat-icon-wrap"><mat-icon>priority_high</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.followUpNeededCount }}</span>
+          <span class="stat-label">Follow Up Needed</span>
+        </div>
+      </div>
+
+      <!-- Row 4: Key Professional Metrics (Highlighted) -->
+      <div class="stat-card attendance-rate primary-metric">
+        <div class="stat-icon-wrap"><mat-icon>trending_up</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.attendanceRate }}%</span>
+          <span class="stat-label">Attendance Rate</span>
+          <span class="stat-help">Core members only</span>
+        </div>
+      </div>
+
+      <div class="stat-card participation-rate primary-metric">
+        <div class="stat-icon-wrap"><mat-icon>groups</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.participationRate }}%</span>
+          <span class="stat-label">Participation Rate</span>
+          <span class="stat-help">Including guests</span>
+        </div>
+      </div>
+
+      <div class="stat-card awa primary-metric">
+        <div class="stat-icon-wrap"><mat-icon>bar_chart</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{ attendanceReport.averageWeeklyAttendance }}</span>
+          <span class="stat-label">Avg Weekly Attendance</span>
+          <span class="stat-help">AWA metric</span>
+        </div>
       </div>
     </div>
 
-    <mat-table [dataSource]="paginatedRecords" class="records-table">
-      <ng-container matColumnDef="date">
-        <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.date }}</mat-cell>
-      </ng-container>
+    <!-- Table Card -->
+    <div class="report-table-card mat-elevation-z2">
+      <div class="table-card-header">
+        <div class="table-header-title">
+          <mat-icon>table_chart</mat-icon>
+          <h3>Attendance Records ({{ totalRecords }})</h3>
+        </div>
+      </div>
 
-      <ng-container matColumnDef="hiyawMahiderName">
-        <mat-header-cell *matHeaderCellDef>Hiyaw Mahider</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.hiyawMahiderName }}</mat-cell>
-      </ng-container>
+      <div class="table-scroll-wrapper">
+        <mat-table [dataSource]="paginatedRecords" class="records-table">
+          <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+            <mat-cell *matCellDef="let record">
+              <span class="date-badge">{{ record.date }}</span>
+            </mat-cell>
+          </ng-container>
 
-      <ng-container matColumnDef="zone">
-        <mat-header-cell *matHeaderCellDef>Zone</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.zone }}</mat-cell>
-      </ng-container>
+          <ng-container matColumnDef="hiyawMahiderName">
+            <mat-header-cell *matHeaderCellDef>Hiyaw Mahider</mat-header-cell>
+            <mat-cell *matCellDef="let record" class="fw-500">{{ record.hiyawMahiderName }}</mat-cell>
+          </ng-container>
 
-      <ng-container matColumnDef="memberName">
-        <mat-header-cell *matHeaderCellDef>Member Name</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.memberName }}</mat-cell>
-      </ng-container>
+          <ng-container matColumnDef="zone">
+            <mat-header-cell *matHeaderCellDef>Zone</mat-header-cell>
+            <mat-cell *matCellDef="let record">
+              <span class="zone-badge">{{ record.zone }}</span>
+            </mat-cell>
+          </ng-container>
 
-      <ng-container matColumnDef="studyDay">
-        <mat-header-cell *matHeaderCellDef>Study Day</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.studyDay }}</mat-cell>
-      </ng-container>
+          <ng-container matColumnDef="memberName">
+            <mat-header-cell *matHeaderCellDef>Member Name</mat-header-cell>
+            <mat-cell *matCellDef="let record" class="fw-500">{{ record.memberName }}</mat-cell>
+          </ng-container>
 
-      <ng-container matColumnDef="status">
-        <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-        <mat-cell *matCellDef="let record">
-          <span class="status-badge" [class]="record.status">{{ record.status }}</span>
-        </mat-cell>
-      </ng-container>
+          <ng-container matColumnDef="studyDay">
+            <mat-header-cell *matHeaderCellDef>Study Day</mat-header-cell>
+            <mat-cell *matCellDef="let record">{{ record.studyDay }}</mat-cell>
+          </ng-container>
 
-      <ng-container matColumnDef="reason">
-        <mat-header-cell *matHeaderCellDef>Reason</mat-header-cell>
-        <mat-cell *matCellDef="let record">{{ record.reason }}</mat-cell>
-      </ng-container>
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+            <mat-cell *matCellDef="let record">
+              <span class="status-chip" [ngClass]="'status-' + (record.status || '').toLowerCase().replace(' ', '-')">
+                {{ record.status }}
+              </span>
+            </mat-cell>
+          </ng-container>
 
-      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-    </mat-table>
+          <ng-container matColumnDef="reason">
+            <mat-header-cell *matHeaderCellDef>Reason</mat-header-cell>
+            <mat-cell *matCellDef="let record" class="text-muted">{{ record.reason || '—' }}</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+      </div>
+
+      <mat-paginator [length]="totalRecords" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)" aria-label="Select page">
+      </mat-paginator>
+    </div>
   </div>
-  <mat-paginator [length]="totalRecords"
-  [pageSize]="pageSize"
-  [pageSizeOptions]="[5, 10, 25, 100]"
-  (page)="onPageChange($event)"
-  aria-label="Select page">
-  </mat-paginator>
+
+  <!-- Empty State when report has 0 records -->
+  <div *ngIf="attendanceReport && attendanceReport.records.length === 0 && !isLoading" class="empty-state mat-elevation-z2">
+    <mat-icon class="empty-icon">search_off</mat-icon>
+    <h3>No Attendance Records Found</h3>
+    <p>No records match the selected filter criteria. Try adjusting the date range or filters.</p>
+  </div>
 </div>

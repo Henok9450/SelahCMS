@@ -49,12 +49,12 @@
   
   /* Material Primary Button Specifics */
   .action-buttons button[color="primary"] {
-    background-color: #3f51b5; /* Default Material primary color */
+    background-color: var(--brand-primary); /* Default Material primary color */
     color: white;
   }
   
   .action-buttons button[color="primary"]:hover {
-    background-color: #303f9f; /* Darker shade on hover */
+    background-color: var(--brand-primary-hover); /* Darker shade on hover */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
     transform: translateY(-1px); /* Slight lift effect */
   }

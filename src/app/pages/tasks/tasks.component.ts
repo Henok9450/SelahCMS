@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Task } from '../../../app/core/tasks.model';
-import { TasksService } from '../../../app/core/tasks.service';
+import { Task } from '../../../app/core/models/tasks.model';
+import { TasksService } from '../../../app/core/services/tasks.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../../app/core/auth.service';
-import { User } from '../../../app/core/user.model';
+import { AuthService } from '../../../app/core/services/auth.service';
+import { User } from '../../../app/core/models/user.model';
 import { convertToDate } from '../../pages/Utility/date.utils';
 
 // Angular Material Imports
@@ -24,6 +24,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; 
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { TaskCreateDialogComponent } from './task-create-dialog/task-create-dialog.component';
 
 @Component({
   selector: 'app-tasks',
@@ -48,6 +50,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatDialogModule,
   ],
 })
 export class TasksComponent implements OnInit, OnDestroy {
@@ -92,7 +95,11 @@ export class TasksComponent implements OnInit, OnDestroy {
   // For MatTable
   displayedColumns: string[] = ['index', 'title', 'status', 'dueDate', 'actions'];
 
-  constructor(private tasksService: TasksService, private authService: AuthService) { }
+  constructor(
+    private tasksService: TasksService,
+    private authService: AuthService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit() {
     this.subscriptions.add(
@@ -211,10 +218,25 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   toggleCreateForm() {
-    this.showCreateForm = !this.showCreateForm;
-    if (!this.showCreateForm) {
-      this.resetForm();
-    }
+    const dialogRef = this.dialog.open(TaskCreateDialogComponent, {
+      width: '520px',
+      maxWidth: '95vw',
+      panelClass: 'task-dialog-panel',
+      data: {
+        hiyawMahiders: this.hiyawMahiders,
+        currentUserRole: this.currentUserRole,
+        selectedHiyawMahiderId: this.selectedHiyawMahiderId,
+        currentUserHiyawMahiderId: this.currentUserHiyawMahiderId,
+        currentUserId: this.currentUser?.uid ?? null,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.task) {
+        this.newTask = result.task;
+        await this.createTask();
+      }
+    });
   }
 
   resetForm() {

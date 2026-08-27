@@ -1,625 +1,460 @@
-/* Main container */
-.events-container {
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: 'Roboto', sans-serif;
-  color: #333;
-}
-
-/* Header section */
-.header-section {
+/* ── Page Header ─────────────────────────────────── */
+.events-page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
-}
-
-/* Card styling */
-mat-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-mat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-}
-
-mat-card-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  margin-bottom: 0.75rem;
-}
-
-mat-card-title {
-  font-size: 1.25rem;
-  font-weight: 500;
-  line-height: 1.3;
-}
-
-mat-card-subtitle {
-  color: #666;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-}
-
-/* Event type badge */
-.event-type {
-  background-color: #e3f2fd;
-  color: #1976d2;
-  padding: 0.25rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-/* Event date/time */
-.event-date {
-  color: #666;
-  font-size: 0.875rem;
-}
-
-/* Card content */
-mat-card-content {
-  padding-top: 0.5rem;
-}
-
-mat-card-content p {
-  margin: 0.5rem 0;
-  line-height: 1.5;
-  color: #555;
-}
-
-mat-card-content strong {
-  color: #333;
-  font-weight: 500;
-  min-width: 120px;
-  display: inline-block;
-}
-
-/* Action buttons */
-mat-card-actions {
-  padding: 1rem !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  margin: 0;
-}
-
-/* Primary button */
-.add-button {
-  background-color: #3f51b5;
+  background: linear-gradient(135deg, #07514d 0%, #1a3a4a 100%);
   color: white;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(7, 81, 77, 0.25);
+}
+
+.events-header-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: background-color 0.2s ease;
-}
-
-.add-button:hover {
-  background-color: #303f9f;
-}
-
-/* Filter section */
-.filter-section {
-  margin: 1.25rem 0;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-}
-
-.filter-header h3 {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-/* Form fields */
-mat-form-field {
-  width: 100%;
-}
-
-.pastor-filter {
-  min-width: 250px;
-}
-
-/* Date/time row */
-.date-time-row {
-  display: flex;
-  gap: 1rem;
-}
-
-.half-width {
+  gap: 0.875rem;
   flex: 1;
+  min-width: 0;
 }
 
-/* Events list grid */
-.events-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.25rem;
+.events-header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #5eead4;
+  flex-shrink: 0;
 }
 
-/* No events message */
-.no-events-card {
-  text-align: center;
-  padding: 2rem;
-  grid-column: 1 / -1;
+.events-header-title h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.no-events-card p {
-  color: #666;
-  font-size: 1rem;
+.events-filter-label {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Progress bar */
-mat-progress-bar {
+.create-event-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Main Container ──────────────────────────────── */
+.events-management-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Filter Card & Grid ──────────────────────────── */
+.filter-card {
+  margin-bottom: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-form-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-field {
+  flex: 1 1 200px;
+  min-width: 180px;
+}
+
+.search-field mat-icon {
+  color: #64748b;
+  margin-right: 6px;
+}
+
+/* ── Controls Toolbar (Chips + View Toggle) ──────── */
+.controls-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin-bottom: 1.25rem;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .header-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .date-time-row {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .half-width {
-    width: 100%;
-  }
-
-  .events-list {
-    grid-template-columns: 1fr;
-  }
+.filter-chips {
+  display: flex;
+  align-items: center;
 }
 
-/* View mode specific styles */
-.event-detail-display {
-  padding: 0.5rem 0;
+.view-mode-toggle mat-button-toggle-group {
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  overflow: hidden;
 }
 
-.event-detail-display p {
-  margin-bottom: 0.75rem;
+.view-mode-toggle mat-button-toggle {
+  padding: 0 6px;
 }
 
-/* Tab group styling */
-mat-tab-group {
+/* Hide Material MDC checkmark icon on selected toggle button */
+.view-mode-toggle .mat-pseudo-checkbox,
+.view-mode-toggle .mdc-button-toggle__checkmark {
+  display: none !important;
+}
+
+/* ── Table Container & Scrolling ─────────────────── */
+.events-table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 1.5rem;
 }
 
-.mat-tab-label {
-  font-weight: 500;
-  padding: 0 1rem !important;
-}
-
-/* Menu button */
-mat-card-actions [mat-icon-button] {
-  margin-left: auto;
-}
-
-/* Utility classes */
-.full-width {
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   width: 100%;
 }
 
-.clickable-title {
-  cursor: pointer;
-  color: #3f51b5;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-
-.clickable-title:hover {
-  color: #303f9f;
-}
-/* events.component.css */
-
-/* ... existing styles for .pagination-controls, buttons, span ... */
-
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center; /* This is key for vertical alignment */
-  margin-top: 20px;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.pagination-controls button {
-  min-width: 80px;
-  /* Add an explicit height for buttons for consistent baseline */
-  height: 40px; /* Standard Material button height is often 36px or 40px */
-  line-height: 40px; /* Center text vertically */
-}
-
-.pagination-controls span {
-  font-weight: 500;
-  margin: 0 5px;
-  white-space: nowrap;
-}
-
-.pagination-controls .items-per-page-select {
-  width: 160px; /* Keep the desired width */
-  min-width: 140px;
-  max-width: 200px;
-  margin-left: 15px;
-  /* Add margin-bottom to pull it up if needed, or adjust padding */
-  margin-bottom: 0; /* Ensure no extra margin pushes it down */
-}
-
-/* Target the internal structure of the mat-form-field to reduce its height */
-.pagination-controls .items-per-page-select .mat-form-field-wrapper {
-  padding-bottom: 0em; /* Reduce default bottom padding */
-  margin-top: -0.25em; /* Adjust top margin to pull it up slightly */
-}
-
-.pagination-controls .items-per-page-select .mat-form-field-flex {
-  align-items: center; /* Ensure internal content is vertically centered */
-  height: 40px; /* Match the button height */
-}
-
-/* Further adjust the input area's padding if necessary */
-.pagination-controls .items-per-page-select .mat-form-field-infix {
-  padding-top: 0.84375em; /* Default is 0.84375em (13.5px) */
-  padding-bottom: 0.25em; /* Reduce this to shrink height */
-}
-
-/* Ensure the label is positioned correctly */
-.pagination-controls .items-per-page-select .mat-form-field-label-wrapper {
-  top: -0.25em; /* Adjust label wrapper position if it's too high/low */
-}
-
-.pagination-controls .items-per-page-select .mat-form-field-label {
-    white-space: normal;
-    line-height: 1.2em;
-    top: 0.5em; /* Keep this if it worked for visibility */
-}
-
-.events-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 20px auto;
-  font-family: 'Roboto', sans-serif; /* Ensure Material Design font */
-}
-
-.header-toolbar {
-  margin-bottom: 20px;
-  border-radius: 4px; /* Slightly rounded corners for the toolbar */
-  display: flex; /* Use flexbox for alignment */
-  align-items: center;
-  justify-content: space-between;
-}
-
-.toolbar-title {
-  font-size: 1.5em;
-  font-weight: 500;
-  color: white;
-}
-
-.spacer {
-  flex: 1 1 auto; /* Pushes content to the sides */
-}
-
-.add-button {
-  display: flex;
-  align-items: center;
-  gap: 8px; /* Space between icon and text */
-}
-
-/* Tab Group Styling */
-mat-tab-group {
-  margin-bottom: 20px;
-}
-
-/* Filter Section */
-.filter-card {
-  margin-bottom: 20px;
-  padding: 16px;
-}
-
-.filter-header h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #3f51b5; /* Primary color */
-  font-weight: 500;
-}
-
-.pastor-filter {
+.events-table-container table {
   width: 100%;
-  max-width: 300px; /* Limit width for select */
+  min-width: 1200px;
 }
 
-/* Progress Bar */
-mat-progress-bar {
-  margin-bottom: 20px;
+/* ── Table Column Flex Allocations ───────────────── */
+.mat-column-index {
+  flex: 0 0 50px !important;
+  min-width: 50px;
+  max-width: 60px;
 }
 
-/* Mat Table Styling */
-.events-table-container {
-  overflow-x: auto; /* Enable horizontal scrolling for smaller screens */
-  margin-top: 20px;
+.mat-column-title {
+  flex: 1 1 220px !important;
+  min-width: 200px;
 }
 
-table {
-  width: 100%;
-  min-width: 800px; /* Ensure table doesn't get too squished */
+.mat-column-type {
+  flex: 0 0 160px !important;
+  min-width: 150px;
+}
+
+.mat-column-dateRange {
+  flex: 0 0 240px !important;
+  min-width: 230px;
+}
+
+.mat-column-location {
+  flex: 0 0 160px !important;
+  min-width: 150px;
+}
+
+.mat-column-assignedPastors {
+  flex: 1 1 180px !important;
+  min-width: 160px;
+}
+
+.mat-column-status {
+  flex: 0 0 110px !important;
+  min-width: 100px;
+}
+
+.mat-column-actions {
+  flex: 0 0 140px !important;
+  min-width: 130px;
 }
 
 th.mat-header-cell {
-  background-color: #f5f5f5; /* Light background for headers */
-  color: rgba(0, 0, 0, 0.87); /* Darker text for headers */
-  font-weight: 500;
-  padding: 16px;
-  text-align: left;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 14px 16px;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 td.mat-cell {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12); /* Subtle row dividers */
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
 }
 
-.mat-no-data-row {
-  text-align: center;
-  padding: 20px;
-  font-style: italic;
-  color: rgba(0, 0, 0, 0.54);
+.title-cell {
+  min-width: 200px;
 }
 
-/* Event Type Chip */
-.event-type-chip {
+.event-title-link {
+  color: #0f172a;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.event-title-link:hover {
+  color: #07514d;
+  text-decoration: underline;
+}
+
+.event-description-text {
+  margin: 4px 0 0 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.nowrap-cell {
+  white-space: nowrap;
+}
+
+.location-text {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.inline-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #07514d;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.muted-text {
+  color: #94a3b8;
+}
+
+/* ── Badges & Status Chips ───────────────────────── */
+.event-type-badge {
   display: inline-block;
-  padding: 4px 8px;
-  border-radius: 16px; /* Pill shape */
-  font-size: 0.75em;
-  font-weight: 500;
-  color: white;
-  background-color: #673ab7; /* A distinct color for chips */
-  white-space: nowrap; /* Prevent wrapping */
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background-color: #e2e8f0;
+  color: #334155;
 }
 
-/* View/Edit/Create Card Styles */
-.view-card,
-.form-card {
-  margin-top: 20px;
-  padding: 20px;
+.type-group-study     { background: #e0f2fe; color: #0369a1; }
+.type-prayer-meeting  { background: #fef3c7; color: #b45309; }
+.type-church-gathering{ background: #dcfce7; color: #15803d; }
+.type-reminder        { background: #ffe4e6; color: #be123c; }
+.type-other           { background: #f1f5f9; color: #475569; }
+
+.status-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.event-detail-display p {
-  margin-bottom: 10px;
+.status-chip.upcoming {
+  background: #fef3c7;
+  color: #b45309;
 }
 
-.event-detail-display strong {
-  color: #3f51b5;
+.status-chip.completed {
+  background: #dcfce7;
+  color: #15803d;
 }
 
-/* Form Specific Styles */
-.full-width {
-  width: 100%;
+/* ── Grid View ───────────────────────────────────── */
+.grid-view-wrapper {
+  margin-bottom: 1.5rem;
 }
 
-.date-time-row {
-  display: flex;
-  gap: 20px; /* Space between date and time fields */
-  margin-bottom: 15px;
-}
-
-.half-width {
-  flex: 1; /* Distribute width evenly */
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  gap: 10px; /* Space between buttons */
-  margin-top: 20px;
-}
-
-/* MatPaginator Styling */
-mat-paginator {
-  background: white; /* Ensure paginator has a white background */
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-}
-.events-container {
-  padding: 20px;
-  max-width: 1200px;
-  margin: 20px auto;
-  font-family: 'Roboto', sans-serif;
-}
-
-.header-toolbar {
-  margin-bottom: 20px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.toolbar-title {
-  font-size: 1.5em;
-  font-weight: 500;
-  color: white;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.add-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-mat-tab-group {
-  margin-bottom: 20px;
-}
-
-.filter-card {
-  margin-bottom: 20px;
-  padding: 16px;
-}
-
-.filter-header h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #3f51b5;
-  font-weight: 500;
-}
-
-.pastor-filter {
-  width: 100%;
-  max-width: 300px;
-}
-
-mat-progress-bar {
-  margin-bottom: 20px;
-}
-
-/* NEW: Grid for Event Cards */
 .events-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
-  gap: 20px; /* Space between cards */
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
 }
 
 .event-card {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Pushes content and actions apart */
-  padding: 20px;
+  justify-content: space-between;
+  background: white;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .event-card mat-card-header {
-  padding: 0; /* Remove default header padding for better integration */
-  margin-bottom: 10px;
+  padding: 1rem 1.25rem 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .event-card mat-card-title {
-  font-size: 1.3em;
-  font-weight: 500;
-  margin-bottom: 5px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .event-card mat-card-subtitle {
   display: flex;
+  gap: 0.5rem;
   align-items: center;
-  gap: 8px;
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.event-type-chip {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 16px;
-  font-size: 0.75em;
-  font-weight: 500;
-  color: white;
-  background-color: #673ab7; /* Distinct color for chips */
-  white-space: nowrap;
+  margin-top: 0.5rem;
 }
 
 .card-detail {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  font-size: 0.95em;
-  color: rgba(0, 0, 0, 0.7);
+  font-size: 0.85rem;
+  color: #475569;
+  margin: 6px 0;
 }
 
 .card-icon {
-  font-size: 1.1em;
-  color: #3f51b5; /* Primary color for icons */
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #07514d;
 }
 
 .card-description {
-  font-size: 0.9em;
-  color: rgba(0, 0, 0, 0.75);
-  margin-top: 15px;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 10px;
   line-height: 1.5;
-  flex-grow: 1; /* Allows description to take up available space */
 }
 
 .card-actions {
+  padding: 0.75rem 1.25rem !important;
+  border-top: 1px solid #f1f5f9;
   display: flex;
-  justify-content: space-between; /* Space between view button and menu */
   align-items: center;
-  padding-top: 15px; /* Add some padding above actions */
-  margin-top: 10px; /* Space from description */
-  border-top: 1px solid rgba(0, 0, 0, 0.05); /* Subtle separator */
 }
 
-.no-events-card {
-  grid-column: 1 / -1; /* Make it span all columns */
-  text-align: center;
-  padding: 30px;
-  font-style: italic;
-  color: rgba(0, 0, 0, 0.54);
-}
-
-/* Mat Paginator Styling (moved below the grid) */
-mat-paginator {
+/* ── View Single Event Mode ──────────────────────── */
+.view-card {
+  border-radius: 12px;
+  padding: 1.5rem;
   background: white;
-  margin-top: 20px; /* Space between cards and paginator */
-  border-radius: 4px; /* Match other Material elements */
-}
-
-/* View/Edit/Create Card Styles (remain mostly the same) */
-.view-card,
-.form-card {
-  margin-top: 20px;
-  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .event-detail-display p {
-  margin-bottom: 10px;
+  margin-bottom: 0.875rem;
+  font-size: 0.95rem;
+  color: #334155;
 }
 
 .event-detail-display strong {
-  color: #3f51b5;
-}
-
-/* Form Specific Styles */
-.full-width {
-  width: 100%;
-}
-
-.date-time-row {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-}
-
-.half-width {
-  flex: 1;
+  color: #0f172a;
 }
 
 .action-buttons {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
+/* ── Empty State & Spinner ───────────────────────── */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+  gap: 1rem;
+}
+
+.no-events-card {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  border-radius: 12px;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #cbd5e1;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Paginator ───────────────────────────────────── */
+mat-paginator {
+  border-top: 1px solid #e2e8f0;
+}
+
+/* ── Responsive Overrides ────────────────────────── */
+@media (max-width: 768px) {
+  .events-page-header {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .events-page-header > button {
+    width: 100%;
+  }
+
+  .events-header-title h1 {
+    font-size: 1.05rem;
+    white-space: normal;
+  }
+
+  .filter-form-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-field {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .controls-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-chips {
+    width: 100%;
+  }
+
+  .view-mode-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .events-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .events-header-icon {
+    display: none;
+  }
+}

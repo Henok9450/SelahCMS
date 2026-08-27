@@ -15,18 +15,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { EventFormDialogComponent } from './event-form-dialog/event-form-dialog.component';
 
-import { EventsService } from '../../core/events.service';
-import { Event } from '../../core/events.model';
-import { PastorService } from '../../core/pastor.service';
-import { Pastor } from '../../core/pastor.model';
+import { EventsService } from '../../core/services/events.service';
+import { Event } from '../../core/models/events.model';
+import { PastorService } from '../../core/services/pastor.service';
+import { Pastor } from '../../core/models/pastor.model';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../core/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Subject, of, Observable } from 'rxjs';
 import { takeUntil, switchMap, catchError, tap } from 'rxjs/operators';
 import { Timestamp } from '@angular/fire/firestore';
@@ -52,11 +57,15 @@ import { convertToDate } from '../Utility/date.utils';
     MatSnackBarModule,
     MatTabsModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
     MatPaginatorModule,
     MatSortModule,
     MatToolbarModule,
+    MatDialogModule,
+    MatChipsModule,
+    MatButtonToggleModule,
   ],
   templateUrl: './events.component.html',
   styleUrls: ['./events.component.css'],
@@ -109,18 +118,27 @@ export class EventsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // UI state
   mode: 'list' | 'view' | 'create' | 'edit' = 'list';
+  viewMode: 'table' | 'grid' = 'table';
+  currentStatusFilter: 'all' | 'upcoming' | 'completed' = 'all';
   selectedTab = 'all';
   selectedPastorId = '';
+  selectedEventType = '';
+  searchQuery = '';
   userRole = '';
   currentUserId: string | null = null;
 
-  // Mat-Table properties
+  upcomingCount = 0;
+  completedCount = 0;
+
+  // Mat-Table properties matching Task component layout
   displayedColumns: string[] = [
+    'index',
     'title',
     'type',
     'dateRange',
     'location',
     'assignedPastors',
+    'status',
     'actions',
   ];
 
@@ -130,7 +148,8 @@ export class EventsComponent implements OnInit, OnDestroy, AfterViewInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -286,34 +305,101 @@ export class EventsComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  updateCounts(): void {
+    this.upcomingCount = this.events.filter((e) => !e.isCompleted).length;
+    this.completedCount = this.events.filter((e) => e.isCompleted).length;
+  }
+
   applyFilter() {
-    this.dataSource.filterPredicate = (data: Event, filter: string) => {
-      // Custom filter logic
+    this.updateCounts();
+
+    this.dataSource.filterPredicate = (data: Event, filter: string): boolean => {
       const searchTerms = JSON.parse(filter);
 
-      const matchesPastor = searchTerms.pastorId
-        ? data.assignedPastors?.includes(searchTerms.pastorId)
+      const matchesPastor: boolean = searchTerms.pastorId
+        ? Boolean(data.assignedPastors?.includes(searchTerms.pastorId))
         : true;
 
-      // Add more filtering logic here if needed (e.g., by tab selection)
-      // For now, the 'All' tab implies no further type filtering.
-      // If you had 'Upcoming' or 'Completed' tabs, you'd add:
-      // const matchesTab = searchTerms.tab === 'all' || (searchTerms.tab === 'upcoming' && !data.isCompleted) || (searchTerms.tab === 'completed' && data.isCompleted);
+      const matchesType: boolean = searchTerms.type
+        ? data.type === searchTerms.type
+        : true;
 
-      return matchesPastor; // && matchesTab;
+      const matchesStatus: boolean =
+        searchTerms.status === 'all'
+          ? true
+          : searchTerms.status === 'upcoming'
+          ? !data.isCompleted
+          : Boolean(data.isCompleted);
+
+      const search: string = searchTerms.query ? String(searchTerms.query).toLowerCase().trim() : '';
+      const matchesQuery: boolean = !search
+        ? true
+        : Boolean(
+            data.title?.toLowerCase().includes(search) ||
+            (data.description && String(data.description).toLowerCase().includes(search)) ||
+            (data.location && String(data.location).toLowerCase().includes(search))
+          );
+
+      return Boolean(matchesPastor && matchesType && matchesStatus && matchesQuery);
     };
 
     const filterValue = {
       pastorId: this.selectedPastorId,
-      tab: this.selectedTab, // Include tab in filter value if needed for more complex filtering
+      type: this.selectedEventType,
+      status: this.currentStatusFilter,
+      query: this.searchQuery,
     };
 
     this.dataSource.filter = JSON.stringify(filterValue);
 
-    // If you want to reset paginator to first page after filter
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  filterTasks(status: 'all' | 'upcoming' | 'completed') {
+    this.currentStatusFilter = status;
+    this.applyFilter();
+  }
+
+  clearAllFilters() {
+    this.selectedPastorId = '';
+    this.selectedEventType = '';
+    this.searchQuery = '';
+    this.currentStatusFilter = 'all';
+    this.applyFilter();
+  }
+
+  toggleEventStatus(event: Event) {
+    if (!event.id) return;
+    const newStatus = !event.isCompleted;
+    this.eventsService
+      .updateEvent(event.id, { isCompleted: newStatus, updatedAt: new Date() })
+      .then(() => {
+        event.isCompleted = newStatus;
+        this.snackBar.open(
+          `Event marked as ${newStatus ? 'Completed' : 'Upcoming'}!`,
+          'Close',
+          { duration: 3000 }
+        );
+        this.applyFilter();
+      })
+      .catch((err) => {
+        this.snackBar.open('Error updating status: ' + err.message, 'Close', {
+          duration: 5000,
+        });
+      });
+  }
+
+  get currentFilterLabel(): string {
+    const parts: string[] = [];
+    if (this.currentStatusFilter !== 'all') {
+      parts.push(this.currentStatusFilter === 'upcoming' ? 'Upcoming' : 'Completed');
+    }
+    if (this.selectedEventType) {
+      parts.push(this.getEventTypeLabel(this.selectedEventType));
+    }
+    return parts.length > 0 ? parts.join(' • ') : 'All Events';
   }
 
   onTabChange(tab: string) {
@@ -331,7 +417,33 @@ export class EventsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   createNewEvent() {
-    this.router.navigate(['pages/events/new']);
+    const emptyEvent = this.createEmptyEvent();
+    const dialogRef = this.dialog.open(EventFormDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'event-dialog-panel',
+      data: {
+        mode: 'create',
+        event: emptyEvent,
+        pastors: this.pastors,
+        eventTypes: this.eventTypes,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.event) {
+        this.isLoading = true;
+        try {
+          await this.eventsService.createEvent(result.event);
+          this.snackBar.open('Event created successfully!', 'Close', { duration: 3000 });
+        } catch (error: any) {
+          this.snackBar.open('Error creating event: ' + error.message, 'Close', { duration: 5000 });
+        } finally {
+          this.isLoading = false;
+        }
+      }
+    });
   }
 
   editEvent(id: string) {
@@ -341,9 +453,38 @@ export class EventsComponent implements OnInit, OnDestroy, AfterViewInit {
       this.snackBar.open('Error: No event ID provided', 'Close', { duration: 3000 });
       return;
     }
-    this.router.navigate(['pages/events', id], {
-      queryParams: { edit: true },
-      state: { currentEvent: this.currentEvent },
+
+    const eventToEdit = this.events.find(e => e.id === id) || this.currentEvent;
+    const dialogRef = this.dialog.open(EventFormDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'event-dialog-panel',
+      data: {
+        mode: 'edit',
+        event: { ...eventToEdit },
+        pastors: this.pastors,
+        eventTypes: this.eventTypes,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result?.event) {
+        this.isLoading = true;
+        try {
+          await this.eventsService.updateEvent(id, result.event);
+          this.snackBar.open('Event updated successfully!', 'Close', { duration: 3000 });
+          // Reload the current event if we're in view mode
+          if (this.mode === 'view') {
+            const updated = await this.eventsService.getEvent(id).toPromise();
+            if (updated) this.currentEvent = updated as Event;
+          }
+        } catch (error: any) {
+          this.snackBar.open('Error updating event: ' + error.message, 'Close', { duration: 5000 });
+        } finally {
+          this.isLoading = false;
+        }
+      }
     });
   }
 

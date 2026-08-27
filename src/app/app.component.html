@@ -5,33 +5,59 @@
 
   <div class="header-content">
     <div class="logo-section">
-      <a href="#" class="logo"></a>
-      <h1>SelahCMS</h1>
+      <a routerLink="/home" class="brand-link">
+        <div class="logo-crest">
+          <img src="assets/images/logo2.png" alt="GEUC Crest" class="logo-img" />
+        </div>
+        <div class="brand-typography">
+          <div class="brand-title-wrap">
+            <span class="brand-title">Selah</span>
+            <span class="brand-badge">CMS</span>
+          </div>
+          <span class="brand-subtitle">Gerji Emmanuel United Church</span>
+        </div>
+      </a>
     </div>
     <div class="user-info">
-      <div *ngIf="authService.authState$ | async as user; else loginButton" class="user-greeting">
-        <span>Welcome, {{ user.fullName || user.displayName || user.email || 'User' }}</span>
-        <span class="user-role">{{ user.role }}</span>
+      <div *ngIf="authService.authState$ | async as user; else loginButton"
+           class="user-profile-pill"
+           [matMenuTriggerFor]="userMenu"
+           [matTooltip]="userName + ' • Account Settings'">
+
+        <!-- Live Date & Time Block -->
+        <div class="header-datetime">
+          <span class="header-time">{{ now | date:'HH:mm:ss' }}</span>
+          <span class="header-date">{{ now | date:'EEE, d MMM yyyy' }}</span>
+        </div>
+
+        <!-- Divider line -->
+        <div class="pill-divider"></div>
+
+        <!-- Avatar initials + role -->
+        <div class="user-avatar-badge">{{ getUserInitials(userName) }}</div>
+        <span class="user-role-badge">{{ user.role }}</span>
+        <mat-icon class="dropdown-chevron">expand_more</mat-icon>
       </div>
+
       <ng-template #loginButton>
-        <button mat-button routerLink="/login">
-          <mat-icon>login</mat-icon>
-          Login
+        <button mat-raised-button color="accent" routerLink="/login" class="login-btn">
+          <mat-icon>login</mat-icon> Login
         </button>
       </ng-template>
 
-      <button mat-icon-button [matMenuTriggerFor]="userMenu" aria-label="User account menu">
-        <mat-icon>account_circle</mat-icon>
-      </button>
-
-      <mat-menu #userMenu="matMenu">
+      <mat-menu #userMenu="matMenu" class="user-account-menu">
+        <div class="menu-user-info">
+          <span class="menu-name">{{ userName }}</span>
+          <span class="menu-role" *ngIf="authService.authState$ | async as user">{{ user.email || user.role }}</span>
+        </div>
+        <mat-divider></mat-divider>
         <button mat-menu-item (click)="changePassword()">
           <mat-icon>lock</mat-icon>
           <span>Change Password</span>
         </button>
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>exit_to_app</mat-icon>
-          <span>Logout</span>
+        <button mat-menu-item (click)="logout()" class="logout-menu-item">
+          <mat-icon color="warn">exit_to_app</mat-icon>
+          <span style="color: #ef4444; font-weight: 600;">Logout</span>
         </button>
       </mat-menu>
     </div>
@@ -39,7 +65,8 @@
 </header>
 
 <div class="main-layout-wrapper" [class.no-sidebar-layout]="!showHeaderAndSidebar">
-  <app-sidebar *ngIf="showHeaderAndSidebar" [isMobileMenuOpen]="isMobileMenuOpen" (navLinkClicked)="closeMobileMenu()"></app-sidebar>
+  <app-sidebar *ngIf="showHeaderAndSidebar" [isMobileMenuOpen]="isMobileMenuOpen" [userName]="userName"
+    (navLinkClicked)="closeMobileMenu()"></app-sidebar>
 
   <main class="content-area">
     <router-outlet></router-outlet>
@@ -47,8 +74,16 @@
 </div>
 
 <footer *ngIf="showFooter" class="footer">
-  <p>© {{currentYear}} SelahCMS v{{ appVersion }} </p>
-  <p>GoodNews Innovations, All rights reserved.</p>
-</footer>
+  <p>© {{currentYear}} SelahCMS • Gerji Emmanuel United Church (v{{ appVersion }})</p>
+  <p>GoodNews Innovations, <a href="https://www.linkedin.com/in/henok-birhanu" target="_blank" rel="noopener noreferrer"
+      style="color: inherit; text-decoration: underline;">Henok Birhanu</a>.</p>
+</footer> 
 
 <div class="overlay" [class.active]="isMobileMenuOpen" (click)="closeMobileMenu()"></div>
+
+<app-session-timeout-dialog
+  *ngIf="showSessionWarning$ | async"
+  [secondsRemaining]="authService.warningCountdownSeconds"
+  (stayLoggedIn)="authService.extendSession()"
+  (logoutNow)="authService.logout(true)">
+</app-session-timeout-dialog>

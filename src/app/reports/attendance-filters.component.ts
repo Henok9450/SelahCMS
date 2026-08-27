@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ReportService } from '../core/report.service';
+import { ReportService } from '../core/services/report.service';
 import { Observable } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AttendanceReportService, AttendanceRecord, HiyawMahider, AttendanceReportSummary } from '../../core/attendance-report.service';
+import { AttendanceReportService, AttendanceRecord, HiyawMahider, AttendanceReportSummary } from '../../core/services/attendance-report.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,9 +13,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { of, switchMap, forkJoin, Subscription, Subject } from 'rxjs'; // Added Subject
 import { map, tap, takeUntil } from 'rxjs/operators'; // Added takeUntil
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { AuthService } from '../../core/auth.service'; // Adjust this path if different
-import { User } from '../../core/user.model'; // Adjust this path if different
-import { ROLES } from '../../core/role.utils'; // Assuming this provides role constants
+import { AuthService } from '../../core/services/auth.service'; // Adjust this path if different
+import { User } from '../../core/models/user.model'; // Adjust this path if different
+import { ROLES } from '../../core/utils/role.utils'; // Assuming this provides role constants
+
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-attendance-report',
@@ -32,6 +36,9 @@ import { ROLES } from '../../core/role.utils'; // Assuming this provides role co
     MatTableModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatIconModule,
+    MatCardModule,
+    MatTooltipModule,
   ],
   templateUrl: './attendance-report.component.html',
   styleUrls: ['./attendance-report.component.css']

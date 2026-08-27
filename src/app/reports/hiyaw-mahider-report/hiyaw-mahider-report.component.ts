@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { HiyawMahiderReportService, HiyawMahider, HiyawMahiderReportData } from '../../core/hiyaw-mahider-report.service';
+import { HiyawMahiderReportService, HiyawMahider, HiyawMahiderReportData } from '../../core/services/hiyaw-mahider-report.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Observable, of } from 'rxjs';

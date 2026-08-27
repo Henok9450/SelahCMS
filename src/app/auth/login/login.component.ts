@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../core/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 

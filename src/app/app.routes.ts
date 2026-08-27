@@ -1,14 +1,13 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth.guard';
-import { ROLES } from './core/role.utils';
-import { RoleGuard } from './core/role.guard';
-import { noAuthGuard } from './core//auth.guard';
+import { authGuard } from './core/guards/auth.guard';
+import { ROLES } from './core/utils/role.utils';
+import { RoleGuard } from './core/guards/role.guard';
+import { noAuthGuard } from './core/guards/auth.guard';
 
 
 // Import the report components
-import { UserManagementReportComponent } from './reports/user-management-report/user-management-report.component';
-import { AttendanceReportComponent } from './reports//attendance-report/attendance-report.component';
-import { HiyawMahiderReportComponent } from './reports//hiyaw-mahider-report/hiyaw-mahider-report.component';
+import { AttendanceReportComponent } from './reports/attendance-report/attendance-report.component';
+import { HiyawMahiderReportComponent } from './reports/hiyaw-mahider-report/hiyaw-mahider-report.component';
 import { FollowUpReportComponent } from './reports/follow-up-report/follow-up-report.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 
@@ -93,28 +92,28 @@ export const routes: Routes = [
 
       // Other existing routes 
       {
-        path: 'user-management',
-        loadComponent: () => import('./pages/user-management/user-management.component').then(m => m.UserManagementComponent),
-        title: 'User Management',
-        data: { roles: ['Admin'] } // Role restriction
-      },
-      {
         path: 'hiyaw-mahider',
         loadComponent: () =>
           import('./pages/hiyaw-mahider/hiyaw-mahider.component').then(m => m.HiyawMahiderComponent),
-        title: 'Hiyaw Mahider'
+        title: 'Hiyaw Mahider',
+        canActivate: [RoleGuard],
+        data: { roles: [ROLES.ADMIN, ROLES.PASTOR, ROLES.DEPUTY_PASTOR, ROLES.ZONE_COORDINATOR] }
       },
       {
         path: 'pastors',
         loadComponent: () =>
           import('./pages/pastors/pastor.component').then(m => m.PastorComponent),
-        title: 'Pastors'
+        title: 'Pastors',
+        canActivate: [RoleGuard],
+        data: { roles: [ROLES.ADMIN] }
       },
       {
         path: 'zone',
         loadComponent: () =>
           import('./pages/zone/zone.component').then(m => m.ZoneComponent),
-        title: 'Zones'
+        title: 'Zones',
+        canActivate: [RoleGuard],
+        data: { roles: [ROLES.ADMIN, ROLES.ZONE_COORDINATOR] }
       },
       {
         path: 'members-list',
@@ -133,6 +132,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./attendance/attendance.component').then(m => m.AttendanceComponent),
         title: 'Attendance'
+      },
+      {
+        path: 'admin/logs',
+        loadComponent: () =>
+          import('./pages/admin/audit-logs/audit-logs.component').then(m => m.AuditLogsComponent),
+        title: 'Activity & Audit Logs',
+        canActivate: [RoleGuard],
+        data: { roles: [ROLES.ADMIN] }
       }
     ]
   },
@@ -142,11 +149,6 @@ export const routes: Routes = [
   path: 'reports',
   canActivate: [authGuard], // Add auth protection
   children: [
-    { 
-      path: 'user-management', 
-      loadComponent: () => import('./reports/user-management-report/user-management-report.component').then(m => m.UserManagementReportComponent),
-      title: 'User Management Report'
-    },
     { 
       path: 'attendance', 
       loadComponent: () => import('./reports/attendance-report/attendance-report.component').then(m => m.AttendanceReportComponent),
@@ -162,12 +164,12 @@ export const routes: Routes = [
       loadComponent: () => import('./reports/follow-up-report/follow-up-report.component').then(m => m.FollowUpReportComponent),
       title: 'Follow Up Report' 
     },
-    { path: '', redirectTo: 'user-management', pathMatch: 'full' }
+    { path: '', redirectTo: 'attendance', pathMatch: 'full' }
   ]
 },
   { 
     path: 'unauthorized',
-    loadComponent: () => import('../../src/app/shared/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
+    loadComponent: () => import('./shared/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
   { 
     path: '**', 

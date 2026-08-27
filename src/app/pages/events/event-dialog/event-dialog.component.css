@@ -44,7 +44,7 @@
   }
   
   .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
-    color: #3f51b5;
+    color: var(--brand-primary);
   }
   
   /* Fix dropdown panel z-index and background */
@@ -91,8 +91,8 @@
   
   /* Selected options chips */
   .mat-chip {
-    background-color: #e3f2fd !important;
-    color: #1976d2 !important;
+    background-color: var(--brand-accent-light) !important;
+    color: var(--brand-accent-hover) !important;
     margin: 2px 4px 2px 0 !important;
   }
   
@@ -111,9 +111,8 @@
     font-weight: 500;
   }
   
-  /* Save button */
   .mat-dialog-actions button[color='primary'] {
-    background-color: #3f51b5;
+    background-color: var(--brand-primary);
     color: white;
   }
   

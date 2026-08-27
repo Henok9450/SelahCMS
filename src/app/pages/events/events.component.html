@@ -1,153 +1,302 @@
-<div class="events-container">
+<div class="events-page-header">
+  <div class="events-header-title">
+    <mat-icon class="events-header-icon">event</mat-icon>
+    <div>
+      <h1>Event Management</h1>
+      <span class="events-filter-label">
+        | {{ currentFilterLabel }}
+      </span>
+    </div>
+  </div>
+  <button mat-raised-button color="primary" (click)="createNewEvent()" class="create-event-btn" *ngIf="canModifyContent()">
+    <mat-icon>add</mat-icon>
+    Create New Event
+  </button>
+</div>
+
+<div class="events-management-container mat-elevation-z2">
   <ng-container *ngIf="mode === 'list'">
-    <mat-toolbar color="primary" class="header-toolbar">
-      <span class="toolbar-title">All Events</span>
-      <span class="spacer"></span>
-      <button
-        mat-raised-button
-        color="accent"
-        (click)="createNewEvent()"
-        *ngIf="canModifyContent()"
-        class="add-button"
-        matTooltip="Add a new event"
-      >
-        <mat-icon>add</mat-icon> Add New Event
-      </button>
-    </mat-toolbar>
+    <!-- Search & Multi-Filter Card -->
+    <mat-card class="filter-card">
+      <mat-card-content>
+        <div class="filter-form-grid">
+          <!-- Search Field -->
+          <mat-form-field appearance="outline" class="filter-field search-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <mat-label>Search Events</mat-label>
+            <input matInput [(ngModel)]="searchQuery" (input)="applyFilter()" placeholder="Title, location, description..." />
+          </mat-form-field>
 
-    <mat-tab-group (selectedTabChange)="onTabChange($event.tab.textLabel)">
-      <mat-tab label="All">
-        <mat-card class="filter-card mat-elevation-z2">
-          <mat-card-content>
-            <div class="filter-header">
-              <h3>Filter Events</h3>
-            </div>
-            <mat-form-field appearance="outline" class="pastor-filter">
-              <mat-label>Select Pastor</mat-label>
-              <mat-select
-                [(ngModel)]="selectedPastorId"
-                (selectionChange)="onPastorSelect($event.value)"
-              >
-                <mat-option value="">All Pastors</mat-option>
-                <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
-                  {{ pastor.name }}
-                </mat-option>
-              </mat-select>
-              <mat-icon matSuffix>filter_list</mat-icon>
-            </mat-form-field>
-          </mat-card-content>
-        </mat-card>
+          <!-- Pastor Select Filter -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filter by Pastor</mat-label>
+            <mat-select [(ngModel)]="selectedPastorId" (selectionChange)="applyFilter()">
+              <mat-option value="">All Pastors</mat-option>
+              <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+                {{ pastor.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
 
-        <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
-
-        <div class="events-card-grid">
-          <ng-container *ngIf="(dataSource.connect() | async) ?? [] as eventsToDisplay">
-            <ng-container *ngIf="eventsToDisplay.length > 0; else noEventsFound">
-              <mat-card class="event-card mat-elevation-z2" *ngFor="let event of eventsToDisplay">
-                <mat-card-header>
-                  <mat-card-title>{{ event.title }}</mat-card-title>
-                  <mat-card-subtitle>
-                    <span class="event-type-chip">{{ getEventTypeLabel(event.type) }}</span>
-                  </mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <p class="card-detail">
-                    <mat-icon class="card-icon">date_range</mat-icon>
-                    {{ displayEventDateRange(event) }}
-                  </p>
-                  <p class="card-detail">
-                    <mat-icon class="card-icon">location_on</mat-icon>
-                    {{ event.location || 'Not specified' }}
-                  </p>
-                  <p class="card-detail">
-                    <mat-icon class="card-icon">people</mat-icon>
-                    {{ getAssignedPastorsNames(event.assignedPastors) }}
-                  </p>
-                  <p class="card-description">
-                    {{ getTruncatedDescription(event.description) }}
-                  </p>
-                </mat-card-content>
-                <mat-card-actions class="card-actions">
-                  <button mat-flat-button color="primary" (click)="viewEvent(event.id || '')">
-                    <mat-icon>visibility</mat-icon> View
-                  </button>
-                  <span class="spacer"></span>
-                  <button mat-icon-button [matMenuTriggerFor]="eventMenu" matTooltip="More options" *ngIf="canModifyContent()">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #eventMenu="matMenu">
-                    <button mat-menu-item (click)="editEvent(event.id || '')">
-                      <mat-icon>edit</mat-icon>
-                      <span>Edit</span>
-                    </button>
-                    <button mat-menu-item (click)="deleteEvent(event.id || '')">
-                      <mat-icon>delete</mat-icon>
-                      <span>Delete</span>
-                    </button>
-                  </mat-menu>
-                </mat-card-actions>
-              </mat-card>
-            </ng-container>
-
-            <ng-template #noEventsFound>
-              <mat-card class="no-events-card mat-elevation-z2">
-                <mat-card-content>
-                  <p *ngIf="!isLoading">No events found matching your criteria.</p>
-                </mat-card-content>
-              </mat-card>
-            </ng-template>
-          </ng-container>
+          <!-- Event Type Filter -->
+          <mat-form-field appearance="outline" class="filter-field">
+            <mat-label>Filter by Event Type</mat-label>
+            <mat-select [(ngModel)]="selectedEventType" (selectionChange)="applyFilter()">
+              <mat-option value="">All Event Types</mat-option>
+              <mat-option *ngFor="let type of eventTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
+      </mat-card-content>
+      <mat-card-actions align="end" *ngIf="selectedPastorId || selectedEventType || searchQuery || currentStatusFilter !== 'all'">
+        <button mat-stroked-button color="warn" (click)="clearAllFilters()">
+          <mat-icon>close</mat-icon> Clear All Filters
+        </button>
+      </mat-card-actions>
+    </mat-card>
 
-        <mat-paginator
-          [pageSizeOptions]="[5, 10, 20]"
-          showFirstLastButtons
-          class="mat-elevation-z2"
-          aria-label="Select page of events"
-        ></mat-paginator>
-      </mat-tab>
-    </mat-tab-group>
+    <!-- Controls Row: Status Chips + View Switcher (Table vs Grid) -->
+    <div class="controls-toolbar">
+      <div class="filter-chips">
+        <mat-chip-listbox aria-label="Event status filter">
+          <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''"
+                        (click)="filterTasks('all')">
+            All ({{ events.length }})
+          </mat-chip-row>
+          <mat-chip-row [color]="currentStatusFilter === 'upcoming' ? 'primary' : ''"
+                        (click)="filterTasks('upcoming')">
+            Upcoming ({{ upcomingCount }})
+          </mat-chip-row>
+          <mat-chip-row [color]="currentStatusFilter === 'completed' ? 'primary' : ''"
+                        (click)="filterTasks('completed')">
+            Completed ({{ completedCount }})
+          </mat-chip-row>
+        </mat-chip-listbox>
+      </div>
+
+      <div class="view-mode-toggle">
+        <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="View Mode">
+          <mat-button-toggle value="table" matTooltip="Table View">
+            <mat-icon>table_chart</mat-icon>
+          </mat-button-toggle>
+          <mat-button-toggle value="grid" matTooltip="Card Grid View">
+            <mat-icon>grid_view</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading events...</p>
+    </div>
+
+    <!-- Table View -->
+    <div *ngIf="!isLoading && viewMode === 'table'" class="events-table-container mat-elevation-z2">
+      <div class="table-scroll-wrapper">
+        <table mat-table [dataSource]="dataSource" matSort>
+
+          <!-- Index Column -->
+          <ng-container matColumnDef="index">
+            <th mat-header-cell *matHeaderCellDef> # </th>
+            <td mat-cell *matCellDef="let element; let i = index;">
+              {{ paginator ? (paginator.pageIndex * paginator.pageSize + i + 1) : i + 1 }}
+            </td>
+          </ng-container>
+
+          <!-- Title & Description Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Event Title </th>
+            <td mat-cell *matCellDef="let event" class="title-cell">
+              <strong class="event-title-link" (click)="viewEvent(event.id || '')">{{ event.title }}</strong>
+              <p *ngIf="event.description" class="event-description-text">
+                {{ getTruncatedDescription(event.description) }}
+              </p>
+            </td>
+          </ng-container>
+
+          <!-- Type Column -->
+          <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+            <td mat-cell *matCellDef="let event" class="nowrap-cell">
+              <span class="event-type-badge" [ngClass]="'type-' + event.type">
+                {{ getEventTypeLabel(event.type) }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Date Range Column -->
+          <ng-container matColumnDef="dateRange">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Date & Time </th>
+            <td mat-cell *matCellDef="let event" class="nowrap-cell">
+              {{ displayEventDateRange(event) }}
+            </td>
+          </ng-container>
+
+          <!-- Location Column -->
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Location </th>
+            <td mat-cell *matCellDef="let event">
+              <span *ngIf="event.location" class="location-text">
+                <mat-icon class="inline-icon">location_on</mat-icon> {{ event.location }}
+              </span>
+              <span *ngIf="!event.location" class="muted-text">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Assigned Pastors Column -->
+          <ng-container matColumnDef="assignedPastors">
+            <th mat-header-cell *matHeaderCellDef> Assigned Pastors </th>
+            <td mat-cell *matCellDef="let event">
+              {{ getAssignedPastorsNames(event.assignedPastors) }}
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+            <td mat-cell *matCellDef="let event" class="nowrap-cell">
+              <span class="status-chip" [class.completed]="event.isCompleted" [class.upcoming]="!event.isCompleted">
+                {{ event.isCompleted ? 'Completed' : 'Upcoming' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
+            <td mat-cell *matCellDef="let event" class="nowrap-cell">
+              <button mat-icon-button *ngIf="!event.isCompleted" (click)="toggleEventStatus(event)" matTooltip="Mark as Completed">
+                <mat-icon color="accent">check_circle</mat-icon>
+              </button>
+              <button mat-icon-button *ngIf="event.isCompleted" (click)="toggleEventStatus(event)" matTooltip="Reopen Event">
+                <mat-icon color="warn">pending_actions</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="viewEvent(event.id || '')" matTooltip="View Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button color="primary" (click)="editEvent(event.id || '')" *ngIf="canModifyContent()" matTooltip="Edit Event">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteEvent(event.id || '')" *ngIf="canModifyContent()" matTooltip="Delete Event">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="8">No events found matching criteria</td>
+          </tr>
+        </table>
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons aria-label="Select page of events"></mat-paginator>
+    </div>
+
+    <!-- Grid View -->
+    <div *ngIf="!isLoading && viewMode === 'grid'" class="grid-view-wrapper">
+      <div class="events-card-grid">
+        <ng-container *ngIf="(dataSource.connect() | async) ?? [] as eventsToDisplay">
+          <ng-container *ngIf="eventsToDisplay.length > 0; else noEventsFoundGrid">
+            <mat-card class="event-card mat-elevation-z2" *ngFor="let event of eventsToDisplay">
+              <mat-card-header>
+                <mat-card-title>{{ event.title }}</mat-card-title>
+                <mat-card-subtitle>
+                  <span class="event-type-badge" [ngClass]="'type-' + event.type">{{ getEventTypeLabel(event.type) }}</span>
+                  <span class="status-chip" [class.completed]="event.isCompleted" [class.upcoming]="!event.isCompleted">
+                    {{ event.isCompleted ? 'Completed' : 'Upcoming' }}
+                  </span>
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p class="card-detail">
+                  <mat-icon class="card-icon">date_range</mat-icon>
+                  {{ displayEventDateRange(event) }}
+                </p>
+                <p class="card-detail">
+                  <mat-icon class="card-icon">location_on</mat-icon>
+                  {{ event.location || 'Not specified' }}
+                </p>
+                <p class="card-detail">
+                  <mat-icon class="card-icon">people</mat-icon>
+                  {{ getAssignedPastorsNames(event.assignedPastors) }}
+                </p>
+                <p class="card-description">
+                  {{ getTruncatedDescription(event.description) }}
+                </p>
+              </mat-card-content>
+              <mat-card-actions class="card-actions">
+                <button mat-flat-button color="primary" (click)="viewEvent(event.id || '')">
+                  <mat-icon>visibility</mat-icon> View
+                </button>
+                <button mat-icon-button *ngIf="!event.isCompleted" (click)="toggleEventStatus(event)" matTooltip="Mark as Completed">
+                  <mat-icon color="accent">check_circle</mat-icon>
+                </button>
+                <button mat-icon-button *ngIf="event.isCompleted" (click)="toggleEventStatus(event)" matTooltip="Reopen Event">
+                  <mat-icon color="warn">pending_actions</mat-icon>
+                </button>
+                <span class="spacer"></span>
+                <button mat-icon-button [matMenuTriggerFor]="eventMenu" matTooltip="More options" *ngIf="canModifyContent()">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #eventMenu="matMenu">
+                  <button mat-menu-item (click)="editEvent(event.id || '')">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item (click)="deleteEvent(event.id || '')">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </mat-card-actions>
+            </mat-card>
+          </ng-container>
+
+          <ng-template #noEventsFoundGrid>
+            <mat-card class="no-events-card mat-elevation-z2">
+              <mat-card-content>
+                <mat-icon class="empty-icon">event_busy</mat-icon>
+                <p *ngIf="!isLoading">No events found matching your filter criteria.</p>
+              </mat-card-content>
+            </mat-card>
+          </ng-template>
+        </ng-container>
+      </div>
+
+      <mat-paginator [pageSizeOptions]="[6, 12, 24]" showFirstLastButtons class="mat-elevation-z2"></mat-paginator>
+    </div>
   </ng-container>
 
+  <!-- View Single Event Mode -->
   <ng-container *ngIf="mode === 'view'">
     <mat-card *ngIf="currentEvent; else eventNotFound" class="view-card">
       <mat-card-header>
         <mat-card-title>{{ currentEvent.title }}</mat-card-title>
         <mat-card-subtitle>
-          <span class="event-type-chip">{{ getEventTypeLabel(currentEvent.type) }}</span>
-          <span class="event-date">
-            {{ displayEventDateRange(currentEvent) }}
-          </span>
+          <span class="event-type-badge" [ngClass]="'type-' + currentEvent.type">{{ getEventTypeLabel(currentEvent.type) }}</span>
+          <span class="event-date">{{ displayEventDateRange(currentEvent) }}</span>
         </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="event-detail-display">
           <p><strong>Location:</strong> {{ currentEvent.location || 'Not specified' }}</p>
-          <p>
-            <strong>Description:</strong>
-            {{ currentEvent.description || 'No description provided' }}
-          </p>
-          <p>
-            <strong>Assigned Pastors:</strong>
-            {{ getAssignedPastorsNames(currentEvent.assignedPastors) }}
-          </p>
-          <p>
-            <strong>Status:</strong>
-            {{ currentEvent.isCompleted ? 'Completed' : 'Upcoming' }}
-          </p>
+          <p><strong>Description:</strong> {{ currentEvent.description || 'No description provided' }}</p>
+          <p><strong>Assigned Pastors:</strong> {{ getAssignedPastorsNames(currentEvent.assignedPastors) }}</p>
+          <p><strong>Status:</strong> <span class="status-chip" [class.completed]="currentEvent.isCompleted" [class.upcoming]="!currentEvent.isCompleted">{{ currentEvent.isCompleted ? 'Completed' : 'Upcoming' }}</span></p>
         </div>
       </mat-card-content>
       <mat-card-actions class="action-buttons">
         <button mat-raised-button color="accent" (click)="cancel()" matTooltip="Back to event list">
           <mat-icon>arrow_back</mat-icon> Back to Events
         </button>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="editEvent(currentEvent.id || '')"
-          *ngIf="canModifyContent()"
-          matTooltip="Edit this event"
-        >
+        <button mat-raised-button color="primary" (click)="editEvent(currentEvent.id || '')" *ngIf="canModifyContent()" matTooltip="Edit this event">
           <mat-icon>edit</mat-icon> Edit Event
         </button>
       </mat-card-actions>
@@ -165,155 +314,5 @@
         </mat-card-actions>
       </mat-card>
     </ng-template>
-  </ng-container>
-
-  <ng-container *ngIf="mode === 'create' || mode === 'edit'">
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>
-          {{ mode === 'edit' ? 'Edit Event' : 'Create New Event' }}
-        </mat-card-title>
-        <mat-card-subtitle *ngIf="mode === 'edit'"
-          >{{ currentEvent.title }}</mat-card-subtitle
-        >
-      </mat-card-header>
-      <mat-card-content>
-        <form #eventForm="ngForm" (ngSubmit)="saveEvent()">
-          <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Title</mat-label>
-            <input matInput [(ngModel)]="currentEvent.title" name="title" required minlength="3" />
-            <mat-error *ngIf="eventForm.controls['title']?.errors?.['required']"
-              >Title is required</mat-error
-            >
-            <mat-error *ngIf="eventForm.controls['title']?.errors?.['minlength']"
-              >Title must be at least 3 characters</mat-error
-            >
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Type</mat-label>
-            <mat-select [(ngModel)]="currentEvent.type" name="type" required>
-              <mat-option *ngFor="let type of eventTypes" [value]="type.value">{{
-                type.label
-              }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Location</mat-label>
-            <input matInput [(ngModel)]="currentEvent.location" name="location" />
-          </mat-form-field>
-
-          <div class="date-time-row">
-            <mat-form-field appearance="fill" class="half-width">
-              <mat-label>Start Date</mat-label>
-              <input
-                matInput
-                [matDatepicker]="startPicker"
-                [(ngModel)]="currentEvent.startDateTime"
-                name="startDate"
-                required
-                (dateChange)="validateDates()"
-              />
-              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-              <mat-datepicker #startPicker></mat-datepicker>
-              <mat-error *ngIf="eventForm.controls['startDate']?.invalid">
-                Start date is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill" class="half-width">
-              <mat-label>Start Time</mat-label>
-              <input
-                matInput
-                type="time"
-                [(ngModel)]="currentEvent.startTime"
-                name="startTime"
-                required
-                (change)="validateDates()"
-              />
-              <mat-error *ngIf="eventForm.controls['startTime']?.invalid">
-                Start time is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="date-time-row">
-            <mat-form-field appearance="fill" class="half-width">
-              <mat-label>End Date</mat-label>
-              <input
-                matInput
-                [matDatepicker]="endPicker"
-                [(ngModel)]="currentEvent.endDate"
-                name="endDate"
-                required
-                [min]="currentEvent.startDateTime"
-                (dateChange)="validateDates()"
-              />
-              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-              <mat-datepicker #endPicker></mat-datepicker>
-              <mat-error *ngIf="eventForm.controls['endDate']?.invalid">
-                End date is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="fill" class="half-width">
-              <mat-label>End Time</mat-label>
-              <input
-                matInput
-                type="time"
-                [(ngModel)]="currentEvent.endTime"
-                name="endTime"
-                required
-                (change)="validateDates()"
-              />
-              <mat-error *ngIf="eventForm.controls['endTime']?.invalid">
-                End time is required
-              </mat-error>
-            </mat-form-field>
-          </div>
-
-          <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Description</mat-label>
-            <textarea
-              matInput
-              [(ngModel)]="currentEvent.description"
-              name="description"
-              rows="3"
-            ></textarea>
-          </mat-form-field>
-
-          <mat-form-field appearance="fill" class="full-width">
-            <mat-label>Assigned Pastors</mat-label>
-            <mat-select
-              [(ngModel)]="currentEvent.assignedPastors"
-              name="assignedPastors"
-              multiple
-            >
-              <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">{{
-                pastor.name
-              }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-checkbox [(ngModel)]="currentEvent.isCompleted" name="isCompleted">
-            Mark as completed
-          </mat-checkbox>
-        </form>
-      </mat-card-content>
-      <mat-card-actions class="action-buttons">
-        <button mat-button (click)="cancel()" matTooltip="Cancel and go back">Cancel</button>
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          [disabled]="!eventForm.valid"
-          (click)="saveEvent()"
-          matTooltip="{{ mode === 'edit' ? 'Update the event' : 'Create the event' }}"
-        >
-          {{ mode === 'edit' ? 'Update' : 'Create' }} Event
-        </button>
-      </mat-card-actions>
-    </mat-card>
   </ng-container>
 </div>

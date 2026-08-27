@@ -1,6 +1,6 @@
 import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
-import { AuthService } from '../core/auth.service'; // Adjust path as needed
-import { AppRole } from '../core/role.utils'; // Import your role type
+import { AuthService } from '../core/services/auth.service'; // Adjust path as needed
+import { AppRole } from '../core/utils/role.utils'; // Import your role type
 
 @Directive({
   selector: '[hasRole]', // Usage: *hasRole="'Admin'"

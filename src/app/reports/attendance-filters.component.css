@@ -8,7 +8,7 @@
   
   .filters-container h3 {
     margin-top: 0;
-    color: #3f51b5;
+    color: var(--brand-primary);
     font-weight: 500;
   }
   

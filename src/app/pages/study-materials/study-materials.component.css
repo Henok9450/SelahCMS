@@ -81,7 +81,7 @@ mat-card-header .mat-card-avatar {
   display: flex; /* Flexbox for centering */
   justify-content: center; /* Center icon horizontally */
   align-items: center; /* Center icon vertically */
-  background-color: #6200ee; /* Primary color for avatar background */
+  background-color: var(--brand-primary); /* Primary color for avatar background */
   color: white; /* White icon color */
   border-radius: 50%; /* Perfect circle */
 }
@@ -89,7 +89,7 @@ mat-card-header .mat-card-avatar {
 mat-card-title {
   font-size: 1.25em; /* Slightly larger title */
   font-weight: 600;
-  color: #3f51b5; /* A distinct color for titles */
+  color: var(--brand-primary); /* A distinct color for titles */
   margin-bottom: 4px; /* Space between title and subtitle */
 }
 

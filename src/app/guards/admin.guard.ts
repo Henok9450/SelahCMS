@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { AuthService } from '../core/auth.service'; // Adjust the import path
+import { AuthService } from '../core/services/auth.service'; // Adjust the import path
 
 @Injectable({
   providedIn: 'root'

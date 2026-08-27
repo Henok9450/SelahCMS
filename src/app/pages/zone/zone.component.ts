@@ -1,10 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { ZoneService } from '../../core/zone.service';
-import { PastorService } from '../../core/pastor.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,17 +11,24 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip'; // Import MatTooltipModule
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
+import { ZoneService } from '../../core/services/zone.service';
+import { PastorService } from '../../core/services/pastor.service';
+import { AuditLogService } from '../../core/services/audit-log.service';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
-import { Zone } from '../../core/zone.model';
-import { Pastor } from '../../core/pastor.model';
+import { Zone } from '../../core/models/zone.model';
+import { Pastor } from '../../core/models/pastor.model';
 
 @Component({
   selector: 'app-zone',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
@@ -37,25 +40,39 @@ import { Pastor } from '../../core/pastor.model';
     MatProgressBarModule,
     MatChipsModule,
     MatSnackBarModule,
-    MatTooltipModule // Add MatTooltipModule here
+    MatTooltipModule
   ],
   templateUrl: './zone.component.html',
   styleUrls: ['./zone.component.css']
 })
-export class ZoneComponent implements OnInit {
+export class ZoneComponent implements OnInit, OnDestroy {
   zones: Zone[] = [];
   pastors: Pastor[] = [];
   isLoading = true;
   isEditing = false;
   currentZoneId: string | null = null;
 
+  searchTerm = '';
+  currentStatusFilter: 'all' | 'active' | 'inactive' = 'all';
+
   zoneForm: FormGroup;
 
-  displayedColumns: string[] = ['code', 'name', 'status', 'mainCoordinators', 'deputyCoordinators', 'actions'];
+  displayedColumns: string[] = [
+    'index',
+    'code',
+    'name',
+    'mainCoordinators',
+    'deputyCoordinators',
+    'status',
+    'actions'
+  ];
+
+  private destroy$ = new Subject<void>();
 
   constructor(
     private zoneService: ZoneService,
     private pastorService: PastorService,
+    private auditLogService: AuditLogService,
     private fb: FormBuilder,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -66,21 +83,10 @@ export class ZoneComponent implements OnInit {
         Validators.maxLength(10),
         Validators.pattern(/^[a-zA-Z0-9-_\s]*$/)
       ]],
-      name: ['', [Validators.required, Validators.maxLength(100)]], // Added Validators.required for name
+      name: ['', [Validators.required, Validators.maxLength(100)]],
       status: ['active', [Validators.required]],
-      mainCoordinators: [[]], // New form control for main coordinators
-      deputyCoordinators: [[]] // New form control for deputy coordinators
-    });
-
-    // Debug form changes - keep one for development, remove for production
-    this.zoneForm.valueChanges.subscribe(val => {
-      console.log('FORM VALUE:', val);
-      console.log('FORM VALID:', this.zoneForm.valid);
-      console.log('FORM ERRORS:', this.zoneForm.errors);
-      Object.keys(this.zoneForm.controls).forEach(key => {
-        const control = this.zoneForm.get(key);
-        console.log(`${key} valid: ${control?.valid}, errors:`, control?.errors);
-      });
+      mainCoordinators: [[]],
+      deputyCoordinators: [[]]
     });
   }
 
@@ -88,10 +94,17 @@ export class ZoneComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadData(): void {
     this.isLoading = true;
 
-    this.pastorService.getPastors().subscribe({
+    this.pastorService.getPastors().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (pastors) => {
         this.pastors = pastors;
         this.loadZones();
@@ -105,7 +118,9 @@ export class ZoneComponent implements OnInit {
   }
 
   loadZones(): void {
-    this.zoneService.getZones().subscribe({
+    this.zoneService.getZones().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (zones) => {
         this.zones = zones;
         this.isLoading = false;
@@ -125,8 +140,8 @@ export class ZoneComponent implements OnInit {
       code: '',
       name: '',
       status: 'active',
-      mainCoordinators: [], // Reset main coordinators
-      deputyCoordinators: [] // Reset deputy coordinators
+      mainCoordinators: [],
+      deputyCoordinators: []
     });
     this.zoneForm.markAsPristine();
     this.zoneForm.markAsUntouched();
@@ -140,8 +155,8 @@ export class ZoneComponent implements OnInit {
       code: zone.code,
       name: zone.name,
       status: zone.status,
-      mainCoordinators: zone.mainCoordinators || [], // Populate main coordinators
-      deputyCoordinators: zone.deputyCoordinators || [] // Populate deputy coordinators
+      mainCoordinators: zone.mainCoordinators || [],
+      deputyCoordinators: zone.deputyCoordinators || []
     });
   }
 
@@ -152,45 +167,47 @@ export class ZoneComponent implements OnInit {
   }
 
   saveZone(): void {
-    // Mark all fields as touched to show validation messages
     this.zoneForm.markAllAsTouched();
 
     if (this.zoneForm.invalid) {
-      this.showFormErrors();
       this.showError('Please correct the form errors');
       return;
     }
 
     const formData = this.zoneForm.value;
-    console.log('Saving zone data:', formData);
+    const isUpdate = !!this.currentZoneId;
 
-    const operation = this.currentZoneId
-      ? this.zoneService.updateZone(this.currentZoneId, formData)
+    const operation = isUpdate
+      ? this.zoneService.updateZone(this.currentZoneId!, formData)
       : this.zoneService.createZone(formData);
 
     operation.then(() => {
-      this.showSuccess(`Zone ${this.currentZoneId ? 'updated' : 'created'} successfully`);
+      const action = isUpdate ? 'ZONE_UPDATED' : 'ZONE_CREATED';
+      this.auditLogService.log(action, 'Zone', this.currentZoneId || undefined, formData.name, formData);
+      this.showSuccess(`Zone ${isUpdate ? 'updated' : 'created'} successfully`);
       this.cancelEdit();
       this.loadZones();
     })
       .catch(error => {
         console.error('Operation failed:', error);
-        this.showError(`Failed to ${this.currentZoneId ? 'update' : 'create'} zone: ${error.message}`);
+        this.showError(`Failed to ${isUpdate ? 'update' : 'create'} zone: ${error.message}`);
       });
   }
 
   deleteZone(id: string): void {
+    const zone = this.zones.find(z => z.id === id);
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '400px',
       data: {
         title: 'Confirm Delete',
-        message: 'Are you sure you want to delete this zone?'
+        message: `Are you sure you want to delete zone "${zone?.name || ''}"?`
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
         this.zoneService.deleteZone(id).then(() => {
+          this.auditLogService.log('ZONE_DELETED', 'Zone', id, zone?.name);
           this.showSuccess('Zone deleted successfully');
           this.loadZones();
         }).catch(error => {
@@ -213,21 +230,68 @@ export class ZoneComponent implements OnInit {
       .join(', ') || 'None assigned';
   }
 
+  get filteredZones(): Zone[] {
+    return this.zones.filter(zone => {
+      const matchesStatus =
+        this.currentStatusFilter === 'all'
+          ? true
+          : zone.status === this.currentStatusFilter;
+
+      const search = this.searchTerm.toLowerCase().trim();
+      const matchesSearch = !search
+        ? true
+        : zone.code.toLowerCase().includes(search) ||
+          (zone.name && zone.name.toLowerCase().includes(search)) ||
+          this.getCoordinatorNames(zone.mainCoordinators).toLowerCase().includes(search) ||
+          this.getCoordinatorNames(zone.deputyCoordinators).toLowerCase().includes(search);
+
+      return matchesStatus && matchesSearch;
+    });
+  }
+
+  get activeCount(): number {
+    return this.zones.filter(z => z.status === 'active').length;
+  }
+
+  get inactiveCount(): number {
+    return this.zones.filter(z => z.status === 'inactive').length;
+  }
+
+  filterZones(status: 'all' | 'active' | 'inactive'): void {
+    this.currentStatusFilter = status;
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.currentStatusFilter = 'all';
+  }
+
+  toggleZoneStatus(zone: Zone): void {
+    if (!zone.id) return;
+    const newStatus = zone.status === 'active' ? 'inactive' : 'active';
+    this.zoneService.updateZone(zone.id, { status: newStatus })
+      .then(() => {
+        zone.status = newStatus;
+        this.auditLogService.log('ZONE_UPDATED', 'Zone', zone.id, zone.name, { status: newStatus });
+        this.showSuccess(`Zone marked as ${newStatus}`);
+      })
+      .catch(err => {
+        this.showError('Failed to update status: ' + err.message);
+      });
+  }
+
+  get currentFilterLabel(): string {
+    if (this.currentStatusFilter !== 'all') {
+      return this.currentStatusFilter === 'active' ? 'Active Zones' : 'Inactive Zones';
+    }
+    return 'All Zones';
+  }
+
   comparePastors(p1: any, p2: any): boolean {
     if (!p1 || !p2) return false;
-    // Assuming p1 and p2 can be the full pastor object or just their ID
     const p1Id = typeof p1 === 'object' ? p1.id : p1;
     const p2Id = typeof p2 === 'object' ? p2.id : p2;
     return p1Id === p2Id;
-  }
-
-  private showFormErrors(): void {
-    Object.keys(this.zoneForm.controls).forEach(key => {
-      const control = this.zoneForm.get(key);
-      if (control?.errors) {
-        console.log(`Control ${key} has errors:`, control.errors);
-      }
-    });
   }
 
   private showSuccess(message: string): void {

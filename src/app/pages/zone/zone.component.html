@@ -1,146 +1,200 @@
-<div class="container">
-  <div class="header">
-    <h2>Zones Management</h2>
-    <button mat-raised-button color="primary" (click)="startAdd()" *ngIf="!isEditing">
-      <mat-icon>add</mat-icon> Add New Zone
-    </button>
+<div class="zone-page-header">
+  <div class="zone-header-title">
+    <mat-icon class="zone-header-icon">map</mat-icon>
+    <div>
+      <h1>Zone Management</h1>
+      <span class="zone-filter-label">| {{ currentFilterLabel }}</span>
+    </div>
   </div>
+  <button mat-raised-button color="primary" (click)="startAdd()" class="create-zone-btn" *ngIf="!isEditing">
+    <mat-icon>add</mat-icon> Add New Zone
+  </button>
+</div>
 
-  <mat-card *ngIf="isEditing" class="form-card">
+<div class="zone-management-container mat-elevation-z2">
+  <!-- Create / Edit Form Card -->
+  <mat-card *ngIf="isEditing" class="form-card mat-elevation-z2">
     <mat-card-header>
       <mat-card-title>{{ currentZoneId ? 'Edit Zone' : 'Create New Zone' }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form [formGroup]="zoneForm">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Zone Code *</mat-label>
-          <input matInput formControlName="code" required>
-          <mat-error *ngIf="zoneForm.get('code')?.hasError('required')">
-            Zone code is required
-          </mat-error>
-          <mat-error *ngIf="zoneForm.get('code')?.hasError('pattern')">
-            Only letters and numbers allowed
-          </mat-error>
-          <mat-error *ngIf="zoneForm.get('code')?.hasError('maxlength')">
-            Maximum 10 characters allowed
-          </mat-error>
-        </mat-form-field>
+      <form [formGroup]="zoneForm" class="form-grid">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Zone Code *</mat-label>
+            <input matInput formControlName="code" placeholder="e.g. ZN-01" required>
+            <mat-error *ngIf="zoneForm.get('code')?.hasError('required')">Zone code is required</mat-error>
+            <mat-error *ngIf="zoneForm.get('code')?.hasError('pattern')">Only letters and numbers allowed</mat-error>
+            <mat-error *ngIf="zoneForm.get('code')?.hasError('maxlength')">Maximum 10 characters allowed</mat-error>
+          </mat-form-field>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Zone Name *</mat-label>
-          <input matInput formControlName="name">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Zone Name *</mat-label>
+            <input matInput formControlName="name" placeholder="Enter zone name">
+            <mat-error *ngIf="zoneForm.get('name')?.hasError('required')">Zone name is required</mat-error>
+            <mat-error *ngIf="zoneForm.get('name')?.hasError('maxlength')">Maximum 100 characters allowed</mat-error>
+          </mat-form-field>
+        </div>
 
-          <mat-error *ngIf="zoneForm.get('name')?.hasError('required')">
-            Zone name is required
-          </mat-error>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Status *</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="inactive">Inactive</mat-option>
+            </mat-select>
+            <mat-error *ngIf="zoneForm.get('status')?.hasError('required')">Status is required</mat-error>
+          </mat-form-field>
 
-          <mat-error *ngIf="zoneForm.get('name')?.hasError('maxlength')">
-            Maximum 100 characters allowed
-          </mat-error>
-        </mat-form-field>
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Main Coordinator(s)</mat-label>
+            <mat-select formControlName="mainCoordinators" multiple [compareWith]="comparePastors">
+              <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+                {{ pastor.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Status *</mat-label>
-          <mat-select formControlName="status" required>
-            <mat-option value="active">Active</mat-option>
-            <mat-option value="inactive">Inactive</mat-option>
-          </mat-select>
-          <mat-error *ngIf="zoneForm.get('status')?.hasError('required')">
-            Status is required
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Main Coordinator</mat-label>
-          <mat-select formControlName="mainCoordinators" multiple [compareWith]="comparePastors">
-            <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
-              {{ pastor.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Deputy Coordinator</mat-label>
-          <mat-select formControlName="deputyCoordinators" multiple [compareWith]="comparePastors">
-            <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
-              {{ pastor.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Deputy Coordinator(s)</mat-label>
+            <mat-select formControlName="deputyCoordinators" multiple [compareWith]="comparePastors">
+              <mat-option *ngFor="let pastor of pastors" [value]="pastor.id">
+                {{ pastor.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </form>
     </mat-card-content>
-    <mat-card-actions align="end">
+    <mat-card-actions align="end" class="form-actions">
       <button mat-button (click)="cancelEdit()">Cancel</button>
-      <button mat-raised-button
-        color="primary"
-        (click)="saveZone()"
-        [disabled]="!zoneForm.valid">
+      <button mat-raised-button color="primary" (click)="saveZone()" [disabled]="!zoneForm.valid">
         <mat-icon>{{ currentZoneId ? 'save' : 'add' }}</mat-icon>
-        {{ currentZoneId ? 'Update' : 'Save' }}
+        {{ currentZoneId ? 'Update Zone' : 'Save Zone' }}
       </button>
     </mat-card-actions>
   </mat-card>
 
-  <mat-card *ngIf="isLoading">
-    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-    <div class="loading-text">Loading zones...</div>
+  <!-- Filter & Search Section -->
+  <mat-card *ngIf="!isEditing" class="filter-card">
+    <mat-card-content>
+      <div class="filter-form-grid">
+        <mat-form-field appearance="outline" class="filter-field search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Search Zones</mat-label>
+          <input matInput [(ngModel)]="searchTerm" placeholder="Search by code, name, or coordinator..." />
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end" *ngIf="searchTerm || currentStatusFilter !== 'all'">
+      <button mat-stroked-button color="warn" (click)="clearFilters()">
+        <mat-icon>close</mat-icon> Clear Filters
+      </button>
+    </mat-card-actions>
   </mat-card>
 
-  <div *ngIf="!isLoading && !isEditing">
-    <table mat-table [dataSource]="zones" class="mat-elevation-z8">
-      <ng-container matColumnDef="code">
-        <th mat-header-cell *matHeaderCellDef> Code </th>
-        <td mat-cell *matCellDef="let zone"> {{ zone.code }} </td>
-      </ng-container>
+  <!-- Status Chips Bar -->
+  <div *ngIf="!isEditing" class="filter-chips">
+    <mat-chip-listbox aria-label="Zone status filter">
+      <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''" (click)="filterZones('all')">
+        All ({{ zones.length }})
+      </mat-chip-row>
+      <mat-chip-row [color]="currentStatusFilter === 'active' ? 'primary' : ''" (click)="filterZones('active')">
+        Active ({{ activeCount }})
+      </mat-chip-row>
+      <mat-chip-row [color]="currentStatusFilter === 'inactive' ? 'primary' : ''" (click)="filterZones('inactive')">
+        Inactive ({{ inactiveCount }})
+      </mat-chip-row>
+    </mat-chip-listbox>
+  </div>
 
-      <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let zone"> {{ zone.name || 'N/A' }} </td>
-      </ng-container>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p>Loading zones...</p>
+  </div>
 
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef> Status </th>
-        <td mat-cell *matCellDef="let zone">
-          <mat-chip [color]="zone.status === 'active' ? 'primary' : 'warn'" selected>
-            {{ zone.status | titlecase }}
-          </mat-chip>
-        </td>
-      </ng-container>
+  <!-- Table Section -->
+  <div *ngIf="!isLoading && !isEditing" class="zone-table-container mat-elevation-z2">
+    <div class="table-scroll-wrapper">
+      <table mat-table [dataSource]="filteredZones" class="full-width-table">
 
-      <ng-container matColumnDef="mainCoordinators">
-        <th mat-header-cell *matHeaderCellDef> Main Coordinator </th>
-        <td mat-cell *matCellDef="let zone">
-          {{ getCoordinatorNames(zone.mainCoordinators) }}
-        </td>
-      </ng-container>
+        <!-- Index Column -->
+        <ng-container matColumnDef="index">
+          <th mat-header-cell *matHeaderCellDef> # </th>
+          <td mat-cell *matCellDef="let element; let i = index;"> {{ i + 1 }} </td>
+        </ng-container>
 
-      <ng-container matColumnDef="deputyCoordinators">
-        <th mat-header-cell *matHeaderCellDef> Deputy Coordinator </th>
-        <td mat-cell *matCellDef="let zone">
-          {{ getCoordinatorNames(zone.deputyCoordinators) }}
-        </td>
-      </ng-container>
+        <!-- Code Column -->
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef> Code </th>
+          <td mat-cell *matCellDef="let zone" class="nowrap-cell">
+            <span class="code-badge">{{ zone.code }}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Actions </th>
-        <td mat-cell *matCellDef="let zone">
-          <button mat-icon-button color="primary" (click)="startEdit(zone)" matTooltip="Edit">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button color="warn" (click)="deleteZone(zone.id)" matTooltip="Delete">
-            <mat-icon>delete</mat-icon>
-          </button>
-        </td>
-      </ng-container>
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Zone Name </th>
+          <td mat-cell *matCellDef="let zone" class="title-cell">
+            <strong>{{ zone.name || 'N/A' }}</strong>
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+        <!-- Main Coordinator Column -->
+        <ng-container matColumnDef="mainCoordinators">
+          <th mat-header-cell *matHeaderCellDef> Main Coordinator </th>
+          <td mat-cell *matCellDef="let zone">
+            {{ getCoordinatorNames(zone.mainCoordinators) }}
+          </td>
+        </ng-container>
 
-    <div *ngIf="zones.length === 0" class="no-data">
-      <mat-icon>info</mat-icon>
-      <span>No zones found. Create your first zone!</span>
+        <!-- Deputy Coordinator Column -->
+        <ng-container matColumnDef="deputyCoordinators">
+          <th mat-header-cell *matHeaderCellDef> Deputy Coordinator </th>
+          <td mat-cell *matCellDef="let zone">
+            {{ getCoordinatorNames(zone.deputyCoordinators) }}
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let zone" class="nowrap-cell">
+            <span class="status-chip" [class.active]="zone.status === 'active'" [class.inactive]="zone.status !== 'active'">
+              {{ zone.status | titlecase }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let zone" class="nowrap-cell">
+            <button mat-icon-button *ngIf="zone.status === 'active'" (click)="toggleZoneStatus(zone)" matTooltip="Deactivate Zone">
+              <mat-icon color="warn">block</mat-icon>
+            </button>
+            <button mat-icon-button *ngIf="zone.status !== 'active'" (click)="toggleZoneStatus(zone)" matTooltip="Activate Zone">
+              <mat-icon color="accent">check_circle</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="startEdit(zone)" matTooltip="Edit Zone">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteZone(zone.id)" matTooltip="Delete Zone">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="7">No zones found matching criteria</td>
+        </tr>
+      </table>
     </div>
   </div>
 </div>

@@ -1,67 +1,520 @@
 <div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Hiyaw Mahider Management</mat-card-title>
-    </mat-card-header>
-  </mat-card>
+  <!-- Branded Page Header -->
+  <div class="hiyaw-page-header">
+    <div class="hiyaw-header-title">
+      <mat-icon class="hiyaw-header-icon">home_work</mat-icon>
+      <div>
+        <h1>Hiyaw Mahider Management</h1>
+        <span class="hiyaw-filter-label">| Manage groups, members &amp; assignments</span>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" (click)="startAdd()" class="create-hiyaw-btn"
+            *ngIf="!isAdding && !isEditMode">
+      <mat-icon>add</mat-icon> Add New Hiyaw Mahider
+    </button>
+  </div>
 
-  <mat-card *ngIf="isEditMode && editingItem" class="edit-form-card">
+  <!-- View Assigned Members Dialog -->
+  <div
+    class="member-assignment-dialog"
+    *ngIf="showViewMembers && selectedHiyawMahiderForView"
+  >
+    <div class="dialog-overlay" (click)="closeViewMembers()"></div>
+    <div class="dialog-content view-members-dialog">
+      <div class="dialog-header">
+        <h3>Assigned Members - {{ selectedHiyawMahiderForView.name }}</h3>
+        <div class="dialog-actions">
+          <button mat-raised-button color="primary" (click)="openAddMembers()">
+            <mat-icon>group_add</mat-icon>
+            Add Members
+          </button>
+          <button mat-icon-button (click)="closeViewMembers()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="view-members-content">
+        <!-- Summary Section -->
+        <div class="members-summary">
+          <div class="summary-card">
+            <mat-icon class="summary-icon">people</mat-icon>
+            <div class="summary-text">
+              <div class="summary-count">{{ viewAssignedMembers.length }}</div>
+              <div class="summary-label">Total Members</div>
+            </div>
+          </div>
+
+          <!-- Dynamic Role Summary Cards -->
+          <div
+            class="summary-card"
+            *ngFor="let role of availableRoles"
+            [class]="'role-' + role.toLowerCase().replace(' ', '-')"
+          >
+            <mat-icon class="summary-icon" [ngSwitch]="role">
+              <span *ngSwitchCase="'Admin'">security</span>
+              <span *ngSwitchCase="'Pastor'">person</span>
+              <span *ngSwitchCase="'Deputy Pastor'">supervisor_account</span>
+              <span *ngSwitchCase="'Zone Coordinator'">location_on</span>
+              <span *ngSwitchDefault>person</span>
+            </mat-icon>
+            <div class="summary-text">
+              <div class="summary-count">{{ getRoleCount(role) }}</div>
+              <div class="summary-label">{{ role }}s</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Members List with Enhanced Role Editing -->
+        <div class="members-list-section">
+          <div class="section-header">
+            <h4>Assigned Members ({{ viewAssignedMembers.length }})</h4>
+            <button
+              mat-stroked-button
+              color="primary"
+              (click)="openAddMembers()"
+              *ngIf="viewAssignedMembers.length > 0"
+            >
+              <mat-icon>group_add</mat-icon>
+              Add More
+            </button>
+          </div>
+
+          <div class="members-list" *ngIf="viewAssignedMembers.length > 0">
+            <div
+              class="member-item"
+              *ngFor="let member of viewAssignedMembers"
+              [class.updating]="isMemberUpdating(member.id)"
+            >
+              <div class="member-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+
+              <div class="member-details">
+                <div class="member-name">{{ member.full_name }}</div>
+                <div class="member-info">
+                  <span class="member-code">{{ member.member_code }}</span>
+                  <span class="member-phone">{{ member.phone }}</span>
+                  <span class="member-email" *ngIf="member.email">{{
+                    member.email
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="member-actions">
+                <!-- Role Selection with Loading State -->
+                <div class="role-select-container">
+                  <mat-form-field appearance="outline" class="role-select">
+                    <mat-label>Role</mat-label>
+                    <mat-select
+                      [value]="member.role"
+                      (selectionChange)="updateMemberRole(member, $event.value)"
+                      [disabled]="isMemberUpdating(member.id)"
+                    >
+                      <mat-option
+                        *ngFor="let role of availableRoles"
+                        [value]="role"
+                      >
+                        {{ role }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-progress-spinner
+                      *ngIf="isMemberUpdating(member.id)"
+                      matSuffix
+                      diameter="20"
+                      mode="indeterminate"
+                    >
+                    </mat-progress-spinner>
+                  </mat-form-field>
+
+                  <!-- Current Role Badge -->
+                  <div
+                    class="current-role-badge"
+                    [class]="
+                      'role-' + member.role.toLowerCase().replace(' ', '-')
+                    "
+                  >
+                    {{ member.role }}
+                  </div>
+                </div>
+
+                <!-- Remove Button -->
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="removeMemberFromHiyawMahider(member)"
+                  matTooltip="Remove from Hiyaw Mahider"
+                  class="remove-button"
+                  [disabled]="isMemberUpdating(member.id)"
+                >
+                  <mat-icon>person_remove</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="viewAssignedMembers.length === 0" class="empty-state">
+            <mat-icon>group_off</mat-icon>
+            <h4>No Members Assigned</h4>
+            <p>This Hiyaw Mahider doesn't have any assigned members yet.</p>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="openAddMembers()"
+            >
+              <mat-icon>group_add</mat-icon>
+              Assign Members
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" *ngIf="viewAssignedMembers.length > 0">
+          <h4>Quick Actions</h4>
+          <div class="action-buttons">
+            <button
+              mat-stroked-button
+              color="warn"
+              (click)="removeAllMembers()"
+              [disabled]="viewAssignedMembers.length === 0"
+            >
+              <mat-icon>delete_sweep</mat-icon>
+              Remove All Members
+            </button>
+
+            <!-- Quick Role Actions -->
+            <button
+              mat-stroked-button
+              color="accent"
+              (click)="openAdvancedManagement()"
+            >
+              <mat-icon>settings</mat-icon>
+              Advanced Management
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Assignment Dialog -->
+  <div
+    class="member-assignment-dialog"
+    *ngIf="showMemberAssignment && selectedHiyawMahiderForAssignment"
+  >
+    <div class="dialog-overlay" (click)="closeMemberAssignment()"></div>
+    <div class="dialog-content">
+      <div class="dialog-header">
+        <h3>Assign Members to {{ selectedHiyawMahiderForAssignment.name }}</h3>
+        <button mat-icon-button (click)="closeMemberAssignment()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- 🆕 ADD: Assignment Error Message Section -->
+      <div *ngIf="assignmentErrorMessage" class="assignment-error-section">
+        <mat-card appearance="outlined" class="assignment-error-card">
+          <mat-card-content>
+            <div class="assignment-error-header">
+              <mat-icon color="warn">error</mat-icon>
+              <span>Assignment Error</span>
+            </div>
+            <p class="assignment-error-message">{{ assignmentErrorMessage }}</p>
+            <div class="assignment-error-actions">
+              <button mat-button (click)="assignmentErrorMessage = null">
+                Dismiss
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="search-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Search Members</mat-label>
+          <input
+            matInput
+            [(ngModel)]="memberSearchTerm"
+            (input)="filterMembers()"
+            placeholder="Search by name, code, phone, or email"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <!-- Available Members Section -->
+      <div class="members-section">
+        <h4>Available Members ({{ filteredMembers.length }})</h4>
+        <div *ngIf="isLoadingMembers" class="loading-section">
+          <mat-spinner diameter="30"></mat-spinner>
+          <span>Loading members...</span>
+        </div>
+
+        <div class="members-list" *ngIf="!isLoadingMembers">
+          <div class="member-card" *ngFor="let member of filteredMembers">
+            <div class="member-info">
+              <div class="member-name">{{ member.full_name }}</div>
+              <div class="member-details">
+                {{ member.member_code }} • {{ member.phone }}
+                <span *ngIf="member.email">• {{ member.email }}</span>
+                • Current Role:
+                <span
+                  class="role-badge"
+                  [class]="
+                    'role-' + member.role.toLowerCase().replace(' ', '-')
+                  "
+                >
+                  {{ member.role }}
+                </span>
+              </div>
+            </div>
+            <div class="member-actions">
+              <mat-form-field appearance="outline" class="role-field">
+                <mat-label>Assign as</mat-label>
+                <mat-select #roleSelect [value]="member.role">
+                  <mat-option
+                    *ngFor="let role of availableRoles"
+                    [value]="role"
+                  >
+                    {{ role }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="assignMemberToHiyawMahider(member, roleSelect.value)"
+                [disabled]="!roleSelect.value || isMemberUpdating(member.id)"
+              >
+                <mat-spinner
+                  *ngIf="isMemberUpdating(member.id)"
+                  diameter="20"
+                ></mat-spinner>
+                {{ isMemberUpdating(member.id) ? "Assigning..." : "Assign" }}
+              </button>
+            </div>
+          </div>
+
+          <div
+            *ngIf="filteredMembers.length === 0 && memberSearchTerm"
+            class="empty-state"
+          >
+            <mat-icon>search_off</mat-icon>
+            <p>No members found matching "{{ memberSearchTerm }}"</p>
+          </div>
+
+          <div
+            *ngIf="filteredMembers.length === 0 && !memberSearchTerm"
+            class="empty-state"
+          >
+            <mat-icon>group_off</mat-icon>
+            <p>No members available for assignment</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Currently Assigned Members Section -->
+      <div class="assigned-members-section" *ngIf="assignedMembers.length > 0">
+        <h4>Currently Assigned Members ({{ assignedMembers.length }})</h4>
+        <div class="assigned-members-list">
+          <div
+            class="assigned-member-card"
+            *ngFor="let member of assignedMembers"
+          >
+            <div class="assigned-member-info">
+              <div class="member-avatar">
+                <mat-icon>person</mat-icon>
+              </div>
+              <div class="member-details">
+                <div class="member-name">{{ member.full_name }}</div>
+                <div class="member-code">{{ member.member_code }}</div>
+              </div>
+            </div>
+            <div class="assigned-member-actions">
+              <mat-form-field appearance="outline" class="role-select">
+                <mat-label>Role</mat-label>
+                <mat-select
+                  [value]="member.role"
+                  (selectionChange)="updateMemberRole(member, $event.value)"
+                  [disabled]="isMemberUpdating(member.id)"
+                >
+                  <mat-option
+                    *ngFor="let role of availableRoles"
+                    [value]="role"
+                  >
+                    {{ role }}
+                  </mat-option>
+                </mat-select>
+                <mat-progress-spinner
+                  *ngIf="isMemberUpdating(member.id)"
+                  matSuffix
+                  diameter="20"
+                  mode="indeterminate"
+                >
+                </mat-progress-spinner>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CORS Warning Section -->
+      <div *ngIf="corsWarning" class="cors-warning-section">
+        <mat-card class="warning-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon color="warn">warning</mat-icon>
+              CORS Issue Detected
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Member assignment features are limited due to CORS restrictions.
+            </p>
+            <div class="cors-solutions">
+              <button
+                mat-stroked-button
+                color="primary"
+                (click)="installCorsExtension()"
+              >
+                Install CORS Extension
+              </button>
+              <button mat-stroked-button (click)="setupProxyConfiguration()">
+                Setup Proxy Config
+              </button>
+              <button mat-button (click)="dismissCorsWarning()">Dismiss</button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="dialog-actions">
+        <button mat-button (click)="closeMemberAssignment()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🆕 Assignment Action Dialog Template (Confirmation Box) -->
+  <ng-template #assignmentActionDialog let-data>
+    <div class="action-dialog-container {{ data.type }}">
+      <div class="action-dialog-header">
+        <mat-icon [class]="data.iconClass">{{ data.icon }}</mat-icon>
+        <h2>{{ data.title }}</h2>
+      </div>
+
+      <div class="action-dialog-content">
+        <p [innerHTML]="data.message"></p>
+      </div>
+
+      <div class="action-dialog-actions">
+        <!-- Iterate through actions dynamically -->
+        <button
+          mat-button
+          *ngFor="let action of data.actions"
+          [color]="action.color || 'primary'"
+          [class.mat-raised-button]="action.raised"
+          [class.mat-stroked-button]="!action.raised"
+          (click)="action.handler()"
+        >
+          {{ action.label }}
+        </button>
+      </div>
+    </div>
+  </ng-template>
+
+
+  <!-- Add Form Card -->
+  <mat-card *ngIf="isAdding && addingItem" class="add-form-card">
     <mat-card-header>
-      <mat-card-title>Edit Hiyaw Mahider</mat-card-title>
+      <mat-card-title>Create New Hiyaw Mahider</mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
-      <form (ngSubmit)="saveEdit()">
+      <form (ngSubmit)="saveAdd()">
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Code *</mat-label>
-            <input matInput type="text" id="editCode"
-                   [(ngModel)]="editingItem.code"
-                   name="editCode"
-                   required>
+            <input
+              matInput
+              type="text"
+              id="addCode"
+              [(ngModel)]="addingItem.code"
+              name="addCode"
+              required
+              placeholder="Enter unique code (e.g., HM-001)"
+            />
+            <mat-hint>Unique identifier for this Hiyaw Mahider</mat-hint>
+            <mat-error *ngIf="codeError">{{ codeError }}</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Name *</mat-label>
-            <input matInput type="text" id="editName"
-                   [(ngModel)]="editingItem.name"
-                   name="editName"
-                   required>
+            <input
+              matInput
+              type="text"
+              id="addName"
+              [(ngModel)]="addingItem.name"
+              name="addName"
+              required
+              placeholder="Enter Hiyaw Mahider name"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Host Name *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="addHostName"
+              [(ngModel)]="addingItem.HostName"
+              name="addHostName"
+              required
+              placeholder="Enter host's full name"
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Host Contact Number *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="addHostContactNumber"
+              [(ngModel)]="addingItem.HostContactNumber"
+              name="addHostContactNumber"
+              required
+              placeholder="Enter host's phone number"
+            />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Location *</mat-label>
-            <input matInput type="text" id="editLocation"
-                   [(ngModel)]="editingItem.location"
-                   name="editLocation"
-                   required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Host Name *</mat-label>
-            <input matInput type="text" id="editHostName"
-                   [(ngModel)]="editingItem.HostName"
-                   name="editHostName"
-                   required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Host Contact Number *</mat-label>
-            <input matInput type="text" id="editHostContactNumber"
-                   [(ngModel)]="editingItem.HostContactNumber"
-                   name="editHostContactNumber"
-                   required>
+            <input
+              matInput
+              type="text"
+              id="addLocation"
+              [(ngModel)]="addingItem.location"
+              name="addLocation"
+              required
+              placeholder="Enter meeting location"
+            />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Zone</mat-label>
-            <mat-select id="editZone" [(ngModel)]="editingItem.zone" name="editZone">
+            <mat-select
+              id="addZone"
+              [(ngModel)]="addingItem.zone"
+              name="addZone"
+            >
               <mat-option value="">Select Zone</mat-option>
-              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">
+                {{ zone.name }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -69,9 +522,11 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Status</mat-label>
-            <mat-select id="editStatus"
-                        [(ngModel)]="editingItem.status"
-                        name="editStatus">
+            <mat-select
+              id="addStatus"
+              [(ngModel)]="addingItem.status"
+              name="addStatus"
+            >
               <mat-option *ngFor="let status of statusOptions" [value]="status">
                 {{ status }}
               </mat-option>
@@ -82,333 +537,22 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Pastor</mat-label>
-            <input matInput type="text" id="editPastor"
-                   [ngModel]="editingItem.pastor || ''"
-                   (ngModelChange)="editingItem.pastor = $event || null"
-                   name="editPastor"
-                   [matAutocomplete]="autoPastorEdit"
-                   (input)="handlePastorInput($event, 'pastor', 'edit')">
-            <mat-autocomplete #autoPastorEdit="matAutocomplete">
-              <mat-option *ngFor="let pastor of filteredPastorsEdit"
-                          (click)="selectPastor(pastor, 'editPastor')">
-                {{ pastor.name }}
-              </mat-option>
-              <mat-option *ngIf="filteredPastorsEdit.length === 0">
-                No pastors found
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Deputy Pastor</mat-label>
-            <input matInput type="text" id="editDeputyPastor"
-                   [ngModel]="editingItem.deputyPastor || ''"
-                   (ngModelChange)="editingItem.deputyPastor = $event || null"
-                   name="editDeputyPastor"
-                   [matAutocomplete]="autoDeputyPastorEdit"
-                   (input)="handlePastorInput($event, 'deputyPastor', 'edit')">
-            <mat-autocomplete #autoDeputyPastorEdit="matAutocomplete">
-              <mat-option *ngFor="let pastor of filteredDeputyPastorsEdit"
-                          (click)="selectPastor(pastor, 'editDeputyPastor')">
-                {{ pastor.name }}
-              </mat-option>
-              <mat-option *ngIf="filteredDeputyPastorsEdit.length === 0">
-                No pastors found
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Study Day</mat-label>
-            <mat-select id="editStudyDay"
-                        [ngModel]="editingItem.studyDay || ''"
-                        (ngModelChange)="editingItem.studyDay = $event || null"
-                        name="editStudyDay">
-              <mat-option value="">Select day</mat-option>
-              <mat-option *ngFor="let day of daysOfWeek" [value]="day">
-                {{ day }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Study Time</mat-label>
-            <input matInput type="time" id="editStudyTime"
-                   [ngModel]="editingItem.studyTime || ''"
-                   (ngModelChange)="editingItem.studyTime = $event || null"
-                   name="editStudyTime">
-          </mat-form-field>
-        </div>
-
-        <div class="form-actions">
-          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-            {{ isLoading ? 'Saving...' : 'Save Changes' }}
-          </button>
-          <button mat-button type="button" (click)="cancelEdit()">
-            Cancel
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
-  <div *ngIf="errorMessage">
-    <mat-error class="alert-error">
-      {{ errorMessage }}
-    </mat-error>
-  </div>
-  <div *ngIf="successMessage">
-    <mat-card class="alert-success">
-      {{ successMessage }}
-    </mat-card>
-  </div>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Search Hiyaw Mahiders</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form class="search-form">
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Name</mat-label>
-            <input matInput type="text" id="searchName" [(ngModel)]="searchFilters.name" name="searchName"
-                   placeholder="Search by name (partial matches accepted)">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Pastor</mat-label>
-            <input matInput type="text" id="searchPastor" [(ngModel)]="searchFilters.pastor" name="searchPastor"
-                   placeholder="Search by pastor">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Deputy Pastor</mat-label>
-            <input matInput type="text" id="searchDeputyPastor" [(ngModel)]="searchFilters.deputyPastor"
-                   name="searchDeputyPastor" placeholder="Search by deputy pastor">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Location</mat-label>
-            <input matInput type="text" id="searchLocation" [(ngModel)]="searchFilters.location"
-                   name="searchLocation" placeholder="Search by location">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Code</mat-label>
-            <input matInput type="text" id="searchCode" [(ngModel)]="searchFilters.code" name="searchCode"
-                   placeholder="Search by code">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select id="searchStatus" [(ngModel)]="searchFilters.status" name="searchStatus">
-              <mat-option value="">All Statuses</mat-option>
-              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Zone</mat-label>
-            <mat-select id="searchZone" [(ngModel)]="searchFilters.zone" name="searchZone">
-              <mat-option value="">All Zones</mat-option>
-              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="form-actions">
-          <button mat-raised-button color="primary" type="button" (click)="onSearch()" [disabled]="isLoading">
-            {{ isLoading ? 'Searching...' : 'Search' }}
-          </button>
-          <button mat-button type="button" (click)="resetSearch()">Reset</button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Hiyaw Mahiders</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <div *ngIf="isLoading" class="loading-indicator">
-        <mat-spinner diameter="30"></mat-spinner>
-        <span>Loading Hiyaw Mahiders...</span>
-      </div>
-
-      <ng-container *ngIf="dataSource.data.length === 0 && (hasActiveFilters() || initialLoadComplete)" class="empty-state">
-        <div class="empty-state">
-          No Hiyaw Mahiders found
-          <span *ngIf="hasActiveFilters()">matching your search criteria</span>
-        </div>
-      </ng-container>
-
-      <div *ngIf="dataSource.data.length > 0" class="mat-elevation-z2">
-        <table mat-table [dataSource]="dataSource" class="full-width-table">
-
-          <ng-container matColumnDef="code">
-            <th mat-header-cell *matHeaderCellDef> Code </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.code }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.name }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="location">
-            <th mat-header-cell *matHeaderCellDef> Location </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.location }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="hostName">
-            <th mat-header-cell *matHeaderCellDef> Host Name </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.HostName }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="hostContactNumber">
-            <th mat-header-cell *matHeaderCellDef> Host Contact </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.HostContactNumber }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="zone">
-            <th mat-header-cell *matHeaderCellDef> Zone </th>
-            <td mat-cell *matCellDef="let hm"> {{ getZoneName(hm.zone) || 'N/A' }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef> Status </th>
-            <td mat-cell *matCellDef="let hm">
-              <span class="status-badge {{ hm.status.toLowerCase().replace(' ', '-') }}">{{ hm.status }}</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="pastor">
-            <th mat-header-cell *matHeaderCellDef> Pastor </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.pastor || 'N/A' }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="deputyPastor">
-            <th mat-header-cell *matHeaderCellDef> Deputy Pastor </th>
-            <td mat-cell *matCellDef="let hm"> {{ hm.deputyPastor || 'N/A' }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="study">
-            <th mat-header-cell *matHeaderCellDef> Study </th>
-            <td mat-cell *matCellDef="let hm">
-              <span *ngIf="hm.studyDay">{{ hm.studyDay }} at {{ hm.studyTime || 'unspecified' }}</span>
-              <span *ngIf="!hm.studyDay">N/A</span>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="createdDate">
-            <th mat-header-cell *matHeaderCellDef> Created </th>
-            <td mat-cell *matCellDef="let hm"> {{ (getSafeDate(hm.createdDate) | date:'mediumDate') || 'N/A' }} </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef> Actions </th>
-            <td mat-cell *matCellDef="let hm">
-              <button mat-icon-button color="primary" (click)="startEdit(hm)" [disabled]="processingIds.has(hm.id)" matTooltip="Edit">
-                <mat-icon>edit</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="onDelete(hm.id, hm.name)" [disabled]="processingIds.has(hm.id)" matTooltip="Delete">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Create New Hiyaw Mahider</mat-card-title>
-    </mat-card-header>
-
-    <mat-card-content>
-      <form (ngSubmit)="onSubmit()">
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Code *</mat-label>
-            <input matInput type="text" id="code"
-                   [(ngModel)]="newHiyawMahider.code"
-                   name="code"
-                   required
-                   placeholder="Enter unique code (e.g., ETH-001)">
-            <mat-error *ngIf="codeError">{{ codeError }}</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Name *</mat-label>
-            <input matInput type="text" id="name" [(ngModel)]="newHiyawMahider.name" name="name" required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Host Name *</mat-label>
-            <input matInput type="text" id="HostName" [(ngModel)]="newHiyawMahider.HostName" name="HostName" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Host Contact Number *</mat-label>
-            <input matInput type="text" id="HostContactNumber" [(ngModel)]="newHiyawMahider.HostContactNumber" name="HostContactNumber" required>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Location *</mat-label>
-            <input matInput type="text" id="location" [(ngModel)]="newHiyawMahider.location" name="location" required>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Zone</mat-label>
-            <mat-select id="zone" [(ngModel)]="newHiyawMahider.zone" name="zone">
-              <mat-option value="">Select Zone</mat-option>
-              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Status</mat-label>
-            <mat-select id="status" [(ngModel)]="newHiyawMahider.status" name="status">
-              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Pastor</mat-label>
-            <input matInput type="text" id="pastor"
-                   [ngModel]="newHiyawMahider.pastor || ''"
-                   (ngModelChange)="newHiyawMahider.pastor = $event || null"
-                   name="pastor"
-                   [matAutocomplete]="autoPastor"
-                   (input)="handlePastorInput($event, 'pastor', 'create')">
-            <mat-autocomplete #autoPastor="matAutocomplete">
-              <mat-option *ngFor="let pastor of filteredPastorsCreate"
-                          (click)="selectPastor(pastor, 'pastor')">
+            <input
+              matInput
+              type="text"
+              id="addPastor"
+              [ngModel]="addingItem.pastor || ''"
+              (ngModelChange)="addingItem.pastor = $event || null"
+              name="addPastor"
+              [matAutocomplete]="autoPastorAdd"
+              (input)="handlePastorInput($event, 'pastor', 'add')"
+              placeholder="Search for pastor"
+            />
+            <mat-autocomplete #autoPastorAdd="matAutocomplete">
+              <mat-option
+                *ngFor="let pastor of filteredPastorsCreate"
+                (click)="selectPastor(pastor, 'addPastor')"
+              >
                 {{ pastor.name }}
               </mat-option>
               <mat-option *ngIf="filteredPastorsCreate.length === 0">
@@ -419,15 +563,22 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Deputy Pastor</mat-label>
-            <input matInput type="text" id="deputyPastor"
-                   [ngModel]="newHiyawMahider.deputyPastor || ''"
-                   (ngModelChange)="newHiyawMahider.deputyPastor = $event || null"
-                   name="deputyPastor"
-                   [matAutocomplete]="autoDeputyPastor"
-                   (input)="handlePastorInput($event, 'deputyPastor', 'create')">
-            <mat-autocomplete #autoDeputyPastor="matAutocomplete">
-              <mat-option *ngFor="let pastor of filteredDeputyPastorsCreate"
-                          (click)="selectPastor(pastor, 'deputyPastor')">
+            <input
+              matInput
+              type="text"
+              id="addDeputyPastor"
+              [ngModel]="addingItem.deputyPastor || ''"
+              (ngModelChange)="addingItem.deputyPastor = $event || null"
+              name="addDeputyPastor"
+              [matAutocomplete]="autoDeputyPastorAdd"
+              (input)="handlePastorInput($event, 'deputyPastor', 'add')"
+              placeholder="Search for deputy pastor"
+            />
+            <mat-autocomplete #autoDeputyPastorAdd="matAutocomplete">
+              <mat-option
+                *ngFor="let pastor of filteredDeputyPastorsCreate"
+                (click)="selectPastor(pastor, 'addDeputyPastor')"
+              >
                 {{ pastor.name }}
               </mat-option>
               <mat-option *ngIf="filteredDeputyPastorsCreate.length === 0">
@@ -440,31 +591,560 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Study Day</mat-label>
-            <mat-select id="studyDay"
-                        [ngModel]="newHiyawMahider.studyDay || ''"
-                        (ngModelChange)="newHiyawMahider.studyDay = $event || null"
-                        name="studyDay">
+            <mat-select
+              id="addStudyDay"
+              [ngModel]="addingItem.studyDay || ''"
+              (ngModelChange)="addingItem.studyDay = $event || null"
+              name="addStudyDay"
+            >
               <mat-option value="">Select day</mat-option>
-              <mat-option *ngFor="let day of daysOfWeek" [value]="day">{{ day }}</mat-option>
+              <mat-option *ngFor="let day of daysOfWeek" [value]="day">
+                {{ day }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Study Time</mat-label>
-            <input matInput type="time" id="studyTime"
-                   [ngModel]="newHiyawMahider.studyTime || ''"
-                   (ngModelChange)="newHiyawMahider.studyTime = $event || null"
-                   name="studyTime">
+            <input
+              matInput
+              type="time"
+              id="addStudyTime"
+              [ngModel]="addingItem.studyTime || ''"
+              (ngModelChange)="addingItem.studyTime = $event || null"
+              name="addStudyTime"
+            />
           </mat-form-field>
         </div>
 
         <div class="form-actions">
-          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
-            {{ isLoading ? 'Creating...' : 'Create Hiyaw Mahider' }}
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isLoading"
+          >
+            <mat-icon *ngIf="isLoading">
+              <mat-spinner diameter="20"></mat-spinner>
+            </mat-icon>
+            {{ isLoading ? "Creating..." : "Create Hiyaw Mahider" }}
           </button>
-          <button mat-button type="button" (click)="resetForm()">Reset Form</button>
+          <button mat-button type="button" (click)="cancelAdd()">Cancel</button>
         </div>
       </form>
     </mat-card-content>
   </mat-card>
+
+  <!-- Edit Form Card -->
+  <mat-card *ngIf="isEditMode && editingItem" class="edit-form-card">
+    <mat-card-header>
+      <mat-card-title>Edit Hiyaw Mahider</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form (ngSubmit)="saveEdit()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Code *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editCode"
+              [(ngModel)]="editingItem.code"
+              name="editCode"
+              required
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Name *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editName"
+              [(ngModel)]="editingItem.name"
+              name="editName"
+              required
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Location *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editLocation"
+              [(ngModel)]="editingItem.location"
+              name="editLocation"
+              required
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Host Name *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editHostName"
+              [(ngModel)]="editingItem.HostName"
+              name="editHostName"
+              required
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Host Contact Number *</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editHostContactNumber"
+              [(ngModel)]="editingItem.HostContactNumber"
+              name="editHostContactNumber"
+              required
+            />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Zone</mat-label>
+            <mat-select
+              id="editZone"
+              [(ngModel)]="editingItem.zone"
+              name="editZone"
+            >
+              <mat-option value="">Select Zone</mat-option>
+              <mat-option *ngFor="let zone of zones" [value]="zone.id">{{
+                zone.name
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select
+              id="editStatus"
+              [(ngModel)]="editingItem.status"
+              name="editStatus"
+            >
+              <mat-option *ngFor="let status of statusOptions" [value]="status">
+                {{ status }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Pastor</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editPastor"
+              [ngModel]="editingItem.pastor || ''"
+              (ngModelChange)="editingItem.pastor = $event || null"
+              name="editPastor"
+              [matAutocomplete]="autoPastorEdit"
+              (input)="handlePastorInput($event, 'pastor', 'edit')"
+            />
+            <mat-autocomplete #autoPastorEdit="matAutocomplete">
+              <mat-option
+                *ngFor="let pastor of filteredPastorsEdit"
+                (click)="selectPastor(pastor, 'editPastor')"
+              >
+                {{ pastor.name }}
+              </mat-option>
+              <mat-option *ngIf="filteredPastorsEdit.length === 0">
+                No pastors found
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Deputy Pastor</mat-label>
+            <input
+              matInput
+              type="text"
+              id="editDeputyPastor"
+              [ngModel]="editingItem.deputyPastor || ''"
+              (ngModelChange)="editingItem.deputyPastor = $event || null"
+              name="editDeputyPastor"
+              [matAutocomplete]="autoDeputyPastorEdit"
+              (input)="handlePastorInput($event, 'deputyPastor', 'edit')"
+            />
+            <mat-autocomplete #autoDeputyPastorEdit="matAutocomplete">
+              <mat-option
+                *ngFor="let pastor of filteredDeputyPastorsEdit"
+                (click)="selectPastor(pastor, 'editDeputyPastor')"
+              >
+                {{ pastor.name }}
+              </mat-option>
+              <mat-option *ngIf="filteredDeputyPastorsEdit.length === 0">
+                No pastors found
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Study Day</mat-label>
+            <mat-select
+              id="editStudyDay"
+              [ngModel]="editingItem.studyDay || ''"
+              (ngModelChange)="editingItem.studyDay = $event || null"
+              name="editStudyDay"
+            >
+              <mat-option value="">Select day</mat-option>
+              <mat-option *ngFor="let day of daysOfWeek" [value]="day">
+                {{ day }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Study Time</mat-label>
+            <input
+              matInput
+              type="time"
+              id="editStudyTime"
+              [ngModel]="editingItem.studyTime || ''"
+              (ngModelChange)="editingItem.studyTime = $event || null"
+              name="editStudyTime"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="isLoading"
+          >
+            <mat-icon *ngIf="isLoading">
+              <mat-spinner diameter="20"></mat-spinner>
+            </mat-icon>
+            {{ isLoading ? "Saving..." : "Save Changes" }}
+          </button>
+          <button mat-button type="button" (click)="cancelEdit()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Messages Display -->
+  <div *ngIf="errorMessage" class="message-container">
+    <mat-card class="alert-error">
+      <mat-card-content>
+        <mat-icon>error</mat-icon>
+        {{ errorMessage }}
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="successMessage" class="message-container">
+    <mat-card class="alert-success">
+      <mat-card-content>
+        <mat-icon>check_circle</mat-icon>
+        {{ successMessage }}
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filter & Search Card -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filter-form-grid">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Name</mat-label>
+          <input matInput type="text" [(ngModel)]="searchFilters.name" name="searchName"
+            placeholder="Search by name..." />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Pastor</mat-label>
+          <input matInput type="text" [(ngModel)]="searchFilters.pastor" name="searchPastor"
+            placeholder="Search by pastor" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Deputy Pastor</mat-label>
+          <input matInput type="text" [(ngModel)]="searchFilters.deputyPastor" name="searchDeputyPastor"
+            placeholder="Search by deputy pastor" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Location</mat-label>
+          <input matInput type="text" [(ngModel)]="searchFilters.location" name="searchLocation"
+            placeholder="Search by location" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Code</mat-label>
+          <input matInput type="text" [(ngModel)]="searchFilters.code" name="searchCode"
+            placeholder="Search by code" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Zone</mat-label>
+          <mat-select [(ngModel)]="searchFilters.zone" name="searchZone">
+            <mat-option value="">All Zones</mat-option>
+            <mat-option *ngFor="let zone of zones" [value]="zone.id">{{ zone.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="searchFilters.status" name="searchStatus">
+            <mat-option value="">All Statuses</mat-option>
+            <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-stroked-button color="warn" (click)="resetSearch()" *ngIf="hasActiveFilters()">
+        <mat-icon>close</mat-icon> Clear Filters
+      </button>
+      <button mat-raised-button color="primary" (click)="onSearch()" [disabled]="isLoading">
+        <mat-icon>search</mat-icon>
+        {{ isLoading ? 'Searching...' : 'Search' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Hiyaw Mahiders List Card -->
+  <div class="hiyaw-table-container mat-elevation-z2">
+    <!-- loading state -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading Hiyaw Mahiders...</p>
+    </div>
+
+    <!-- empty state -->
+    <ng-container *ngIf="dataSource.data.length === 0 && (hasActiveFilters() || initialLoadComplete) && !isLoading">
+      <div class="empty-state">
+        <mat-icon>search_off</mat-icon>
+        <h3>No Hiyaw Mahiders found</h3>
+        <p *ngIf="hasActiveFilters()">Try adjusting your search criteria</p>
+        <p *ngIf="!hasActiveFilters()">No Hiyaw Mahiders available in the system</p>
+      </div>
+    </ng-container>
+
+    <div *ngIf="dataSource.data.length > 0" class="table-scroll-wrapper">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        class="full-width-table"
+        matSort
+        >
+          <!-- In your table headers, add tooltips for better UX -->
+          <ng-container matColumnDef="code">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              matTooltip="Unique code identifier"
+            >
+              Code
+            </th>
+            <td mat-cell *matCellDef="let hm">
+              <span class="code-badge" matTooltip="{{ hm.code }}">{{
+                hm.code
+              }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="name">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              matTooltip="Hiyaw Mahider name"
+            >
+              Name
+            </th>
+            <td mat-cell *matCellDef="let hm" matTooltip="{{ hm.name }}">
+              <strong class="truncate-text">{{ hm.name }}</strong>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef matTooltip="Meeting location">
+              Location
+            </th>
+            <td mat-cell *matCellDef="let hm" matTooltip="{{ hm.location }}">
+              <span class="truncate-text">{{ hm.location }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="hostName">
+            <th mat-header-cell *matHeaderCellDef>Host Name</th>
+            <td mat-cell *matCellDef="let hm">{{ hm.HostName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="hostContactNumber">
+            <th mat-header-cell *matHeaderCellDef>Host Contact</th>
+            <td mat-cell *matCellDef="let hm">
+              <a [href]="'tel:' + hm.HostContactNumber" class="contact-link">
+                {{ hm.HostContactNumber }}
+              </a>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="zone">
+            <th mat-header-cell *matHeaderCellDef>Zone</th>
+            <td mat-cell *matCellDef="let hm">
+              <span class="zone-tag">{{ getZoneName(hm.zone) || "N/A" }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let hm">
+              <span
+                class="status-badge {{
+                  hm.status.toLowerCase().replace(' ', '-')
+                }}"
+              >
+                {{ hm.status }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="pastor">
+            <th mat-header-cell *matHeaderCellDef>Pastor</th>
+            <td mat-cell *matCellDef="let hm">
+              {{ hm.pastor || "N/A" }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="deputyPastor">
+            <th mat-header-cell *matHeaderCellDef>Deputy Pastor</th>
+            <td mat-cell *matCellDef="let hm">
+              {{ hm.deputyPastor || "N/A" }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="study">
+            <th mat-header-cell *matHeaderCellDef>Study</th>
+            <td mat-cell *matCellDef="let hm">
+              <div *ngIf="hm.studyDay" class="study-info">
+                <span class="study-day">{{ hm.studyDay }}</span>
+                <span class="study-time" *ngIf="hm.studyTime"
+                  >at {{ hm.studyTime }}</span
+                >
+              </div>
+              <span *ngIf="!hm.studyDay" class="no-study">N/A</span>
+            </td>
+          </ng-container>
+
+          <!-- Member Count Column -->
+          <ng-container matColumnDef="memberCount">
+            <th mat-header-cell *matHeaderCellDef>Members</th>
+            <td mat-cell *matCellDef="let hm">
+              <div class="member-count-cell">
+                <!-- View Members Button -->
+                <button
+                  mat-icon-button
+                  color="accent"
+                  (click)="openViewMembers(hm)"
+                  matTooltip="View Members"
+                  class="view-button"
+                >
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <!-- Manage Members Button -->
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="openMemberAssignment(hm)"
+                  matTooltip="Manage Members"
+                  class="member-button"
+                >
+                  <mat-icon>people</mat-icon>
+                </button>
+                <span class="member-count"
+                  >({{ getAssignedMembersCount(hm.id) }})</span
+                >
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="createdDate">
+            <th mat-header-cell *matHeaderCellDef>Created</th>
+            <td mat-cell *matCellDef="let hm">
+              {{ (getSafeDate(hm.createdDate) | date: "mediumDate") || "N/A" }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let hm">
+              <div class="action-buttons">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="startEdit(hm)"
+                  [disabled]="processingIds.has(hm.id)"
+                  matTooltip="Edit"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="onDelete(hm.id, hm.name)"
+                  [disabled]="processingIds.has(hm.id)"
+                  matTooltip="Delete"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+
+        <mat-paginator
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons
+          [length]="dataSource.data.length"
+        >
+        </mat-paginator>
+      </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions" *ngIf="viewAssignedMembers.length > 0">
+    <h4>Quick Actions</h4>
+    <div class="action-buttons">
+      <button
+        mat-stroked-button
+        color="primary"
+        (click)="refreshMemberData()"
+        [disabled]="isLoading"
+      >
+        <mat-icon>refresh</mat-icon>
+        {{ isLoading ? "Refreshing..." : "Refresh Member Data" }}
+      </button>
+      <button
+        mat-stroked-button
+        color="warn"
+        (click)="removeAllMembers()"
+        [disabled]="viewAssignedMembers.length === 0"
+      >
+        <mat-icon>delete_sweep</mat-icon>
+        Remove All Members
+      </button>
+    </div>
+  </div>
 </div>

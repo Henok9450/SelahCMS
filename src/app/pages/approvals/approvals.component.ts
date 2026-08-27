@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ApprovalService } from '../../core/approval.service';
-import { AuthService } from '../../core/auth.service';
-import { UserService } from '../../core/user.service';
-import { User } from '../../core/user.model';
+import { ApprovalService } from '../../core/services/approval.service';
+import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
+import { User } from '../../core/models/user.model';
 import { firstValueFrom, take } from 'rxjs';
 
 @Component({
@@ -29,6 +29,7 @@ export class ApprovalsComponent implements OnInit {
       }
       
       const userDoc = await firstValueFrom(this.userService.getUser(user.uid).pipe(take(1)));
+
       if (userDoc) {
         this.currentUser = userDoc;
         await this.loadPendingApprovals();

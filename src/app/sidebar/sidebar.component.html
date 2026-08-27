@@ -1,74 +1,102 @@
 <nav class="side-nav">
   <ul>
+
+    <!-- ── User Profile Header ── -->
+    <li class="mobile-user-profile" *ngIf="authService.authState$ | async as user">
+      <div class="user-avatar-wrap">
+        <mat-icon class="avatar-icon">account_circle</mat-icon>
+      </div>
+      <div class="user-info-wrap">
+        <span class="user-name-title">{{ userName }}</span>
+        <span class="user-role-badge">{{ user.role }}</span>
+      </div>
+    </li>
+    <li class="nav-divider mobile-profile-divider" *ngIf="authService.authState$ | async"></li>
+
+    <!-- ── Main Navigation ── -->
+    <li class="nav-section-label">Navigation</li>
+
     <li class="nav-item active">
-      <a routerLink="/home" (click)="onNavLinkClick()">
-        <mat-icon>home</mat-icon>
-        <span>Home</span>
+      <a routerLink="/home" routerLinkActive="active" (click)="onNavLinkClick()">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
       </a>
     </li>
 
-    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
-      <a routerLink="../pages/user-management" (click)="onNavLinkClick()">
-        <mat-icon>manage_accounts</mat-icon>
-        <span>User Management</span>
-      </a>
-    </li>
+    <!-- ── Administration ── -->
+    <li class="nav-divider" *ngIf="authService.isAdmin$ | async"></li>
+    <li class="nav-section-label" *ngIf="authService.isAdmin$ | async">Administration</li>
 
     <li class="nav-item" *ngIf="authService.isAdmin$ | async">
-      <a routerLink="../pages/zone" (click)="onNavLinkClick()">
+      <a routerLink="../pages/zone" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>location_on</mat-icon>
         <span>Zones</span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="authService.isAdmin$ | async">
-      <a routerLink="../pages/hiyaw-mahider" (click)="onNavLinkClick()">
+      <a routerLink="../pages/hiyaw-mahider" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>diversity_3</mat-icon>
         <span>Hiyaw Mahider</span>
       </a>
     </li>
 
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/pastors" routerLinkActive="active" (click)="onNavLinkClick()">
+        <mat-icon>supervisor_account</mat-icon>
+        <span>Pastors</span>
+      </a>
+    </li>
+
+    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
+      <a routerLink="../pages/admin/logs" routerLinkActive="active" (click)="onNavLinkClick()">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Activity Logs</span>
+      </a>
+    </li>
+
+    <!-- ── Community ── -->
+    <li class="nav-divider"></li>
+    <li class="nav-section-label">Community</li>
+
     <li class="nav-item" *ngIf="isAdminOrLeadership$ | async">
-      <a routerLink="../pages/attendance" (click)="onNavLinkClick()">
+      <a routerLink="../pages/attendance" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>how_to_reg</mat-icon>
         <span>Attendance</span>
       </a>
     </li>
 
-    <li class="nav-item" *ngIf="authService.isAdmin$ | async">
-      <a routerLink="../pages/pastors" (click)="onNavLinkClick()">
-        <mat-icon>book</mat-icon>
-        <span>Pastors</span>
-      </a>
-    </li>
-
     <li class="nav-item">
-      <a routerLink="../pages/members-list" (click)="onNavLinkClick()">
+      <a routerLink="../pages/members-list" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>group</mat-icon>
         <span>Members</span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="(authService.isAdmin$ | async) || (isPastorOrDeputy$ | async)">
-      <a routerLink="../pages/tasks" (click)="onNavLinkClick()">
+      <a routerLink="../pages/tasks" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>assignment</mat-icon>
         <span>Tasks</span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="authService.isAdmin$ | async">
-      <a routerLink="../pages/events" (click)="onNavLinkClick()">
+      <a routerLink="../pages/events" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>event</mat-icon>
         <span>Events</span>
       </a>
     </li>
 
+    <!-- ── Reports ── -->
+    <li class="nav-divider" *ngIf="isAdminOrLeadership$ | async"></li>
+    <li class="nav-section-label" *ngIf="isAdminOrLeadership$ | async">Insights</li>
+
     <li class="nav-item" [class.active]="showReportsSubmenu" *ngIf="isAdminOrLeadership$ | async">
-      <a (click)="toggleReports()" class="has-submenu">
+      <a (click)="toggleReports()" class="has-submenu" routerLinkActive="active">
         <mat-icon>assessment</mat-icon>
         <span>Reports</span>
-        <mat-icon class="submenu-icon">
-          {{ showReportsSubmenu ? 'expand_less' : 'expand_more' }}
+        <mat-icon class="submenu-icon" [class.rotated]="showReportsSubmenu">
+          chevron_right
         </mat-icon>
       </a>
       <ul class="submenu" [class.show]="showReportsSubmenu">
@@ -81,18 +109,26 @@
       </ul>
     </li>
 
+    <!-- ── Learning ── -->
+    <li class="nav-divider"></li>
+    <li class="nav-section-label">Learning</li>
+
     <li class="nav-item">
-      <a routerLink="../pages/study-materials" (click)="onNavLinkClick()">
+      <a routerLink="../pages/study-materials" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>menu_book</mat-icon>
         <span>Study Materials</span>
       </a>
     </li>
 
-    <li class="nav-item">
+    <!-- ── Account ── -->
+    <li class="nav-divider"></li>
+
+    <li class="nav-item logout-item">
       <a (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Logout</span>
       </a>
     </li>
+
   </ul>
 </nav>

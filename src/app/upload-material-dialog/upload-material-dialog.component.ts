@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { StudyMaterial } from '../core/study-material.model';
+import { StudyMaterial } from '../core/models/study-material.model';
 import { FileSizePipe } from '../shared/pipes/file-size.pipe';
 
 @Component({

@@ -1,0 +1,224 @@
+/* session-timeout-dialog.component.css
+   Glassmorphism warning dialog – matches SelahCMS dark teal theme
+   ────────────────────────────────────────────────────────────────── */
+
+/* ── Backdrop ─────────────────────────────────────── */
+.session-timeout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 20, 30, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal Card ────────────────────────────────────── */
+.session-timeout-modal {
+  background: linear-gradient(145deg, #0d3a36 0%, #112533 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  padding: 2.5rem 2.25rem 2rem;
+  width: 90%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(32px) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+/* ── Header ────────────────────────────────────────── */
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.warning-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(251, 191, 36, 0.15);
+  border: 2px solid rgba(251, 191, 36, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(251, 191, 36, 0.35); }
+  50%       { box-shadow: 0 0 0 12px rgba(251, 191, 36, 0);   }
+}
+
+.warning-icon {
+  color: #fbbf24;
+  font-size: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.modal-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.modal-subtitle {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Countdown Ring ────────────────────────────────── */
+.countdown-ring-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-svg {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(74, 222, 128, 0.25));
+}
+
+.ring-progress {
+  transition: stroke-dashoffset 0.9s linear, stroke 0.5s ease;
+}
+
+.countdown-label {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.countdown-number {
+  font-family: 'Inter', 'Roboto Mono', monospace;
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: color 0.5s ease;
+  letter-spacing: -1px;
+}
+
+.countdown-unit {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── Body text ─────────────────────────────────────── */
+.modal-body {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.modal-body strong {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+/* ── Action Buttons ────────────────────────────────── */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  letter-spacing: 0.2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #07514d 0%, #0e7c73 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(7, 81, 77, 0.45);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(7, 81, 77, 0.55);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active { transform: translateY(0); }
+
+.btn-primary mat-icon,
+.btn-secondary mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* ── Responsive ────────────────────────────────────── */
+@media (max-width: 480px) {
+  .session-timeout-modal {
+    padding: 2rem 1.5rem 1.75rem;
+    border-radius: 16px;
+  }
+
+  .modal-actions { flex-direction: column-reverse; }
+
+  .countdown-number { font-size: 1.75rem; }
+}

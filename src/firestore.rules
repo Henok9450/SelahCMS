@@ -68,5 +68,12 @@ service cloud.firestore {
             || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "deputy_pastor")
         && request.resource.data.type == "new_member";
     }
+
+    // Audit logs collection (append-only, read by authenticated users, immutable)
+    match /auditLogs/{logId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if false;
+    }
   }
 }

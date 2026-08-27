@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon'; // Add this import
 import { RouterModule } from '@angular/router';
-import { AuthService } from '../../core/auth.service'; // Import AuthService
+import { AuthService } from '../../core/services/auth.service'; // Import AuthService
 import { inject } from '@angular/core'; // Import inject
 
 @Component({

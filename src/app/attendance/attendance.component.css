@@ -1,346 +1,318 @@
-/* Base Styles */
+/* ═══════════════════════════════════════════════════
+   SelahCMS – Attendance Page Styling
+   ═══════════════════════════════════════════════════ */
+
+/* ── Container & Layout ──────────────────────────── */
 .attendance-container {
-  padding: 16px;
-  max-width: 1200px;
+  padding: 1.5rem;
+  max-width: 1400px;
   margin: 0 auto;
-  font-family: 'Roboto', sans-serif;
-  color: #333;
 }
 
-h2, h3, h4 {
-  color: #3f51b5;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-h3 {
-  margin-top: 30px;
-  border-bottom: 1px solid #e0e0e0;
-  padding-bottom: 10px;
-}
-
-/* Controls and Search Sections */
-.controls, .search-form {
+/* ── Branded Page Header Card ────────────────────── */
+.attendance-page-header {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 20px;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #07514d 0%, #1a3a4a 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(7, 81, 77, 0.25);
+  gap: 1rem;
 }
 
-/* Form Field Styling */
-.mat-form-field {
-  flex: 1 1 calc(50% - 15px);
-  min-width: 180px;
-}
-
-.search-form .mat-form-field {
-  flex: 1 1 calc(25% - 15px);
-  min-width: 150px;
-}
-
-/* Enhanced Dropdown Styling */
-::ng-deep .mat-mdc-select-panel {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin-top: 4px;
-  max-height: 300px;
-  border: 1px solid #e0e0e0;
-}
-
-::ng-deep .mat-mdc-option {
-  padding: 8px 16px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-::ng-deep .mat-mdc-option:hover:not(.mdc-list-item--disabled),
-::ng-deep .mat-mdc-option:focus:not(.mdc-list-item--disabled) {
-  background: rgba(63, 81, 181, 0.08);
-}
-
-::ng-deep .mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled) {
-  background: rgba(63, 81, 181, 0.12);
-  color: #3f51b5;
-  font-weight: 500;
-}
-
-::ng-deep .mat-mdc-select-arrow-wrapper {
-  transform: translateY(0);
-}
-
-::ng-deep .mat-mdc-select-trigger {
+.attendance-header-title {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
-/* Active/Focused Dropdown State */
-::ng-deep .mat-mdc-select:focus:not(.mat-mdc-select-disabled) .mat-mdc-select-arrow {
-  color: #3f51b5;
+.attendance-header-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
-::ng-deep .mat-mdc-select-placeholder {
-  color: rgba(0, 0, 0, 0.6);
-  transition: color 0.3s ease;
+.attendance-header-title h1 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: white;
 }
 
-::ng-deep .mat-mdc-select-value {
-  color: rgba(0, 0, 0, 0.87);
-  font-weight: 400;
+.attendance-header-sub {
+  font-size: 0.9rem;
+  opacity: 0.8;
 }
 
-/* Study Day Info */
-.study-day-info {
-  margin-top: 10px;
-  padding: 12px 16px;
-  background-color: #e8eaf6;
-  border-left: 4px solid #3f51b5;
-  border-radius: 6px;
-  font-size: 0.95em;
-  color: #333;
+/* ── Card Styling ────────────────────────────────── */
+.card-shadow {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 14px rgba(0,0,0,0.04) !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff;
+  overflow: visible;
+}
+
+.card-header-styled {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 1.25rem !important;
+}
+
+.card-title-styled {
+  color: #1e293b !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+}
+
+.card-content-padding {
+  padding: 1.5rem !important;
+}
+
+/* ── Date/Hiyaw Mahider Controls ─────────────────── */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.25rem;
+  align-items: start;
+  margin-bottom: 1.5rem;
+}
+
+.controls mat-form-field {
   width: 100%;
+  margin-bottom: 0;
+}
+
+/* ── Study Day Card ──────────────────────────────── */
+.study-day-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid #16a34a;
+  min-height: 56px;
   box-sizing: border-box;
 }
 
-/* Attendance Form */
-.attendance-form {
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+.study-day-card mat-icon {
+  color: #16a34a;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
 }
 
-.members-list {
-  margin-bottom: 20px;
-}
-
-.member-row {
+.study-day-card .card-content {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background-color: #fcfcfc;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
+  flex-direction: column;
 }
 
-.member-row:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  transform: translateY(-1px);
+.study-day-card .label {
+  font-size: 0.68rem;
+  color: #15803d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
-.member-info {
-  flex: 1 1 180px;
-  min-width: 150px;
+.study-day-card .value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #14532d;
 }
 
-.name {
-  font-weight: 500;
-  color: #424242;
-  font-size: 1.05em;
-  line-height: 1.2;
-}
-
-.username {
-  color: #757575;
-  font-size: 0.85em;
-}
-
-
-
-.info-icon {
-  color: rgba(0, 0, 0, 0.54);
-  cursor: help;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
-  min-height: 20px;
-}
-
-.status-field {
-  flex: 1 1 150px;
-  min-width: 130px;
-}
-
-.reason-field {
-  flex: 1 1 220px;
-  min-width: 150px;
-}
-
-/* Loading Overlay */
-.loading-overlay {
+/* ── Select Prompt (Initial Placeholder) ─────────── */
+.select-prompt {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
-  text-align: center;
-  color: #555;
 }
 
-/* Search Section */
-.search-section {
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+.select-prompt mat-icon {
+  font-size: 56px;
+  height: 56px;
+  width: 56px;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.select-prompt p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* ── Search Form Grid ────────────────────────────── */
+.search-form {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem 1.25rem;
+  align-items: start;
+}
+
+.search-form mat-form-field {
+  width: 100%;
 }
 
 .search-buttons {
+  grid-column: 1 / -1;
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  width: 100%;
+  gap: 0.75rem;
   justify-content: flex-end;
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .search-buttons button {
-  flex: 1 1 auto;
-  max-width: 150px;
+  padding: 0 1.25rem;
+  height: 38px;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-/* Divider */
-.divider {
-  border-top: 1px dashed #cfd8dc;
-  margin: 30px 0;
+/* ── Attendance Form ─────────────────────────────── */
+.attendance-form {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
 }
 
-/* Search Results Table */
-.search-results {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.search-results h4 {
-  margin-top: 0;
-  text-align: left;
-  color: #424242;
-  font-size: 1.1em;
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.results-table {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-}
-
-th.mat-header-cell {
+.attendance-form-title {
+  color: #1e293b;
+  font-size: 1.05rem;
   font-weight: 600;
-  background-color: #e3f2fd;
-  color: #3f51b5;
-  padding: 12px 8px;
-  text-align: left;
+  margin: 0 0 1.25rem;
+  border-bottom: 2px solid #f1f5f9;
+  padding-bottom: 0.5rem;
 }
 
-td.mat-cell {
-  padding: 10px 8px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-tr.mat-row:last-child td {
-  border-bottom: none;
-}
-
-/* Status Badges */
-.status-badge {
-  padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 0.75em;
-  font-weight: 600;
-  text-transform: uppercase;
-  display: inline-block;
-  min-width: 60px;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-
-.status-badge.present {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-.status-badge.absent {
-  background-color: #ffebee;
-  color: #c62828;
-}
-
-.status-badge.excused {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.status-badge.late {
-  background-color: #fffde7;
-  color: #fbc02d;
-}
-
-.status-badge.new-guest {
-  background-color: #f3e5f5;
-  color: #8e24aa;
-}
-
-.status-badge.follow-up {
-  background-color: #fff3e0;
-  color: #ef6c00;
-}
-
-/* Existing Attendance Message */
+/* Existing Attendance Alert */
 .existing-attendance-message {
-  background-color: #fff3e0;
-  border: 1px solid #ffcc80;
-  color: #e65100;
-  padding: 15px;
-  margin-bottom: 20px;
+  background-color: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #d97706;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
-  text-align: center;
+  line-height: 1.5;
 }
 
 .existing-attendance-message .info-icon {
-  color: #e65100;
+  color: #d97706;
+  flex-shrink: 0;
 }
 
-/* Button Styling */
-button[mat-raised-button], button[mat-stroked-button] {
-  margin-top: 15px;
-  transition: all 0.3s ease;
-}
-
-button[mat-raised-button]:hover, button[mat-stroked-button]:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-/* Member Filter Field */
 .member-filter-field {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
-.filter-input-container {
-  width: calc(100% - 16px);
-  margin: 0 8px 8px 8px;
+/* Members List */
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease-in-out;
+}
+
+.member-row:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.member-info {
+  flex: 1 1 auto;
+}
+
+.member-row .name {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-field {
+  width: 180px;
+  margin-bottom: 0;
+}
+
+.status-field :deep(.mat-mdc-text-field-wrapper) {
+  background-color: #ffffff !important;
+}
+
+.reason-field {
+  width: 250px;
+  margin-bottom: 0;
+}
+
+.reason-field :deep(.mat-mdc-text-field-wrapper) {
+  background-color: #ffffff !important;
+}
+
+.info-icon {
+  color: #64748b;
+  cursor: help;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  transition: color 0.15s;
+}
+
+.info-icon:hover {
+  color: #334155;
+}
+
+/* Form Submit/Reset Actions */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
+  justify-content: flex-end;
+}
+
+.form-actions button {
+  padding: 0 1.5rem;
+  height: 40px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* Highlight Animation */
@@ -350,371 +322,175 @@ button[mat-raised-button]:hover, button[mat-stroked-button]:hover {
 
 @keyframes highlight-fade {
   0% {
-    background-color: #c8e6c9;
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    background-color: #dcfce7;
+    border-color: #86efac;
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.2);
   }
   100% {
-    background-color: #fcfcfc;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
     box-shadow: none;
   }
 }
 
-/* Responsive Adjustments */
-@media (max-width: 992px) {
-  .search-form mat-form-field {
-    flex: 1 1 calc(33.33% - 15px);
-  }
-  .member-row {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-    gap: 8px;
-  }
-  .member-info, .status-container, .status-field, .reason-field {
-    width: 100%;
-    min-width: unset;
-  }
-  .status-container {
-    justify-content: flex-start;
-  }
+/* ── Divider ─────────────────────────────────────── */
+.divider {
+  border-top: 1px dashed #cbd5e1;
+  margin: 2rem 0;
+}
 
-  .reason-field {
-    max-width: 100%;
+/* ── Search Results Section ──────────────────────── */
+.search-results-section {
+  margin-top: 1.5rem;
+}
+
+.search-results-title {
+  color: #334155;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 1rem;
+  text-align: left;
+}
+
+.results-table {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
+
+.table-scroll-wrapper table {
+  min-width: 650px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th.mat-header-cell {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #64748b;
+  background: #f8fafc;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+td.mat-cell {
+  padding: 12px 16px !important;
+  font-size: 0.875rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+tr.mat-row:hover td {
+  background: #f8fafc;
+  transition: background 0.15s;
+}
+
+tr.mat-row:last-child td {
+  border-bottom: none !important;
+}
+
+.mat-column-actions {
+  width: 100px;
+  text-align: center;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.status-badge.present { background: #dcfce7; color: #15803d; }
+.status-badge.absent  { background: #fee2e2; color: #b91c1c; }
+.status-badge.excused { background: #e0f2fe; color: #0369a1; }
+.status-badge.late    { background: #fef9c3; color: #a16207; }
+.status-badge.new-guest { background: #f3e8ff; color: #7e22ce; }
+.status-badge.follow-up { background: #ffedd5; color: #c2410c; }
+
+/* ── Option Panel Fixes ──────────────────────────── */
+.attendance-select-panel {
+  max-width: 95vw !important;
+  width: auto !important;
+  min-width: 650px !important;
+}
+
+::ng-deep .attendance-select-panel .mat-mdc-option {
+  padding: 12px 24px !important;
+  min-height: 52px !important;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .search-form {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .attendance-container {
-    padding: 10px;
+    padding: 0.75rem;
   }
 
-  h2 {
-    font-size: 1.5em;
-  }
-
-  .controls, .search-form {
+  .attendance-page-header {
     flex-direction: column;
-    gap: 10px;
+    align-items: flex-start;
   }
 
-  .mat-form-field, .search-form mat-form-field {
-    flex: 1 1 100%;
+  .attendance-page-header button {
+    width: 100%;
   }
 
-  .search-buttons {
-    flex-direction: column;
-    gap: 10px;
+  .controls {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .search-buttons button {
-    max-width: 100%;
+  .study-day-card {
+    min-height: auto;
+  }
+
+  .search-form {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
   .member-row {
-    padding: 10px;
-    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
   }
 
-  table {
-    min-width: 500px;
-  }
-}
-
-@media (max-width: 480px) {
-  .attendance-container {
-    padding: 8px;
+  .status-container {
+    width: 100%;
+    justify-content: space-between;
   }
 
-  .member-row {
-    padding: 8px;
+  .status-field,
+  .reason-field {
+    width: 100%;
   }
 
-  .status-badge {
-    font-size: 0.7em;
-    padding: 3px 8px;
-    border-radius: 10px;
-  }
-}
-
-/* Button Styles */
-button[mat-raised-button],
-button[mat-stroked-button],
-button[mat-icon-button] {
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border-radius: 4px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-/* Primary Raised Button */
-button[mat-raised-button].mat-primary {
-  background-color: #3f51b5;
-  color: white;
-  box-shadow: 0 2px 4px rgba(63, 81, 181, 0.2);
-}
-
-button[mat-raised-button].mat-primary:hover:not([disabled]) {
-  background-color: #303f9f;
-  box-shadow: 0 4px 8px rgba(63, 81, 181, 0.3);
-  transform: translateY(-1px);
-}
-
-button[mat-raised-button].mat-primary:active:not([disabled]) {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(63, 81, 181, 0.2);
-}
-
-/* Warn Raised Button */
-button[mat-raised-button].mat-warn {
-  background-color: #f44336;
-  color: white;
-}
-
-button[mat-raised-button].mat-warn:hover:not([disabled]) {
-  background-color: #d32f2f;
-}
-
-/* Stroked Buttons */
-button[mat-stroked-button] {
-  border-width: 1px;
-}
-
-button[mat-stroked-button].mat-primary {
-  color: #3f51b5;
-  border-color: #3f51b5;
-}
-
-button[mat-stroked-button].mat-primary:hover:not([disabled]) {
-  background-color: rgba(63, 81, 181, 0.04);
-}
-
-button[mat-stroked-button].mat-warn {
-  color: #f44336;
-  border-color: #f44336;
-}
-
-button[mat-stroked-button].mat-warn:hover:not([disabled]) {
-  background-color: rgba(244, 67, 54, 0.04);
-}
-
-/* Icon Buttons */
-button[mat-icon-button] {
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-button[mat-icon-button].mat-accent {
-  color: #ff9800;
-}
-
-button[mat-icon-button].mat-warn {
-  color: #f44336;
-}
-
-button[mat-icon-button]:hover:not([disabled]) {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-/* Disabled Buttons */
-button[mat-button][disabled],
-button[mat-raised-button][disabled],
-button[mat-stroked-button][disabled],
-button[mat-icon-button][disabled] {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Form Actions Container */
-.form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
-}
-
-/* Form Field Enhancements */
-.mat-form-field {
-  width: 100%;
-}
-
-.mat-form-field-appearance-fill .mat-form-field-flex {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-radius: 4px 4px 0 0;
-  padding: 0.5em 0.75em 0 0.75em;
-  transition: background-color 0.3s ease;
-}
-
-.mat-form-field-appearance-fill .mat-form-field-flex:hover {
-  background-color: rgba(0, 0, 0, 0.08);
-}
-
-.mat-form-field-appearance-fill.mat-focused .mat-form-field-flex {
-  background-color: rgba(63, 81, 181, 0.08);
-}
-
-.mat-form-field.mat-focused .mat-form-field-label {
-  color: #3f51b5;
-}
-
-.mat-form-field-appearance-fill .mat-form-field-underline::before {
-  background-color: rgba(0, 0, 0, 0.42);
-}
-
-.mat-form-field.mat-focused .mat-form-field-underline::before {
-  background-color: #3f51b5;
-  height: 2px;
-}
-
-/* Datepicker Styles */
-.mat-datepicker-toggle {
-  color: rgba(0, 0, 0, 0.54);
-}
-
-.mat-datepicker-toggle-active {
-  color: #3f51b5;
-}
-
-/* Select Dropdown Arrow */
-.mat-select-arrow {
-  color: rgba(0, 0, 0, 0.54);
-}
-
-.mat-focused .mat-select-arrow {
-  color: #3f51b5;
-}
-
-/* Spinner in Buttons */
-button mat-spinner {
-  margin: 0 auto;
-}
-
-/* Error States */
-.mat-form-field-invalid .mat-form-field-label {
-  color: #f44336;
-}
-
-.mat-form-field-invalid .mat-form-field-underline::before {
-  background-color: #f44336;
-}
-
-.mat-error {
-  font-size: 12px;
-  line-height: 1.2;
-  margin-top: 4px;
-}
-
-/* Tooltip Enhancements */
-.mat-tooltip {
-  font-size: 12px;
-  padding: 4px 8px;
-  background-color: #616161;
-}
-
-/* Responsive Adjustments for Buttons */
-@media (max-width: 600px) {
   .form-actions {
     flex-direction: column;
   }
-  
-  button[mat-raised-button],
-  button[mat-stroked-button] {
+
+  .form-actions button {
     width: 100%;
-    padding: 8px 0;
   }
-  
-  .search-buttons {
-    flex-direction: column;
-  }
-  
-  .search-buttons button {
-    max-width: 100%;
-  }
-}
-
-/* Special Styles for the Member Filter Dropdown */
-.member-filter-field .mat-form-field-flex {
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-}
-
-.member-filter-field .mat-form-field-underline {
-  display: none;
-}
-
-/* Focus State for Filter Input */
-.filter-input-container .mat-form-field-flex {
-  background-color: white !important;
-  border: 1px solid #3f51b5;
-}
-
-.filter-input-container input {
-  padding: 8px;
-}
-
-/* Hover effect for form fields */
-.mat-form-field:hover .mat-form-field-flex {
-  background-color: rgba(0, 0, 0, 0.08);
-}
-
-/* Active form field */
-.mat-form-field.mat-focused .mat-form-field-flex {
-  background-color: rgba(63, 81, 181, 0.08);
-  box-shadow: 0 2px 4px rgba(63, 81, 181, 0.1);
-}
-
-/* Container for the status field and info icon */
-.status-container {
-  display: flex; /* Aligns children (mat-form-field and mat-icon) in a row */
-  align-items: center; /* Vertically centers the items */
-  gap: 8px; /* Adds space between the select field and the info icon */
-  margin-bottom: 16px; /* Adds some space below the container */
-}
-
-/* Styling for the Angular Material form field */
-.status-field {
-  width: 220px; /* Adjust width as needed */
-  /* You might want to remove or adjust default margin/padding from mat-form-field */
-}
-
-/* Custom panel class for the mat-select dropdown */
-.attendance-select-panel {
-  max-width: 300px; /* Limits the width of the dropdown panel */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adds a subtle shadow */
-  border-radius: 4px; /* Slightly rounded corners */
-  overflow: hidden; /* Ensures content respects border-radius */
-}
-
-/* Styling for the info icon */
-.info-icon {
-  color: rgba(0, 0, 0, 0.54); /* A standard muted icon color */
-  font-size: 20px; /* Adjust icon size if necessary */
-  cursor: help; /* Indicates that the icon provides information on hover */
-  transition: color 0.2s ease-in-out; /* Smooth transition for color change */
-}
-
-.info-icon:hover {
-  color: rgba(0, 0, 0, 0.87); /* Darker color on hover for better visibility */
-}
-
-/* Tooltip specific styling (Angular Material's default tooltips are usually good,
-   but you can customize them if needed. This is a general example.) */
-.mat-tooltip {
-  font-size: 13px;
-  max-width: 250px;
-  white-space: normal; /* Allows text to wrap within the tooltip */
-  line-height: 1.4;
-}
-
-.spinner {
-  border: 3px solid rgba(0,0,0,0.1);
-  border-radius: 50%;
-  border-top: 3px solid #3498db;
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
 }

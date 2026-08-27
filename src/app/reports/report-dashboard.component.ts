@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MatCardModule } from '@angular/material/card'; // Import MatCardModule
 import { MatIconModule } from '@angular/material/icon'; // Import MatIconModule
 import { RouterModule } from '@angular/router';
-import { ReportService } from '../core/report.service';
+import { ReportService } from '../core/services/report.service';
 
 @Component({
   selector: 'app-report-dashboard',

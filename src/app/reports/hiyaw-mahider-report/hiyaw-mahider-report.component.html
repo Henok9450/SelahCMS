@@ -1,17 +1,34 @@
-<div class="report-container">
-  <mat-card class="page-title-card mat-elevation-z2">
-    <mat-card-title>Hiyaw Mahider Report</mat-card-title>
-  </mat-card>
+<div class="report-page-header">
+  <div class="report-header-title">
+    <mat-icon class="report-header-icon">home_work</mat-icon>
+    <div>
+      <h1>Hiyaw Mahider Report</h1>
+      <span class="report-header-sub">Fellowship group distribution, statuses & details</span>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button mat-raised-button color="accent" (click)="exportToCSV()" [disabled]="!reportData || dataSource.data.length === 0" class="export-btn">
+      <mat-icon>cloud_download</mat-icon> Export to CSV
+    </button>
+  </div>
+</div>
 
-  <mat-card class="filter-section mat-elevation-z2">
-    <mat-card-title>Filters</mat-card-title>
+<div class="report-main-container">
+  <!-- Filter Card -->
+  <mat-card class="filter-card mat-elevation-z2">
+    <div class="card-header-bar">
+      <div class="card-header-title">
+        <mat-icon>filter_list</mat-icon>
+        <span>Report Filters</span>
+      </div>
+    </div>
     <mat-card-content>
       <form [formGroup]="filterForm" (ngSubmit)="applyFilters()">
-        <div class="filter-row">
+        <div class="filter-grid">
           <mat-form-field appearance="outline" class="filter-field">
             <mat-label>Status</mat-label>
             <mat-select formControlName="status">
-              <mat-option value="">All Status</mat-option>
+              <mat-option value="">All Statuses</mat-option>
               <mat-option value="Active">Active</mat-option>
               <mat-option value="Inactive">Inactive</mat-option>
             </mat-select>
@@ -38,12 +55,10 @@
               <mat-option value="Sunday">Sunday</mat-option>
             </mat-select>
           </mat-form-field>
-        </div>
 
-        <div class="filter-row">
           <mat-form-field appearance="outline" class="filter-field search-field">
             <mat-label>Search by Name or Code</mat-label>
-            <input matInput formControlName="searchTerm" [matAutocomplete]="auto" placeholder="Start typing...">
+            <input matInput formControlName="searchTerm" [matAutocomplete]="auto" placeholder="Type to search...">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayHiyawMahiderName">
               <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
                 {{option.code}} - {{option.name}}
@@ -53,150 +68,194 @@
           </mat-form-field>
         </div>
 
-        <div class="button-container">
-          <button mat-raised-button color="primary" type="submit">
-            <mat-icon>filter_list</mat-icon> Apply Filters
+        <div class="button-group">
+          <button mat-raised-button color="primary" type="submit" [disabled]="isLoading" class="submit-btn">
+            <mat-icon>{{ isLoading ? 'hourglass_top' : 'filter_list' }}</mat-icon>
+            {{ isLoading ? 'Filtering...' : 'Apply Filters' }}
           </button>
-          <button mat-button type="button" (click)="resetFilters()">
-            <mat-icon>refresh</mat-icon> Reset
+          <button mat-stroked-button type="button" (click)="resetFilters()" class="reset-btn">
+            <mat-icon>refresh</mat-icon> Reset Filters
           </button>
         </div>
       </form>
     </mat-card-content>
   </mat-card>
 
-  <div *ngIf="isLoading" class="loading-message">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading data...</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Loading Hiyaw Mahider report data...</p>
   </div>
 
-  <div *ngIf="errorMessage" class="error-message">
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container mat-elevation-z2">
     <mat-icon>error_outline</mat-icon>
     <p>{{errorMessage}}</p>
   </div>
 
-  <mat-card *ngIf="reportData && !isLoading" class="summary-section mat-elevation-z2">
-    <mat-card-title>Summary</mat-card-title>
-    <mat-card-content>
-      <div class="summary-cards">
-        <mat-card class="summary-card total mat-elevation-z1">
-          <h3>Total Hiyaw Mahiders</h3>
-          <p>{{reportData.totalHiyawMahiders}}</p>
-        </mat-card>
-        <mat-card class="summary-card active mat-elevation-z1">
-          <h3>Active</h3>
-          <p>{{reportData.activeCount}}</p>
-        </mat-card>
-        <mat-card class="summary-card inactive mat-elevation-z1">
-          <h3>Inactive</h3>
-          <p>{{reportData.inactiveCount}}</p>
-        </mat-card>
+  <!-- Summary Section -->
+  <div *ngIf="reportData && !isLoading" class="report-summary-container">
+    <div class="section-title">
+      <mat-icon>analytics</mat-icon>
+      <h2>Summary & Distribution</h2>
+    </div>
+
+    <!-- Metric Cards -->
+    <div class="stats-grid">
+      <div class="stat-card total-card">
+        <div class="stat-icon-wrap"><mat-icon>home_work</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{reportData.totalHiyawMahiders}}</span>
+          <span class="stat-label">Total Groups</span>
+        </div>
       </div>
 
-      <div class="distribution-section">
-        <mat-card class="distribution-card mat-elevation-z1">
-          <h3>By Zone</h3>
-          <ul>
-            <li *ngFor="let zoneId of objectKeys(reportData.byZone)">
-              {{getZoneName(zoneId)}}: {{reportData.byZone[zoneId]}}
-            </li>
-          </ul>
-        </mat-card>
-
-        <mat-card class="distribution-card mat-elevation-z1">
-          <h3>By Study Day</h3>
-          <ul>
-            <li *ngFor="let day of objectKeys(reportData.byStudyDay)">
-              {{day}}: {{reportData.byStudyDay[day]}}
-            </li>
-          </ul>
-        </mat-card>
+      <div class="stat-card active-card">
+        <div class="stat-icon-wrap"><mat-icon>check_circle</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{reportData.activeCount}}</span>
+          <span class="stat-label">Active</span>
+        </div>
       </div>
-    </mat-card-content>
-  </mat-card>
 
-  <mat-card *ngIf="reportData && !isLoading" class="detailed-list-card mat-elevation-z2">
-    <mat-card-header>
-      <!-- <mat-card-title>Hiyaw Mahider Details</mat-card-title> -->
-      <button mat-raised-button color="accent" (click)="exportToCSV()" class="export-btn">
-        <mat-icon>cloud_download</mat-icon> Export to CSV
-      </button>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="table-responsive mat-elevation-z1">
-        <table mat-table [dataSource]="dataSource" matSort>
+      <div class="stat-card inactive-card">
+        <div class="stat-icon-wrap"><mat-icon>cancel</mat-icon></div>
+        <div class="stat-info">
+          <span class="stat-value">{{reportData.inactiveCount}}</span>
+          <span class="stat-label">Inactive</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribution Section -->
+    <div class="distribution-grid">
+      <div class="distribution-card mat-elevation-z1">
+        <div class="dist-header">
+          <mat-icon>map</mat-icon>
+          <h3>Distribution By Zone</h3>
+        </div>
+        <div class="dist-list">
+          <div *ngFor="let zoneId of objectKeys(reportData.byZone)" class="dist-item">
+            <span class="dist-label">{{getZoneName(zoneId)}}</span>
+            <span class="dist-count">{{reportData.byZone[zoneId]}}</span>
+          </div>
+          <div *ngIf="objectKeys(reportData.byZone).length === 0" class="dist-empty">
+            No zone data available
+          </div>
+        </div>
+      </div>
+
+      <div class="distribution-card mat-elevation-z1">
+        <div class="dist-header">
+          <mat-icon>event</mat-icon>
+          <h3>Distribution By Study Day</h3>
+        </div>
+        <div class="dist-list">
+          <div *ngFor="let day of objectKeys(reportData.byStudyDay)" class="dist-item">
+            <span class="dist-label">{{day}}</span>
+            <span class="dist-count">{{reportData.byStudyDay[day]}}</span>
+          </div>
+          <div *ngIf="objectKeys(reportData.byStudyDay).length === 0" class="dist-empty">
+            No study day data available
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Table Card -->
+    <div class="report-table-card mat-elevation-z2">
+      <div class="table-card-header">
+        <div class="table-header-title">
+          <mat-icon>table_chart</mat-icon>
+          <h3>Hiyaw Mahider Directory ({{ dataSource.data.length }})</h3>
+        </div>
+      </div>
+
+      <div class="table-scroll-wrapper">
+        <table mat-table [dataSource]="dataSource" matSort class="records-table">
 
           <ng-container matColumnDef="code">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Code </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.code}} </td>
+            <td mat-cell *matCellDef="let hm">
+              <span class="code-badge">{{hm.code}}</span>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.name}} </td>
+            <td mat-cell *matCellDef="let hm" class="fw-600"> {{hm.name}} </td>
           </ng-container>
 
           <ng-container matColumnDef="HostName">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Host Name </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.HostName}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.HostName || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="HostContactNumber">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Host Contact Number </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.HostContactNumber}} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Contact </th>
+            <td mat-cell *matCellDef="let hm"> {{hm.HostContactNumber || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="location">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Location </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.location}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.location || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="pastor">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Pastor </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.pastor}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.pastor || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="deputyPastor">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Deputy Pastor </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.deputyPastor}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.deputyPastor || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
             <td mat-cell *matCellDef="let hm">
-              <span class="status-badge" [class]="getStatusClass(hm.status)">{{hm.status}}</span>
+              <span class="status-chip" [ngClass]="'status-' + (hm.status || '').toLowerCase().replace(' ', '-')">
+                {{hm.status}}
+              </span>
             </td>
           </ng-container>
 
           <ng-container matColumnDef="studyDay">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Study Day </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.studyDay}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.studyDay || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="studyTime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Study Time </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.studyTime}} </td>
+            <td mat-cell *matCellDef="let hm"> {{hm.studyTime || '—'}} </td>
           </ng-container>
 
           <ng-container matColumnDef="zone">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Zone </th>
-            <td mat-cell *matCellDef="let hm"> {{getZoneName(hm.zone)}} </td>
+            <td mat-cell *matCellDef="let hm">
+              <span class="zone-badge">{{getZoneName(hm.zone)}}</span>
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="createdDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Created Date </th>
-            <td mat-cell *matCellDef="let hm"> {{hm.createdDate}} </td>
+            <td mat-cell *matCellDef="let hm" class="text-muted"> {{hm.createdDate}} </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="99">No data matching the filters.</td>
+            <td class="mat-cell empty-table-cell" colspan="99">
+              <div class="empty-table-msg">
+                <mat-icon>search_off</mat-icon>
+                <span>No Hiyaw Mahiders match the selected filters.</span>
+              </div>
+            </td>
           </tr>
         </table>
-        <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+  </div>
 </div>

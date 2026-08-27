@@ -1,10 +1,66 @@
-/* Base Styles */
+/* ── Page Header ─────────────────────────────────── */
+.task-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: linear-gradient(135deg, #07514d 0%, #1a3a4a 100%);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(7, 81, 77, 0.25);
+}
+
+.task-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.task-header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #5eead4;
+  flex-shrink: 0;
+}
+
+.task-header-title h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-filter-label {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.65);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.create-task-btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Base Container ──────────────────────────────── */
 .task-management-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
 }
 
 .header {
@@ -508,7 +564,7 @@ mat-chip-row {
 }
 
 mat-chip-row.active {
-  background-color: var(--mdc-sys-color-primary); /* Use Material's primary color */
+  background-color: var(--brand-primary); /* Use brand primary color */
   color: white;
   transform: translateY(-2px);
 }
@@ -521,7 +577,7 @@ mat-chip-row.active {
 .create-form h3 {
   margin-top: 0;
   margin-bottom: 20px;
-  color: #3f51b5; /* Material primary color */
+  color: var(--brand-primary); /* Material primary color */
 }
 
 .form-actions {
@@ -537,7 +593,7 @@ mat-chip-row.active {
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: #673ab7; /* Material deep purple */
+  color: var(--brand-primary); /* Brand primary color */
 }
 
 .task-table-container {
@@ -552,7 +608,7 @@ table {
 }
 
 th.mat-header-cell {
-  background-color: #3f51b5; /* Material primary color */
+  background-color: var(--brand-primary); /* Material primary color */
   color: white;
   font-weight: bold;
   padding: 16px;
@@ -630,7 +686,76 @@ tr.mat-row:last-child td.mat-cell {
 }
 
 .ml-2 {
-  margin-left: 8px; /* Standard spacing for Material, adjust as needed */
+  margin-left: 8px;
 }
 
+/* ── Table Scroll Wrapper ────────────────────────── */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+}
 
+.task-table-container table {
+  min-width: 620px; /* Prevents column squishing on mobile */
+}
+
+/* ── Title & Nowrap Cells ─────────────────────────── */
+.title-cell {
+  min-width: 200px;
+}
+
+.nowrap-cell {
+  white-space: nowrap;
+}
+
+/* ── Mobile Responsive Overrides ─────────────────── */
+@media (max-width: 768px) {
+  .task-page-header {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .task-page-header > button {
+    width: 100%;
+  }
+
+  .task-header-title h1 {
+    font-size: 1.05rem;
+    white-space: normal;
+  }
+
+  .task-management-container {
+    padding: 0;
+  }
+
+  .filter-chips {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  .create-form {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-header-icon {
+    display: none;
+  }
+
+  .task-management-container {
+    padding: 0;
+  }
+}

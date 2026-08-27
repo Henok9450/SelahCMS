@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterModule } from '@angular/router';
-import { ReportService } from '../../app/core/report.service';
-import { AuthService } from '../core/auth.service';
+import { ReportService } from '../../app/core/services/report.service';
+import { AuthService } from '../core/services/auth.service';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -35,6 +35,7 @@ export class SidebarComponent implements OnInit {
   reportService = inject(ReportService);
 
   @Input() isMobileMenuOpen: boolean = false;
+  @Input() userName: string = '';
   @Output() navLinkClicked = new EventEmitter<void>();
 
   @HostBinding('class.side-nav') readonly hostClassSideNav = true; 
@@ -67,7 +68,6 @@ export class SidebarComponent implements OnInit {
     ]).subscribe(([isAdmin, isPastorOrDeputy]) => {
       if (isAdmin) {
         this.reports = [
-          { id: 'user-management', title: 'User Management Report', icon: 'person' },
           { id: 'attendance', title: 'Attendance Report', icon: 'how_to_reg' },
           { id: 'hiyaw-mahider', title: 'Hiyaw Mahider Report', icon: 'diversity_3' },
           { id: 'follow-up', title: 'Follow-Up Report', icon: 'next_plan' },

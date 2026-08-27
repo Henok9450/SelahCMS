@@ -21,9 +21,5 @@
         <mat-icon>home</mat-icon>
         Return to Home
       </button>
-      <button *ngIf="(authService.isAdmin$ | async)" mat-button routerLink="/pages/user-management">
-        <mat-icon>manage_accounts</mat-icon>
-        Request Access
-      </button>
     </mat-card-actions>
   </mat-card>

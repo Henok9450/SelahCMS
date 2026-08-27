@@ -1,0 +1,67 @@
+<div class="session-timeout-backdrop">
+  <div class="session-timeout-modal" role="alertdialog" aria-modal="true" aria-labelledby="timeout-title" cdkTrapFocus cdkTrapFocusAutoCapture>
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="warning-icon-wrap">
+        <mat-icon class="warning-icon">schedule</mat-icon>
+      </div>
+      <h2 id="timeout-title" class="modal-title">Session Expiring Soon</h2>
+      <p class="modal-subtitle">You have been inactive and will be logged out automatically.</p>
+    </div>
+
+    <!-- Countdown Ring -->
+    <div class="countdown-ring-wrap" aria-live="polite" [attr.aria-label]="'Time remaining: ' + formattedTime">
+      <svg class="ring-svg" viewBox="0 0 100 100" width="140" height="140">
+        <!-- Background track -->
+        <circle
+          class="ring-track"
+          cx="50" cy="50" r="44"
+          fill="none"
+          stroke="rgba(255,255,255,0.08)"
+          stroke-width="7" />
+        <!-- Progress arc -->
+        <circle
+          class="ring-progress"
+          cx="50" cy="50" r="44"
+          fill="none"
+          [attr.stroke]="ringColor"
+          stroke-width="7"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="circumference"
+          [attr.stroke-dashoffset]="strokeDashoffset"
+          transform="rotate(-90 50 50)" />
+      </svg>
+      <div class="countdown-label">
+        <span class="countdown-number" [style.color]="ringColor">{{ formattedTime }}</span>
+        <span class="countdown-unit">remaining</span>
+      </div>
+    </div>
+
+    <!-- Body message -->
+    <p class="modal-body">
+      Click <strong>Stay Logged In</strong> to continue your session, or
+      <strong>Logout</strong> to end it now.
+    </p>
+
+    <!-- Actions -->
+    <div class="modal-actions">
+      <button
+        id="session-logout-btn"
+        class="btn-secondary"
+        (click)="logoutNow.emit()">
+        <mat-icon>exit_to_app</mat-icon>
+        Logout Now
+      </button>
+      <button
+        id="session-stay-btn"
+        class="btn-primary"
+        (click)="stayLoggedIn.emit()"
+        cdkFocusInitial>
+        <mat-icon>check_circle</mat-icon>
+        Stay Logged In
+      </button>
+    </div>
+
+  </div>
+</div>

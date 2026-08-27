@@ -1,171 +1,406 @@
-<div class="dashboard-container">
-  <div class="main-layout-wrapper">
-    <div class="content-area">
-      <div class="welcome-message">
-        <h1>{{ welcomeMessage }}</h1>
+<!-- home.component.html -->
+<div class="dashboard-page-container">
+
+  <!-- ── Hero Welcome Banner ────────────────────────── -->
+  <div class="dashboard-hero-banner mat-elevation-z2">
+    <div class="hero-content">
+      <div class="hero-avatar">
+        <mat-icon>church</mat-icon>
       </div>
-
-      <div class="quick-stats" *ngIf="showQuickStats">
-        <div class="stat-card" *ngIf="memberCount > 0">
-          <div class="stat-icon">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{ memberCount }}</h3>
-            <p>Members</p>
-          </div>
-        </div>
-        <div class="stat-card" *ngIf="userRole === 'Admin' || userRole === 'Pastor' || userRole === 'Deputy Pastor'">
-          <div class="stat-icon">
-            <mat-icon>event_available</mat-icon>
-          </div>
-          <div class="stat-info">
-            <h3>{{upcomingEventsCount}}</h3>
-            <p>Upcoming Events</p>
-          </div>
-        </div>
-        </div>
-
-      <div class="widgets-row">
-        <div class="card" *ngIf="showEventsWidget && (userRole === 'Admin' || userRole === 'Pastor' || userRole === 'Deputy Pastor')">
-          <div class="card-header">
-            <h3>
-              <ng-container *ngIf="!selectedEvent">
-                Upcoming Events 
-                <button mat-icon-button *ngIf="canModifyContent()" (click)="createEvent()" class="add-new-button">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </ng-container>
-              <ng-container *ngIf="selectedEvent">
-                <button mat-icon-button (click)="closeEventDetails()" class="back-button">
-                  <mat-icon>arrow_back</mat-icon>
-                </button>
-                {{ selectedEvent.title }}
-              </ng-container>
-            </h3>
-          </div>
-          <div class="card-body">
-            <mat-list *ngIf="!selectedEvent">
-              <mat-list-item *ngFor="let event of recentEvents | slice:0:eventsConfig.maxItems" (click)="openEventDetails(event)" class="event-list-item">
-                <div class="event-icon-wrapper">
-                  <mat-icon>alarm</mat-icon> 
-                </div>
-                <div class="event-details">
-                  <a href="javascript:void(0)" class="event-title">{{ event.title }}</a>
-                  <div class="event-date-time" *ngIf="eventsConfig.showDate && event.date">
-                    <span>
-                      <mat-icon>calendar_today</mat-icon> {{ getFormattedDate(event.date) | date:'mediumDate' }}
-                      <ng-container *ngIf="event.time"> at {{ event.time }}</ng-container>
-                    </span>
-                  </div>
-                </div>
-              </mat-list-item>
-              <mat-list-item *ngIf="recentEvents.length === 0">
-                <p>No upcoming events.</p>
-              </mat-list-item>
-            </mat-list>
-
-            <div *ngIf="selectedEvent" class="event-detail-view">
-              <h4>{{ selectedEvent.title }}</h4>
-              <p *ngIf="selectedEvent.description"><strong>Description:</strong> {{ selectedEvent.description }}</p>
-              <p *ngIf="selectedEvent.date"><strong>Date:</strong> {{ getFormattedDate(selectedEvent.date) | date:'fullDate' }}</p>
-              <p *ngIf="selectedEvent.time"><strong>Time:</strong> {{ selectedEvent.time }}</p>
-              <p *ngIf="selectedEvent.location"><strong>Location:</strong> {{ selectedEvent.location }}</p>
-              <p *ngIf="selectedEvent.endDate"><strong>End Date:</strong> {{ getFormattedDate(selectedEvent.endDate) | date:'fullDate' }}</p>
-              <div class="event-actions" *ngIf="canModifyContent()">
-                <button mat-button color="primary" (click)="router.navigate(['pages/events', selectedEvent.id, 'edit'])">
-                  </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" *ngIf="showTasksWidget">
-          <div class="card-header">
-            <h3>
-              <ng-container *ngIf="!selectedTask">
-                Recent Tasks
-                <button mat-icon-button *ngIf="canModifyContent()" (click)="createTask()" class="add-new-button">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </ng-container>
-              <ng-container *ngIf="selectedTask">
-                <button mat-icon-button (click)="closeTaskDetails()" class="back-button">
-                  <mat-icon>arrow_back</mat-icon>
-                </button>
-                {{ selectedTask.title }}
-              </ng-container>
-            </h3>
-          </div>
-          <div class="card-body">
-            <mat-list *ngIf="!selectedTask">
-              <mat-list-item *ngFor="let task of recentTasks" (click)="openTaskDetails(task)">
-                <mat-icon matListItemIcon>task</mat-icon>
-                <div matListItemTitle>{{ task.title }}</div>
-                <div matListItemLine *ngIf="tasksConfig.showDueDate && task.dueDate">Due: {{ getFormattedDate(task.dueDate) | date:'shortDate' }}</div>
-                <div matListItemLine *ngIf="tasksConfig.showStatus">
-                  Status: <span class="task-status-badge" [ngClass]="'status-' + task.status">{{ formatTaskStatus(task.status) }}</span>
-                </div>
-              </mat-list-item>
-              <mat-list-item *ngIf="recentTasks.length === 0">
-                <p>No recent tasks.</p>
-              </mat-list-item>
-            </mat-list>
-
-            <div *ngIf="selectedTask" class="task-detail-view">
-              <h4>{{ selectedTask.title }}</h4>
-              <p *ngIf="selectedTask.description"><strong>Description:</strong> {{ selectedTask.description }}</p>
-              <p *ngIf="selectedTask.dueDate"><strong>Due Date:</strong> {{ getFormattedDate(selectedTask.dueDate) | date:'mediumDate' }}</p>
-              <p *ngIf="selectedTask.status"><strong>Status:</strong> {{ formatTaskStatus(selectedTask.status) }}</p>
-              <p *ngIf="tasksConfig.showPriority && selectedTask.priority"><strong>Priority:</strong> {{ selectedTask.priority }}</p>
-              <div class="task-actions" *ngIf="canModifyContent()">
-                <button mat-button color="primary" (click)="router.navigate(['pages/tasks', selectedTask.id, 'edit'])">
-                  </button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="hero-text">
+        <span class="hero-greeting-pill">
+          <mat-icon>waving_hand</mat-icon> Welcome back
+        </span>
+        <h1 class="hero-title">{{ userName }}</h1>
+        <p class="hero-subtitle">
+          <span class="group-name-tag" *ngIf="assignedHiyawMahider">{{ assignedHiyawMahider }}</span>
+          <span class="group-name-tag" *ngIf="!assignedHiyawMahider">Gerji Emmanuel United Church</span>
+          <span class="bullet-sep">•</span>
+          <span class="user-role-tag">{{ userRole || 'Fellowship Leader' }}</span>
+        </p>
       </div>
+    </div>
 
-      <div class="widgets-row">
-        <div class="widget" *ngIf="showProgressWidget">
-          <div class="widget-header">
-            <h2>Learning Progress</h2>
-            <button mat-button color="primary" (click)="viewProgressDetails()">Details
-            </button>
-          </div>
-          <div class="widget-content chart-container">
-            <canvas #progressChart></canvas>
-            <div class="chart-info">
-              <!-- <p>You've completed <strong>{{progressPercentage}}%</strong> of your studies.</p> -->
-<!--               <p>Days active: <strong>{{daysActive}}</strong></p> -->
-            </div>
-          </div>
-        </div>
-        <div class="widget" *ngIf="showAttendanceWidget">
-  <div class="widget-header">
-    <h2>Attendance Record</h2>
-    <div>
-      <button mat-button color="primary" (click)="router.navigate(['/attendance'])">
-        View All
+    <!-- Quick Action Buttons on Hero -->
+    <div class="hero-actions">
+      <button mat-raised-button color="accent" routerLink="/pages/tasks" class="hero-btn" *ngIf="canModifyContent()">
+        <mat-icon>add_task</mat-icon> New Task
+      </button>
+      <button mat-stroked-button routerLink="/pages/attendance" class="hero-btn-outline">
+        <mat-icon>fact_check</mat-icon> Attendance
+      </button>
+      <button mat-stroked-button routerLink="/reports/attendance" class="hero-btn-outline" *ngIf="showReportsMenu">
+        <mat-icon>assessment</mat-icon> Reports
       </button>
     </div>
   </div>
-  <div class="widget-content chart-container">
-    <div class="attendance-chart-area">
-      <canvas #attendanceChart></canvas>
-      </div>
-    <!-- <div class="chart-info">
-      <p>Total Present: <strong>{{ attendanceData['present'] }}</strong></p>
-      <p>Total Records: <strong>{{ getTotalAttendance() }}</strong></p>
-    </div> -->
-  </div>
-</div>
-</div>
-</div>
-</div>
 
-  <!-- <div *ngIf="progressPercentage > 0" class="progress-details">
-    {{ getProgressCalculationDetails() }}
-  </div> -->
+  <!-- ── Quick Metric Stat Cards ───────────────────── -->
+  <div class="stats-row" *ngIf="showQuickStats">
+    <!-- Total Members Card -->
+    <div class="metric-card member-metric mat-elevation-z2" routerLink="/pages/members-list" matTooltip="View Members Directory">
+      <div class="metric-icon-wrap">
+        <mat-icon>groups</mat-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-number">{{ memberCount || 0 }}</span>
+        <span class="metric-label">Assigned Members</span>
+      </div>
+      <div class="metric-arrow">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </div>
+    </div>
+
+    <!-- Upcoming Events Card -->
+    <div class="metric-card event-metric mat-elevation-z2" routerLink="/pages/events" matTooltip="View All Events">
+      <div class="metric-icon-wrap">
+        <mat-icon>event_available</mat-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-number">{{ recentEvents.length || upcomingEventsCount || 0 }}</span>
+        <span class="metric-label">Upcoming Events</span>
+      </div>
+      <div class="metric-arrow">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </div>
+    </div>
+
+    <!-- Tasks Card -->
+    <div class="metric-card task-metric mat-elevation-z2" routerLink="/pages/tasks" matTooltip="View Task Board">
+      <div class="metric-icon-wrap">
+        <mat-icon>assignment_turned_in</mat-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-number">{{ recentTasks.length || 0 }}</span>
+        <span class="metric-label">Active Tasks</span>
+      </div>
+      <div class="metric-arrow">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </div>
+    </div>
+
+    <!-- Progress / Attendance Card -->
+    <div class="metric-card progress-metric mat-elevation-z2" routerLink="/reports/attendance" matTooltip="View Attendance Report" *ngIf="showReportsMenu">
+      <div class="metric-icon-wrap">
+        <mat-icon>trending_up</mat-icon>
+      </div>
+      <div class="metric-data">
+        <span class="metric-number">{{ progressPercentage || 0 }}%</span>
+        <span class="metric-label">Bible Study Progress</span>
+      </div>
+      <div class="metric-arrow">
+        <mat-icon>arrow_forward_ios</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main 2-Column Interactive Widgets ─────────── -->
+  <div class="widgets-grid">
+
+    <!-- ── LEFT COLUMN 1: UPCOMING EVENTS ────────────── -->
+    <div class="widget-card mat-elevation-z2" *ngIf="showEventsWidget && (userRole === 'Admin' || userRole === 'Pastor' || userRole === 'Deputy Pastor' || userRole === 'Zone Coordinator' || userRole === 'Member')">
+      <!-- Widget Header Bar -->
+      <div class="widget-header">
+        <div class="widget-title">
+          <mat-icon class="title-icon event-icon">event</mat-icon>
+          <div>
+            <h3>Upcoming Events</h3>
+            <span class="widget-subtitle">{{ recentEvents.length }} scheduled activities</span>
+          </div>
+        </div>
+        <div class="widget-actions">
+          <button mat-icon-button *ngIf="canModifyContent() && !selectedEvent" (click)="createEvent()" matTooltip="Create Event" class="add-action-btn">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button color="primary" routerLink="/pages/events" class="view-all-btn" *ngIf="!selectedEvent">
+            View All
+          </button>
+        </div>
+      </div>
+
+      <!-- Widget Content -->
+      <div class="widget-body">
+        <!-- Event List -->
+        <div class="events-list" *ngIf="!selectedEvent">
+          <div *ngFor="let event of recentEvents | slice:0:eventsConfig.maxItems" class="event-item" (click)="openEventDetails(event)">
+            <div class="event-date-badge" *ngIf="event.date">
+              <span class="date-day">{{ getFormattedDate(event.date) | date:'d' }}</span>
+              <span class="date-month">{{ getFormattedDate(event.date) | date:'MMM' }}</span>
+            </div>
+            <div class="event-info">
+              <h4 class="event-name">{{ event.title }}</h4>
+              <div class="event-meta">
+                <span class="meta-item" *ngIf="event.time">
+                  <mat-icon>schedule</mat-icon> {{ event.time }}
+                </span>
+                <span class="meta-item" *ngIf="event.location">
+                  <mat-icon>location_on</mat-icon> {{ event.location }}
+                </span>
+              </div>
+            </div>
+            <div class="event-chevron">
+              <mat-icon>chevron_right</mat-icon>
+            </div>
+          </div>
+
+          <!-- Empty Events State -->
+          <div *ngIf="recentEvents.length === 0" class="empty-widget-state">
+            <mat-icon>event_busy</mat-icon>
+            <p>No upcoming events scheduled.</p>
+            <button mat-stroked-button color="primary" (click)="createEvent()" *ngIf="canModifyContent()">
+              <mat-icon>add</mat-icon> Add Event
+            </button>
+          </div>
+        </div>
+
+        <!-- Event Detail View -->
+        <div *ngIf="selectedEvent" class="detail-container">
+          <div class="detail-top-bar">
+            <button mat-button class="back-link" (click)="closeEventDetails()">
+              <mat-icon>arrow_back</mat-icon> Back to Events
+            </button>
+            <button mat-stroked-button color="primary" (click)="router.navigate(['pages/events', selectedEvent.id, 'edit'])" *ngIf="canModifyContent()">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+          </div>
+
+          <h3 class="detail-main-title">{{ selectedEvent.title }}</h3>
+
+          <div class="detail-props-grid">
+            <div class="prop-item" *ngIf="selectedEvent.date">
+              <span class="prop-label">Date</span>
+              <span class="prop-val">
+                <mat-icon>calendar_today</mat-icon> {{ getFormattedDate(selectedEvent.date) | date:'fullDate' }}
+              </span>
+            </div>
+
+            <div class="prop-item" *ngIf="selectedEvent.time">
+              <span class="prop-label">Time</span>
+              <span class="prop-val">
+                <mat-icon>schedule</mat-icon> {{ selectedEvent.time }}
+              </span>
+            </div>
+
+            <div class="prop-item" *ngIf="selectedEvent.location">
+              <span class="prop-label">Location</span>
+              <span class="prop-val">
+                <mat-icon>location_on</mat-icon> {{ selectedEvent.location }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-desc" *ngIf="selectedEvent.description">
+            <span class="prop-label">Description</span>
+            <p>{{ selectedEvent.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT COLUMN 1: RECENT TASKS ──────────────── -->
+    <div class="widget-card mat-elevation-z2" *ngIf="showTasksWidget">
+      <!-- Widget Header Bar -->
+      <div class="widget-header">
+        <div class="widget-title">
+          <mat-icon class="title-icon task-icon">task_alt</mat-icon>
+          <div>
+            <h3>Recent Tasks</h3>
+            <span class="widget-subtitle">{{ recentTasks.length }} active assignments</span>
+          </div>
+        </div>
+        <div class="widget-actions">
+          <button mat-icon-button *ngIf="canModifyContent() && !selectedTask" (click)="createTask()" matTooltip="Create Task" class="add-action-btn">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-stroked-button color="primary" routerLink="/pages/tasks" class="view-all-btn" *ngIf="!selectedTask">
+            View Board
+          </button>
+        </div>
+      </div>
+
+      <!-- Widget Content -->
+      <div class="widget-body">
+        <!-- Task List -->
+        <div class="tasks-list" *ngIf="!selectedTask">
+          <div *ngFor="let task of recentTasks | slice:0:5" class="task-item" (click)="openTaskDetails(task)">
+            <div class="task-status-indicator" [ngClass]="'status-' + (task.status || 'pending').toLowerCase()">
+            </div>
+            <div class="task-info">
+              <h4 class="task-name">{{ task.title }}</h4>
+              <div class="task-meta">
+                <span class="status-badge" [ngClass]="'badge-' + (task.status || 'pending').toLowerCase()">
+                  {{ formatTaskStatus(task.status) }}
+                </span>
+                <span class="meta-item" *ngIf="task.dueDate">
+                  <mat-icon>schedule</mat-icon> Due {{ getFormattedDate(task.dueDate) | date:'shortDate' }}
+                </span>
+                <span class="priority-pill" *ngIf="task.priority" [ngClass]="'priority-' + task.priority.toLowerCase()">
+                  {{ task.priority }}
+                </span>
+              </div>
+            </div>
+            <div class="task-chevron">
+              <mat-icon>chevron_right</mat-icon>
+            </div>
+          </div>
+
+          <!-- Empty Tasks State -->
+          <div *ngIf="recentTasks.length === 0" class="empty-widget-state">
+            <mat-icon>assignment_turned_in</mat-icon>
+            <p>All tasks are completed! No pending items.</p>
+            <button mat-stroked-button color="primary" (click)="createTask()" *ngIf="canModifyContent()">
+              <mat-icon>add</mat-icon> Create Task
+            </button>
+          </div>
+        </div>
+
+        <!-- Task Detail View -->
+        <div *ngIf="selectedTask" class="detail-container">
+          <div class="detail-top-bar">
+            <button mat-button class="back-link" (click)="closeTaskDetails()">
+              <mat-icon>arrow_back</mat-icon> Back to Tasks
+            </button>
+            <button mat-stroked-button color="primary" (click)="router.navigate(['pages/tasks', selectedTask.id, 'edit'])" *ngIf="canModifyContent()">
+              <mat-icon>edit</mat-icon> Edit
+            </button>
+          </div>
+
+          <h3 class="detail-main-title">{{ selectedTask.title }}</h3>
+
+          <div class="detail-props-grid">
+            <div class="prop-item" *ngIf="selectedTask.status">
+              <span class="prop-label">Status</span>
+              <span class="status-badge" [ngClass]="'badge-' + (selectedTask.status || 'pending').toLowerCase()">
+                {{ formatTaskStatus(selectedTask.status) }}
+              </span>
+            </div>
+
+            <div class="prop-item" *ngIf="selectedTask.dueDate">
+              <span class="prop-label">Due Date</span>
+              <span class="prop-val">
+                <mat-icon>calendar_today</mat-icon> {{ getFormattedDate(selectedTask.dueDate) | date:'mediumDate' }}
+              </span>
+            </div>
+
+            <div class="prop-item" *ngIf="selectedTask.priority">
+              <span class="prop-label">Priority</span>
+              <span class="priority-pill" [ngClass]="'priority-' + selectedTask.priority.toLowerCase()">
+                {{ selectedTask.priority }}
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-desc" *ngIf="selectedTask.description">
+            <span class="prop-label">Description</span>
+            <p>{{ selectedTask.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CHARTS ROW: BIBLE STUDY & ATTENDANCE ──────── -->
+    <div class="widget-card mat-elevation-z2" *ngIf="showProgressWidget">
+      <div class="widget-header">
+        <div class="widget-title">
+          <mat-icon class="title-icon progress-icon">menu_book</mat-icon>
+          <div>
+            <h3>Bible Study Progress</h3>
+            <span class="widget-subtitle">Curriculum completion tracking</span>
+          </div>
+        </div>
+        <button mat-stroked-button color="primary" (click)="viewProgressDetails()" class="view-all-btn">
+          Details
+        </button>
+      </div>
+
+      <div class="widget-body chart-body">
+        <div class="donut-chart-container">
+          <canvas #progressChart></canvas>
+          <div class="chart-center-overlay">
+            <span class="center-percentage">{{ progressPercentage }}%</span>
+            <span class="center-label">Complete</span>
+          </div>
+        </div>
+        <div class="chart-legend-box">
+          <div class="legend-item">
+            <span class="legend-dot completed-dot"></span>
+            <span>Completed Units ({{ progressPercentage }}%)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot remaining-dot"></span>
+            <span>Remaining Studies ({{ 100 - progressPercentage }}%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Breakdown Widget -->
+    <div class="widget-card mat-elevation-z2" *ngIf="showAttendanceWidget">
+      <div class="widget-header">
+        <div class="widget-title">
+          <mat-icon class="title-icon attendance-icon">fact_check</mat-icon>
+          <div>
+            <h3>Attendance Breakdown</h3>
+            <span class="widget-subtitle">Fellowship participation analytics</span>
+          </div>
+        </div>
+        <button mat-stroked-button color="primary" (click)="openAttendanceDetails()" class="view-all-btn">
+          View Records
+        </button>
+      </div>
+
+      <div class="widget-body chart-body">
+        <div class="bar-chart-container">
+          <canvas #attendanceChart></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Fellowship Quick Access Hub ───────────────── -->
+  <div class="quick-access-section">
+    <div class="section-title">
+      <mat-icon>apps</mat-icon>
+      <h2>Fellowship Navigation Hub</h2>
+    </div>
+
+    <div class="quick-hub-grid">
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/members-list">
+        <div class="hub-icon-wrap member-hub"><mat-icon>diversity_3</mat-icon></div>
+        <div class="hub-info">
+          <h4>Members Directory</h4>
+          <p>Browse fellowship roster & contact fellow members</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/attendance">
+        <div class="hub-icon-wrap attendance-hub"><mat-icon>fact_check</mat-icon></div>
+        <div class="hub-info">
+          <h4>Attendance Tracker</h4>
+          <p>Record weekly attendance & care follow-ups</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="hub-item-card mat-elevation-z2" routerLink="/pages/tasks">
+        <div class="hub-icon-wrap tasks-hub"><mat-icon>task</mat-icon></div>
+        <div class="hub-info">
+          <h4>Fellowship Tasks</h4>
+          <p>Manage assignments, duties & action items</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+
+      <div class="hub-item-card mat-elevation-z2" routerLink="/reports/attendance" *ngIf="showReportsMenu">
+        <div class="hub-icon-wrap reports-hub"><mat-icon>assessment</mat-icon></div>
+        <div class="hub-info">
+          <h4>Attendance Report</h4>
+          <p>View attendance analytics & fellowship summaries</p>
+        </div>
+        <mat-icon class="hub-arrow">chevron_right</mat-icon>
+      </div>
+    </div>
+  </div>
+
 </div>

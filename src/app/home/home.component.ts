@@ -1,24 +1,25 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { Chart, registerables } from 'chart.js/auto';
-import { AuthService } from '../../../src/app/core/auth.service';
 import { Router } from '@angular/router';
-import { EventsService } from '../../../src/app/core/events.service';
-import { TasksService } from '../../app/core/tasks.service'; // Ensure correct path
-import { MatDialog } from '@angular/material/dialog';
-import { Event as AppEvent } from '../../../src/app/core/events.model';
-import { Task } from '../../app/core/tasks.model'; // Ensure correct path
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
+import { MatDialog } from '@angular/material/dialog';
 import { Timestamp } from '@angular/fire/firestore';
-import { MembersService } from '../../app/core/members.service';
-import { AttendanceService } from '../../app/core/attendance.service';
-import { takeUntil, filter } from 'rxjs/operators'; // Import filter
 import { Subject } from 'rxjs';
-import { first } from 'rxjs/operators';
+import { takeUntil, filter, first, take } from 'rxjs/operators';
+
+import { AuthService } from '../core/services/auth.service';
+import { EventsService } from '../core/services/events.service';
+import { TasksService } from '../core/services/tasks.service';
+import { AttendanceService } from '../core/services/attendance.service';
+import { MemberService } from '../core/services/member.service';
+import { Event as AppEvent } from '../core/models/events.model';
+import { Task } from '../core/models/tasks.model';
+import { AttendanceDetailsDialogComponent } from './attendance-details-dialog.component';
 
 interface AttendanceRecord {
   id?: string;
@@ -32,6 +33,9 @@ interface AttendanceRecord {
   [key: string]: any;
 }
 
+import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -44,6 +48,8 @@ interface AttendanceRecord {
     MatMenuModule,
     MatButtonModule,
     MatListModule,
+    MatCardModule,
+    MatTooltipModule,
   ],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -59,11 +65,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   showTasksWidget: boolean = true;
   showAttendanceWidget: boolean = true;
 
+
   // User info
   userName: string = 'Guest';
   userRole: string = '';
   assignedHiyawMahider: string = '';
-  welcomeMessage: string = '';
+
 
   // Quick stats
   memberCount: number = 0;
@@ -80,6 +87,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Learning progress
   progressPercentage: number = 0;
   daysActive: number = 0;
+  presentCount: number = 0;
+  totalOpportunities: number = 0;
 
   attendanceData: { [key: string]: number } = {
     present: 0,
@@ -90,7 +99,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     'follow-up-needed': 0,
   };
 
-  private rawAttendanceRecords: { date: Timestamp | Date | string; [key: string]: any }[] = [];
+  private rawAttendanceRecords: { date: Timestamp | Date | string;[key: string]: any }[] = [];
 
   attendanceStatuses: string[] = ['present', 'absent', 'excused', 'late', 'new-guest', 'follow-up-needed'];
   attendanceChartColors: string[] = ['#4CAF50', '#F44336', '#FFEB3B', '#FF9800', '#2196F3', '#9C27B0'];
@@ -98,7 +107,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Menu visibility based on role
   showMembersMenu: boolean = true;
   showTasksMenu: boolean = true;
-  showusermanagementMenu: boolean = true;
   showEventsMenu: boolean = true;
   showProgressMenu: boolean = true;
   showReportsMenu: boolean = true;
@@ -109,7 +117,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   // Widget visibility
   showQuickStats: boolean = true;
   showProgressWidget: boolean = true;
-  showAnnouncementsWidget: true = true;
+  showAnnouncementsWidget: boolean = true;
 
   // Events configuration
   eventsConfig = {
@@ -136,10 +144,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     public router: Router,
     private eventsService: EventsService,
     private tasksService: TasksService,
-    private membersService: MembersService,
+    private memberService: MemberService,
     private attendanceService: AttendanceService,
-    private dialog: MatDialog,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog
   ) {
     Chart.register(...registerables);
     this.loadMaterialIcons();
@@ -154,32 +162,32 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscribe to contextualTasks$ from the TasksService
     // This observable already incorporates the role and Hiyaw Mahider ID filtering
     this.tasksService.contextualTasks$.pipe(
-  takeUntil(this.destroy$)
-).subscribe(
-  (tasks: Task[]) => {
-    console.log('--- Raw tasks received from TasksService.contextualTasks$ (before component-level filtering): ---');
-    console.log(tasks);
+      takeUntil(this.destroy$)
+    ).subscribe(
+      (tasks: Task[]) => {
+        console.log('--- Raw tasks received from TasksService.contextualTasks$ (before component-level filtering): ---');
+        console.log(tasks);
 
-    const now = new Date();
-    console.log('Current Date/Time for filtering:', now);
+        const now = new Date();
+        console.log('Current Date/Time for filtering:', now);
 
-    this.recentTasks = tasks
-      .filter(task => {
-        const dueDate = task.dueDate instanceof Timestamp
-          ? task.dueDate.toDate()
-          : task.dueDate;
+        this.recentTasks = tasks
+          .filter(task => {
+            const dueDate = task.dueDate instanceof Timestamp
+              ? task.dueDate.toDate()
+              : task.dueDate;
 
-        // Only show tasks that are pending or in progress
-        const isActiveTask = (task.status === 'pending' || task.status === 'in_progress');
-        
-        // For tasks with due dates, only show if not yet passed
-        const isFutureDueDate = dueDate instanceof Date && dueDate > now;
-        const hasNoDueDate = !task.dueDate;
+            // Only show tasks that are pending or in progress
+            const isActiveTask = (task.status === 'pending' || task.status === 'in_progress');
 
-        return isActiveTask && (hasNoDueDate || isFutureDueDate);
-      })
+            // For tasks with due dates, only show if not yet passed
+            const isFutureDueDate = dueDate instanceof Date && dueDate > now;
+            const hasNoDueDate = !task.dueDate;
+
+            return isActiveTask && (hasNoDueDate || isFutureDueDate);
+          })
           .sort((a, b) => {
-           
+
             if (!a.dueDate && !b.dueDate) return 0;
             if (!a.dueDate) return 1;
             if (!b.dueDate) return -1;
@@ -225,7 +233,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
         console.log('--- Tasks after component-level filtering and sorting for display: ---');
         console.log(this.recentTasks);
-        this.cdr.detectChanges(); 
+        this.cdr.detectChanges();
       },
       (error: any) => console.error('Error loading tasks:', error)
     );
@@ -344,14 +352,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               hiyawMahiderName: this.assignedHiyawMahider
             });
 
-            this.setWelcomeMessage();
+
 
             // Default permissions for non-admin/pastor are stricter
             this.showAdminMenu = false; // Default to false
             this.showReportsMenu = false; // Default to false
             this.eventsConfig.showDescription = false; // Default to false
             this.tasksConfig.showPriority = false; // Default to false
-            this.showusermanagementMenu = false; // Default to false
             this.showAttendanceWidget = false; // Default to false
 
             // Always update TasksService with current user's role and HiyawMahiderId
@@ -362,15 +369,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               console.log('User role is Admin.');
               this.showAdminMenu = true;
               this.showReportsMenu = true;
-              this.showusermanagementMenu = true;
               this.eventsConfig.showDescription = true;
               this.tasksConfig.showPriority = true;
               this.showAttendanceWidget = true;
-            
+
               // Admin might see all members, or members in their main mahider if assigned
               if (userData.assignedHiyawMahiderId && user?.uid) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId, user.uid);
+                this.loadAttendanceData(userData.assignedHiyawMahiderId, user.uid, userData.memberId);
               } else {
                 // Admins might not have a primary Mahider, or see all data
                 // For now, if no mahider, memberCount/attendance will be 0 or global (if implemented)
@@ -378,16 +384,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.initializeEmptyAttendanceData();
                 this.calculateLearningProgressAndDaysActive([]);
               }
-            }else if (this.userRole === 'Pastor' || this.userRole === 'Deputy Pastor') {
+            } else if (this.userRole === 'Pastor' || this.userRole === 'Deputy Pastor') {
               console.log(`User role is ${this.userRole}. Fetching data for assigned Hiyaw Mahider.`);
               this.showReportsMenu = true;
               this.eventsConfig.showDescription = true;
               this.showAttendanceWidget = true;
-              this.showusermanagementMenu = true; // Pastor/Deputy Pastor might manage users
 
               if (userData.assignedHiyawMahiderId && user.uid) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId as string);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid);
+                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
                 console.warn(`${this.userRole} user has no assigned Hiyaw Mahider ID. Displaying general data or zeros.`);
                 this.memberCount = 0;
@@ -398,13 +403,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               console.log('User role is Member.');
               this.showAdminMenu = false;
               this.showReportsMenu = false;
-              this.showusermanagementMenu = false;
               this.memberCount = 0; // Members don't typically see total member count
               this.showAttendanceWidget = true; // Members can see their own attendance
 
               if (userData.assignedHiyawMahiderId && user.uid) {
                 console.log('Member role: Calling loadAttendanceData for user:', user.uid, 'in Hiyaw Mahider:', userData.assignedHiyawMahiderId);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid);
+                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
                 this.initializeEmptyAttendanceData();
                 this.calculateLearningProgressAndDaysActive([]);
@@ -415,7 +419,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               if (userData.assignedHiyawMahiderId && user.uid) {
                 console.log('Default role, but found Hiyaw Mahider ID. Loading data for user:', user.uid, 'in Hiyaw Mahider:', userData.assignedHiyawMahiderId);
                 this.loadMemberCount(userData.assignedHiyawMahiderId as string);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid);
+                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
                 console.warn('Default role user has no assigned Hiyaw Mahider ID. Displaying general data or zeros.');
                 this.memberCount = 0;
@@ -443,13 +447,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.userRole = 'Guest';
     this.userName = 'Guest';
     this.assignedHiyawMahider = '';
-    this.setWelcomeMessage();
     this.initializeEmptyAttendanceData();
     this.calculateLearningProgressAndDaysActive([]);
 
     this.showAdminMenu = false;
     this.showReportsMenu = false;
-    this.showusermanagementMenu = false;
     this.memberCount = 0;
     this.eventsConfig.showDescription = false;
     this.tasksConfig.showPriority = false;
@@ -462,10 +464,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  private loadAttendanceData(hiyawMahiderId: string, userId: string): void {
-    console.log('loadAttendanceData called for Hiyaw Mahider ID:', hiyawMahiderId, 'and User ID:', userId);
+  private loadAttendanceData(hiyawMahiderId: string, userId: string, memberId?: string): void {
+    const searchId = memberId || userId;
+    console.log('loadAttendanceData called for Hiyaw Mahider ID:', hiyawMahiderId, 'Access ID:', searchId);
 
-    this.attendanceService.getAttendanceCountsByHiyawMahider(hiyawMahiderId, userId).pipe(
+    this.attendanceService.getAttendanceCountsByHiyawMahider(hiyawMahiderId, searchId).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (result: {
@@ -506,17 +509,31 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadMemberCount(hiyawMahiderId: string): void {
-    console.log('loadMemberCount called for ID:', hiyawMahiderId);
-    this.membersService.getMemberCountByHiyawMahider(hiyawMahiderId).pipe(takeUntil(this.unsubscribe$)).subscribe(
-      (count: number) => {
-        this.memberCount = count;
-        console.log('Member count received:', this.memberCount);
-      },
-      (error) => {
-        console.error('Error fetching member count:', error);
-        this.memberCount = 0;
-      }
-    );
+    console.log('loadMemberCount (REST) called for Hiyaw Mahider ID:', hiyawMahiderId);
+
+    // 🆕 OPTIMIZED: Fetch only 1 record to get the total count from metadata
+    this.memberService.getMembersPaged({
+      status: 'active',
+      hiyawMahiderId: hiyawMahiderId,
+      page: 1,
+      pageSize: 1 // Fetch minimum data
+    })
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe({
+        next: (response) => {
+          // Try to get total from typical pagination metadata locations
+          // Adjust based on your actual API response structure for 'meta'
+          const meta = response.meta;
+          const total = meta?.pagination?.total ?? meta?.total ?? response.data?.length ?? 0;
+
+          this.memberCount = total;
+          console.log(`Member count (REST) received: ${this.memberCount} (fetched efficiently)`);
+        },
+        error: (error) => {
+          console.error('Error fetching member count from REST API:', error);
+          this.memberCount = 0;
+        }
+      });
   }
 
   private updateAttendanceChart(): void {
@@ -556,6 +573,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       backgroundColors.push('#e0e0e0');
     }
 
+    const isMobile = window.innerWidth < 768;
+
     this.attendanceChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -572,10 +591,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'right',
+            position: isMobile ? 'bottom' : 'right',
             labels: {
               color: '#333',
-              font: { size: 12 }
+              font: { size: 12 },
+              padding: 15
             }
           },
           tooltip: {
@@ -618,15 +638,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateAttendanceChart();
   }
 
-  private setWelcomeMessage(): void {
-    if (this.userName && this.assignedHiyawMahider) {
-      this.welcomeMessage = `${this.userName}, welcome back to ${this.assignedHiyawMahider}!`;
-    } else if (this.userName) {
-      this.welcomeMessage = `Welcome back, ${this.userName}!`;
-    } else {
-      this.welcomeMessage = 'Welcome!';
-    }
-  }
+
 
   private loadCustomConfigurations(): void {
     const savedEventsConfig = localStorage.getItem('eventsWidgetConfig');
@@ -641,34 +653,34 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
- private loadEvents(): void {
-  this.eventsService.getEvents().pipe(takeUntil(this.unsubscribe$)).subscribe(
-    (events: AppEvent[]) => {
-      const now = new Date();
-      this.recentEvents = events
-        .filter(event => {
-          const startDate = event.date instanceof Timestamp ? event.date.toDate() : event.date;
-          const endDate = event.endDate instanceof Timestamp ? event.endDate.toDate() : event.endDate;
+  private loadEvents(): void {
+    this.eventsService.getEvents().pipe(takeUntil(this.unsubscribe$)).subscribe(
+      (events: AppEvent[]) => {
+        const now = new Date();
+        this.recentEvents = events
+          .filter(event => {
+            const startDate = event.date instanceof Timestamp ? event.date.toDate() : event.date;
+            const endDate = event.endDate instanceof Timestamp ? event.endDate.toDate() : event.endDate;
 
-          // If there's an end date, check if it's in the future
-          if (endDate) {
-            return endDate > now;
-          }
-          
-          // If no end date, just check the start date
-          return startDate > now;
-        })
-        .sort((a, b) => {
-          const dateA = a.date instanceof Timestamp ? a.date.toDate() : a.date;
-          const dateB = b.date instanceof Timestamp ? b.date.toDate() : b.date;
-          return dateA.getTime() - dateB.getTime();
-        });
+            // If there's an end date, check if it's in the future
+            if (endDate) {
+              return endDate > now;
+            }
 
-      this.upcomingEventsCount = this.recentEvents.length;
-    },
-    (error: any) => console.error('Error loading events', error)
-  );
-}
+            // If no end date, just check the start date
+            return startDate > now;
+          })
+          .sort((a, b) => {
+            const dateA = a.date instanceof Timestamp ? a.date.toDate() : a.date;
+            const dateB = b.date instanceof Timestamp ? b.date.toDate() : b.date;
+            return dateA.getTime() - dateB.getTime();
+          });
+
+        this.upcomingEventsCount = this.recentEvents.length;
+      },
+      (error: any) => console.error('Error loading events', error)
+    );
+  }
 
   // --- REMOVED loadTasks() method and replaced with subscription to tasksService.contextualTasks$ in ngOnInit ---
   // The filtering logic for members now primarily resides in the TasksService.
@@ -712,13 +724,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         cutout: '70%',
         plugins: {
           legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                return `Quarterly Progress: ${this.progressPercentage.toFixed(2)}%`;
-              }
-            }
-          }
+          tooltip: { enabled: false }
         }
       },
     });
@@ -743,80 +749,87 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
 
-      const currentUserId = user.uid;
-      console.log('Calculating progress for user:', currentUserId);
+      const uid = user.uid;
+      if (!uid) {
+        console.warn('User UID is undefined, skipping progress calculation');
+        return;
+      }
 
-      // Filter records from last 3 months where the current user is listed
-      const userRecords = rawRecords.filter(record => {
-        if (!record['date']) return false;
+      // 🆕 CHANGED: Fetch full user data to get memberId
+      this.authService.getUserData(uid).then(userData => {
+        const currentUserId = uid;
+        const memberId = userData?.memberId; // Backend UUID
+        console.log('Calculating progress for:', { currentUserId, memberId });
 
-        // Parse record date
-        let recordDate: Date;
-        if (record['date'] instanceof Timestamp) {
-          recordDate = record['date'].toDate();
-        } else if (record['date'] instanceof Date) {
-          recordDate = record['date'];
-        } else {
-          recordDate = new Date(record['date']);
-          if (isNaN(recordDate.getTime())) return false;
-        }
+        // Filter records from last 3 months where the current user (either ID) is listed
+        const userRecords = rawRecords.filter(record => {
+          if (!record['date']) return false;
 
-        // Check if date is within last 3 months AND user is in members list
-        return recordDate >= threeMonthsAgo && 
-               record.members?.some(m => m['userId'] === currentUserId);
-      });
-
-      console.log('User records (last 3 months):', userRecords.length);
-
-      let presentCount = 0;
-      const totalOpportunities = userRecords.length;
-
-      userRecords.forEach(record => {
-        const userMember = record.members?.find(m => m['userId'] === currentUserId);
-        if (userMember) {
-          // Count as present if status is present, late, or new-guest
-          const status = userMember['status'] || userMember['attendanceStatus'];
-          if (status === 'present' || status === 'late' || status === 'new-guest') {
-            presentCount++;
-          }
-        }
-      });
-
-      // Calculate progress percentage
-      this.progressPercentage = totalOpportunities > 0
-        ? parseFloat(((presentCount / totalOpportunities) * 100).toFixed(2))
-        : 0;
-
-      // Count unique active days
-      const uniqueDates = new Set<string>();
-      userRecords.forEach(record => {
-        if (record['date']) {
-          let date: Date;
+          // Parse record date
+          let recordDate: Date;
           if (record['date'] instanceof Timestamp) {
-            date = record['date'].toDate();
+            recordDate = record['date'].toDate();
           } else if (record['date'] instanceof Date) {
-            date = record['date'];
+            recordDate = record['date'];
           } else {
-            date = new Date(record['date']);
-            if (isNaN(date.getTime())) return;
+            recordDate = new Date(record['date']);
+            if (isNaN(recordDate.getTime())) return false;
           }
-          uniqueDates.add(date.toISOString().split('T')[0]);
-        }
-      });
 
-      this.daysActive = uniqueDates.size;
+          // Check if date is within last 3 months AND user is in members list (matching either ID)
+          return recordDate >= threeMonthsAgo &&
+            record.members?.some(m => m['userId'] === currentUserId || (memberId && m['userId'] === memberId));
+        });
 
-      console.log(`User Progress Calculation:
-        User ID: ${currentUserId}
-        Present Count: ${presentCount}
-        Total Opportunities: ${totalOpportunities}
-        Progress Percentage: ${this.progressPercentage}%`);
-      console.log(`Days Active: ${this.daysActive}`);
+        console.log('User records (last 3 months):', userRecords.length);
 
-      this.renderProgressChart();
-      this.cdr.detectChanges();
+        let presentCount = 0;
+        const totalOpportunities = userRecords.length;
+
+        userRecords.forEach(record => {
+          const userMember = record.members?.find(m => m['userId'] === currentUserId || (memberId && m['userId'] === memberId));
+          if (userMember) {
+            // Count as present if status is present, late, or new-guest
+            const status = userMember['status'] || userMember['attendanceStatus'];
+            if (status === 'present' || status === 'late' || status === 'new-guest') {
+              presentCount++;
+            }
+          }
+        });
+
+        // Store counts for dialog
+        this.presentCount = presentCount;
+        this.totalOpportunities = totalOpportunities;
+
+        // Store counts for dialog
+        this.presentCount = presentCount;
+        this.totalOpportunities = totalOpportunities;
+
+        // Calculate progress percentage
+        this.progressPercentage = totalOpportunities > 0
+          ? parseFloat(((presentCount / totalOpportunities) * 100).toFixed(2))
+          : 0;
+
+        // Count unique active days
+        const uniqueDates = new Set<string>();
+        userRecords.forEach(record => {
+          if (record['date']) {
+            // Logic continues below...
+            let d: Date;
+            if (record['date'] instanceof Timestamp) d = record['date'].toDate();
+            else if (record['date'] instanceof Date) d = record['date'];
+            else d = new Date(record['date']);
+            uniqueDates.add(d.toDateString());
+          }
+        });
+
+        this.daysActive = uniqueDates.size;
+        this.renderProgressChart();
+        this.cdr.detectChanges();
+
+      }); // End getUserData
     });
-}
+  }
 
   openTaskDetails(task: Task): void {
     this.selectedTask = task;
@@ -838,8 +851,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   canModifyContent(): boolean {
-    // Only Admin can create tasks/events currently
-    return this.userRole === 'Admin';
+    return ['Admin', 'Pastor', 'Deputy Pastor'].includes(this.userRole);
   }
 
   createEvent(): void {
@@ -873,8 +885,34 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
+  openAttendanceDetails(type: 'records' | 'progress' = 'records'): void {
+    // Get current user ID and Member ID from cached user data if possible, or auth state
+    this.authService.authState$.pipe(take(1)).subscribe((user: any) => {
+      if (!user) return;
+      const uid = user.uid;
+
+      this.authService.getUserData(uid).then(userData => {
+        this.dialog.open(AttendanceDetailsDialogComponent, {
+          width: '600px',
+          data: {
+            rawRecords: this.rawAttendanceRecords || [],
+            userId: uid,
+            memberId: userData?.memberId,
+            title: type === 'progress' ? 'Study Progress Details' : 'Attendance Record',
+            type: type,
+            progressStats: {
+              percentage: this.progressPercentage,
+              presentCount: this.presentCount,
+              totalCount: this.totalOpportunities
+            }
+          }
+        });
+      });
+    });
+  }
+
   viewProgressDetails(): void {
-    this.router.navigate(['/progress']);
+    this.openAttendanceDetails('progress');
   }
 
   viewAllAnnouncements(): void {

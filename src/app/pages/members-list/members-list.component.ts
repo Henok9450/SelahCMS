@@ -1,14 +1,23 @@
 // members-list.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator'; // Add this import
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Observable, of, Subject, Subscription } from 'rxjs';
-import { switchMap, tap, catchError, takeUntil } from 'rxjs/operators';
-import { User } from '../../core/user.model';
-import { AuthService } from '../../core/auth.service';
-import { MembersService } from '../../core/members.service';
+import { switchMap, tap, catchError, takeUntil, map, distinctUntilChanged } from 'rxjs/operators';
+import { Member } from '../../core/models/member.model';
+import { AuthService } from '../../core/services/auth.service';
+import { MemberService } from '../../core/services/member.service';
+import { HiyawMahiderService } from '../../core/services/hiyaw-mahider.service';
 
 @Component({
   selector: 'app-members-list',
@@ -17,21 +26,45 @@ import { MembersService } from '../../core/members.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatProgressSpinnerModule,
     MatIconModule,
-    MatPaginatorModule, // Add this to imports
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatChipsModule,
+    MatTooltipModule,
   ],
 })
 export class MembersListComponent implements OnInit, OnDestroy {
-  members$: Observable<User[]> = of([]);
+  members$: Observable<Member[]> = of([]);
+  allLoadedMembers: Member[] = [];
+  filteredMembers: Member[] = [];
+  paginatedMembers: Member[] = [];
+
   isLoading: boolean = true;
   errorMessage: string | null = null;
-  
+  hiyawMahiderName: string = '';
+  assignedHiyawMahiderId: string | null = null;
+
+  // View Mode: 'grid' (directory cards) or 'table' (tabular view)
+  viewMode: 'grid' | 'table' = 'grid';
+
+  // Member details modal
+  selectedMember: Member | null = null;
+
+  // Search & Filter state
+  searchTerm: string = '';
+  selectedRole: string = 'All';
+  availableRoles: string[] = ['All', 'Member', 'Pastor', 'Deputy Pastor', 'Zone Coordinator', 'Admin'];
+
   // Pagination variables
-  paginatedMembers: User[] = [];
-  pageSize = 10;
+  pageSize = 12;
   pageIndex = 0;
-  pageSizeOptions = [5, 10, 25, 50];
+  pageSizeOptions = [6, 12, 24, 48];
   totalMembers = 0;
 
   private destroy$ = new Subject<void>();
@@ -39,116 +72,227 @@ export class MembersListComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private membersService: MembersService
+    private memberService: MemberService,
+    private hiyawMahiderService: HiyawMahiderService
   ) {
-    console.log('MembersListComponent constructor');
+    console.log('👥 [MEMBERS-LIST] Component constructor initialized');
   }
 
   ngOnInit(): void {
-    console.log('MembersListComponent ngOnInit: Setting up auth state subscription.');
+    console.log('👥 [MEMBERS-LIST] Component initialized - Setting up auth state subscription');
 
     this.authSubscription = this.authService.authState$.pipe(
+      distinctUntilChanged((prev: any, curr: any) => prev?.uid === curr?.uid),
       tap(currentUser => {
-        console.log('MembersListComponent: AuthState emitted (inside tap):', currentUser);
+        console.log('👤 [MEMBERS-LIST] Auth state received:', {
+          role: currentUser?.role,
+          assignedHiyawMahider: currentUser?.assignedHiyawMahider
+        });
         this.isLoading = true;
         this.errorMessage = null;
       }),
       switchMap(currentUser => {
         if (!currentUser) {
-          console.log('MembersListComponent: switchMap: No current user, returning empty array.');
+          console.warn('⚠️ [MEMBERS-LIST] No current user - returning empty array');
           this.errorMessage = 'User not authenticated. Please log in.';
           this.isLoading = false;
-          return of([]);
+          return of([] as Member[]);
         }
 
-        console.log(`MembersListComponent: switchMap: User is role '${currentUser.role}', Assigned Hiyaw Mahider: ${currentUser.assignedHiyawMahider}.`);
+        const hiyawMahiderId = currentUser.assignedHiyawMahider;
+        this.assignedHiyawMahiderId = hiyawMahiderId || null;
+        console.log(`🔍 [MEMBERS-LIST] User role: '${currentUser.role}', assignedHiyawMahider: ${hiyawMahiderId}`);
 
-        if (currentUser.role === 'Admin') {
-          console.log('MembersListComponent: switchMap: Calling MembersService.getAllActiveMembers().');
-          return this.membersService.getAllActiveMembers().pipe(
-            tap(members => {
-              console.log('MembersListComponent: Data received (Admin):', members);
+        if (hiyawMahiderId) {
+          // Fetch Hiyaw Mahider name for title
+          this.hiyawMahiderService.getHiyawMahiderName(hiyawMahiderId).pipe(
+            takeUntil(this.destroy$)
+          ).subscribe(name => {
+            this.hiyawMahiderName = name || 'My Fellowship Group';
+          });
+
+          console.log(`👥 [MEMBERS-LIST] Loading members for Hiyaw Mahider: ${hiyawMahiderId}`);
+          return this.memberService.getMembersPaged({
+            status: 'active',
+            includes: ['smallTeam'],
+            page: 1,
+            pageSize: 500
+          }).pipe(
+            map(response => {
+              const allMembers = response.data || [];
+              const filtered = allMembers.filter(m => m.hyaw_mahider_id === hiyawMahiderId);
               this.isLoading = false;
-              this.totalMembers = members.length;
-              this.updatePaginatedMembers(members);
+              this.setMembers(filtered);
+              return filtered;
             }),
             catchError(error => {
-              console.error('MembersListComponent: Error fetching all members for Admin:', error);
-              this.errorMessage = 'Failed to load all members. Please try again.';
-              this.isLoading = false;
-              return of([]);
-            })
-          );
-        } else if (currentUser.assignedHiyawMahider) {
-          console.log(`MembersListComponent: switchMap: Calling MembersService.getMembersInAssignedHiyawMahider(${currentUser.assignedHiyawMahider}).`);
-          return this.membersService.getMembersInAssignedHiyawMahider(currentUser.assignedHiyawMahider).pipe(
-            tap(members => {
-              console.log(`MembersListComponent: Data received (Hiyaw Mahider ${currentUser.assignedHiyawMahider}):`, members);
-              this.isLoading = false;
-              this.totalMembers = members.length;
-              this.updatePaginatedMembers(members);
-            }),
-            catchError(error => {
-              console.error(`MembersListComponent: Error fetching members for Hiyaw Mahider ${currentUser.assignedHiyawMahider}:`, error);
+              console.error(`❌ [MEMBERS-LIST] Error fetching members:`, error);
               this.errorMessage = `Failed to load members for your Hiyaw Mahider. Ensure it's correctly assigned.`;
               this.isLoading = false;
-              return of([]);
+              return of([] as Member[]);
             })
-          );
+          ) as Observable<Member[]>;
+        } else if (currentUser.role === 'Admin') {
+          this.hiyawMahiderName = 'All Fellowship Members (Admin View)';
+          console.log('👥 [MEMBERS-LIST] Admin - Loading ALL active members...');
+          return this.memberService.getMembersPaged({
+            status: 'active',
+            includes: ['smallTeam'],
+            page: 1,
+            pageSize: 500
+          }).pipe(
+            tap(response => {
+              const members = response.data || [];
+              this.isLoading = false;
+              this.setMembers(members);
+            }),
+            map(response => response.data || []),
+            catchError(error => {
+              console.error('❌ [MEMBERS-LIST] Error fetching all members for Admin:', error);
+              this.errorMessage = 'Failed to load all members. Please try again.';
+              this.isLoading = false;
+              return of([] as Member[]);
+            })
+          ) as Observable<Member[]>;
         } else {
-          console.warn('MembersListComponent: switchMap: Authenticated user is not Admin and has no assigned Hiyaw Mahider. Returning empty array.');
           this.errorMessage = 'You are not assigned to a Hiyaw Mahider. Please contact your administrator.';
           this.isLoading = false;
-          return of([]);
+          return of([] as Member[]);
         }
       }),
       catchError(outerError => {
-        console.error('MembersListComponent: Outer stream error:', outerError);
+        console.error('❌ [MEMBERS-LIST] Outer stream error:', outerError);
         this.errorMessage = 'An unexpected error occurred while loading members.';
         this.isLoading = false;
-        return of([]);
+        return of([] as Member[]);
       }),
       takeUntil(this.destroy$)
-    )
-    .subscribe(
+    ).subscribe(
       members => {
-        console.log('MembersListComponent: Final members$ subscription received:', members);
         this.members$ = of(members);
       },
       error => {
-        console.error('MembersListComponent: Top-level subscription error:', error);
+        console.error('❌ [MEMBERS-LIST] Top-level subscription error:', error);
         this.errorMessage = 'An unhandled error occurred.';
-        this.isLoading = false;
-      },
-      () => {
-        console.log('MembersListComponent: Top-level subscription completed.');
         this.isLoading = false;
       }
     );
   }
 
-  // Add this new method for pagination
-  updatePaginatedMembers(allMembers: User[]) {
-    const startIndex = this.pageIndex * this.pageSize;
-    this.paginatedMembers = allMembers.slice(startIndex, startIndex + this.pageSize);
+  setMembers(members: Member[]): void {
+    this.allLoadedMembers = members;
+    this.applyLocalFilters();
   }
 
-  // Add this new method for page change event
-  onPageChange(event: PageEvent) {
+  // Filter logic (focused on fellowship connections: name, phone, role, email)
+  applyLocalFilters(): void {
+    let result = [...this.allLoadedMembers];
+
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase().trim();
+      result = result.filter(m =>
+        (m.full_name && m.full_name.toLowerCase().includes(term)) ||
+        (m.phone && m.phone.toLowerCase().includes(term)) ||
+        (m.role && m.role.toLowerCase().includes(term)) ||
+        (m.email && m.email.toLowerCase().includes(term))
+      );
+    }
+
+    if (this.selectedRole && this.selectedRole !== 'All') {
+      result = result.filter(m => m.role === this.selectedRole);
+    }
+
+    this.filteredMembers = result;
+    this.totalMembers = result.length;
+    this.pageIndex = 0;
+    this.updatePaginatedMembers();
+  }
+
+  onSearchChange(): void {
+    this.applyLocalFilters();
+  }
+
+  setRoleFilter(role: string): void {
+    this.selectedRole = role;
+    this.applyLocalFilters();
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedRole = 'All';
+    this.applyLocalFilters();
+  }
+
+  hasActiveFilters(): boolean {
+    return (this.searchTerm.trim() !== '') || (this.selectedRole !== 'All');
+  }
+
+  setViewMode(mode: 'grid' | 'table'): void {
+    this.viewMode = mode;
+    this.pageSize = mode === 'grid' ? 12 : 10;
+    this.pageSizeOptions = mode === 'grid' ? [6, 12, 24, 48] : [5, 10, 25, 50];
+    this.pageIndex = 0;
+    this.updatePaginatedMembers();
+  }
+
+  // View member detail modal
+  openMemberDetails(member: Member): void {
+    this.selectedMember = member;
+  }
+
+  closeMemberDetails(): void {
+    this.selectedMember = null;
+  }
+
+  // Getters for role counts
+  get totalCount(): number {
+    return this.allLoadedMembers.length;
+  }
+
+  getRoleCount(role: string): number {
+    if (role === 'All') return this.allLoadedMembers.length;
+    return this.allLoadedMembers.filter(m => m.role === role).length;
+  }
+
+  // Pagination method
+  updatePaginatedMembers(): void {
+    const startIndex = this.pageIndex * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedMembers = this.filteredMembers.slice(startIndex, endIndex);
+  }
+
+  // Page change event handler
+  onPageChange(event: PageEvent): void {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.members$.subscribe(members => {
-      this.updatePaginatedMembers(members);
-    });
+    this.updatePaginatedMembers();
+  }
+
+  // Helper methods
+  getInitials(name: string): string {
+    if (!name) return '?';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }
+
+  getRoleIcon(role?: string): string {
+    switch (role) {
+      case 'Pastor': return 'person';
+      case 'Deputy Pastor': return 'person_outline';
+      case 'Zone Coordinator': return 'admin_panel_settings';
+      case 'Admin': return 'shield';
+      default: return 'how_to_reg';
+    }
   }
 
   ngOnDestroy(): void {
-    console.log('MembersListComponent ngOnDestroy: Cleaning up subscriptions.');
     this.destroy$.next();
     this.destroy$.complete();
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
-      console.log('MembersListComponent: authSubscription unsubscribed.');
     }
   }
 }

@@ -1,256 +1,311 @@
 /* sidebar.component.css */
 
-/* Host element styling for the app-sidebar component */
+/* ─── Host Element / Variables ──────────────────── */
 :host {
-    display: block;
-    width: 280px; /* Default desktop width */
-    background-color: white;
-    box-shadow: var(--shadow-sm);
-    padding: 1.5rem 0;
-    height: 100%;
-    position: sticky;
-    top: 0;
-    flex-shrink: 0;
-    overflow-y: auto;
-    border-right: 1px solid rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
+  --sidebar-bg-start: #0f2027;
+  --sidebar-bg-end: #1a3a4a;
+  --nav-active-bg: rgba(255, 255, 255, 0.12);
+  --nav-hover-bg: rgba(255, 255, 255, 0.07);
+  --nav-text: rgba(255, 255, 255, 0.80);
+  --nav-icon: rgba(255, 255, 255, 0.50);
+  --nav-active-text: #ffffff;
+  --nav-active-icon: #4cc9f0;
+  --nav-active-accent: #4895ef;
+  --submenu-bg: rgba(0, 0, 0, 0.18);
+  --divider: rgba(255, 255, 255, 0.08);
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  display: flex;
+  flex-direction: column;
+  width: 270px;
+  background: linear-gradient(180deg, var(--sidebar-bg-start) 0%, var(--sidebar-bg-end) 100%);
+  height: 100%;
+  position: sticky;
+  top: 0;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.12) transparent;
 }
 
-/* Styles for the main navigation list inside the sidebar */
+:host::-webkit-scrollbar { width: 4px; }
+:host::-webkit-scrollbar-track { background: transparent; }
+:host::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+}
+
+/* ─── Nav List ──────────────────────────────────── */
 :host ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-grow: 1;
+  list-style: none;
+  padding: 0.75rem 0;
+  margin: 0;
+  flex-grow: 1;
 }
 
-/* Styles for individual navigation items */
+/* ─── User Profile Card (Mobile Only) ───────────── */
+:host .mobile-user-profile {
+  display: none;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 0.25rem 0.75rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:host .mobile-profile-divider {
+  display: none;
+}
+
+:host .mobile-user-profile .avatar-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #4cc9f0;
+  flex-shrink: 0;
+}
+
+:host .mobile-user-profile .user-info-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+:host .mobile-user-profile .user-name-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+:host .mobile-user-profile .user-role-badge {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* ─── Section Divider ───────────────────────────── */
+:host .nav-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 0.5rem 1.25rem;
+}
+
+:host .nav-section-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--nav-icon);
+  padding: 0.75rem 1.5rem 0.25rem;
+}
+
+/* ─── Individual Nav Items ──────────────────────── */
 :host .nav-item {
-    margin: 0.25rem 1rem;
-    border-radius: 8px;
-    overflow: hidden;
-    display: block;
+  margin: 0.15rem 0.75rem;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-/* Styles for the anchor links within navigation items */
 :host .nav-item a {
-    display: flex;
-    align-items: center;
-    padding: 0.875rem 1.25rem;
-    color: var(--dark-color);
-    text-decoration: none;
-    transition: var(--transition);
-    font-weight: 500;
-    font-size: 0.81rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.72rem 1rem;
+  color: var(--nav-text);
+  text-decoration: none;
+  font-size: 0.835rem;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  border-radius: 10px;
+  transition: var(--transition);
+  position: relative;
+  cursor: pointer;
 }
 
-/* Styles for Material Icons within navigation items */
 :host .nav-item a mat-icon {
-    margin-right: 1rem;
-    color: var(--gray-color);
-    transition: var(--transition);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--nav-icon);
+  transition: var(--transition);
+  flex-shrink: 0;
 }
 
-/* Hover states */
+/* ─── Hover State ───────────────────────────────── */
 :host .nav-item a:hover {
-    background-color: rgba(67, 97, 238, 0.05);
-    color: var(--primary-color);
-    transform: translateX(4px);
+  background: var(--nav-hover-bg);
+  color: var(--nav-active-text);
+  transform: translateX(3px);
 }
 
 :host .nav-item a:hover mat-icon {
-    color: var(--primary-color);
+  color: var(--nav-active-text);
 }
 
-/* Active navigation item state */
-:host .nav-item.active a {
-    background-color: rgba(67, 97, 238, 0.1);
-    color: var(--primary-color);
-    border-left: 4px solid var(--primary-color);
-    padding-left: calc(1.25rem - 4px);
+/* ─── Active State ──────────────────────────────── */
+:host .nav-item.active > a {
+  background: var(--nav-active-bg);
+  color: var(--nav-active-text);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-:host .nav-item.active a mat-icon {
-    color: var(--primary-color);
+:host .nav-item.active > a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 3px;
+  background: var(--nav-active-accent);
+  border-radius: 0 3px 3px 0;
 }
 
-/* Submenu styles (e.g., for "Reports") */
+:host .nav-item.active > a mat-icon {
+  color: var(--nav-active-icon);
+}
+
+/* ─── Submenu Toggle ────────────────────────────── */
 :host .nav-item .has-submenu {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 :host .submenu-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    transition: transform 0.3s ease;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--nav-icon);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 :host .submenu-icon.rotated {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
+/* ─── Submenu Container ─────────────────────────── */
 :host .submenu {
-    max-height: 0;
-    overflow: hidden;
-    padding-left: 20px;
-    transition: max-height 0.3s ease;
-    background-color: rgba(0,0,0,0.03); /* Slight background for submenus */
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 0;
+  background: var(--submenu-bg);
+  border-radius: 0 0 8px 8px;
+  margin: 0 0 0.1rem;
 }
 
 :host .submenu.show {
-    max-height: 500px; /* Adjust based on your content for smooth transition */
+  max-height: 400px;
+  opacity: 1;
 }
 
 :host .submenu li {
-    list-style-type: none;
+  list-style-type: none;
 }
 
-/* Default submenu link styles (will be overridden for reports below) */
-:host .submenu a {
-    display: flex;
-    align-items: center;
-    padding: 8px 15px;
-    color: inherit;
-    text-decoration: none;
-}
-
-:host .submenu a:hover {
-    background-color: rgba(0,0,0,0.05);
-}
-
-:host .submenu .active {
-    background-color: rgba(25, 118, 210, 0.1);
-    color: #1976d2; /* Assuming a blue accent for active submenu items */
-}
-
-:host .submenu .active mat-icon {
-    color: #1976d2;
-}
-
----
-
+/* ─── Submenu Links ─────────────────────────────── */
 :host .submenu li a {
-    color: red;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem 0.6rem 1.85rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.8rem;
+  border-radius: 0;
+  transition: var(--transition);
+  transform: none;
 }
 
 :host .submenu li a mat-icon {
-    color: red;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: rgba(255, 255, 255, 0.42);
 }
 
-/* Hover state for red reports submenu items */
 :host .submenu li a:hover {
-    background-color: rgba(255, 0, 0, 0.05); /* Light red background on hover */
-    color: darkred; /* Slightly darker red on hover */
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  transform: translateX(3px);
 }
 
 :host .submenu li a:hover mat-icon {
-    color: darkred; /* Darker red icon on hover */
+  color: var(--nav-active-icon);
 }
 
-/* Active state for red reports submenu items */
-:host .submenu .active {
-    background-color: rgba(255, 0, 0, 0.1); /* Light red background for active item */
-    color: darkred; /* Darker red for active text */
+:host .submenu .active,
+:host .submenu li a.active {
+  background: rgba(72, 149, 239, 0.15);
+  color: #ffffff;
 }
 
-:host .submenu .active mat-icon {
-    color: darkred;
+:host .submenu .active mat-icon,
+:host .submenu li a.active mat-icon {
+  color: var(--nav-active-icon);
 }
 
+/* ─── Logout Item ───────────────────────────────── */
+:host .nav-item.logout-item a {
+  color: rgba(255, 120, 120, 0.8);
+}
 
+:host .nav-item.logout-item a mat-icon {
+  color: rgba(255, 100, 100, 0.65);
+}
 
+:host .nav-item.logout-item a:hover {
+  background: rgba(247, 37, 133, 0.1);
+  color: #ff7b7b;
+}
+
+:host .nav-item.logout-item a:hover mat-icon {
+  color: #ff7b7b;
+}
+
+/* ─── Responsive: Tablet ────────────────────────── */
 @media (max-width: 1200px) {
-    :host {
-        width: 240px;
-    }
+  :host { width: 245px; }
 }
 
+/* ─── Responsive: Mobile ────────────────────────── */
 @media (max-width: 768px) {
-    /* Mobile Layout - Sidebar collapses or becomes overlay */
-    :host { /* This is the <app-sidebar> element */
-        position: fixed; /* Overlay sidebar for mobile */
-        top: 0;
-        left: 0;
-        width: 280px; /* Fixed width for mobile overlay */
-        height: 100vh;
-        z-index: 999; /* Ensure it's above content and overlay */
-        transform: translateX(-100%); /* Hide off-screen by default */
-        transition: transform 0.3s ease;
-        padding-top: 60px; /* Space for the header if header is fixed */
-        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-        border-right: none; /* Remove border when it's an overlay */
-        display: flex;
-        flex-direction: column;
-    }
+  :host {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 285px;
+    height: 100vh;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: 60px;
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.35);
+  }
 
-    :host.mobile-open { /* When the mobile menu is open */
-        transform: translateX(0); /* Slide into view */
-    }
+  :host.mobile-open { transform: translateX(0); }
 
-    :host ul { /* Target the ul inside the mobile sidebar */
-        height: calc(100vh - 60px); /* Adjust height for content below header */
-        overflow-y: auto;
-        padding: 0 1rem; /* Adjust padding for mobile items */
-        width: 100%;
-        box-sizing: border-box;
-    }
+  :host ul {
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 0.5rem 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
-    :host .nav-item {
-        margin: 0; /* Remove horizontal margins for full width mobile items */
-        margin-bottom: 0.5rem; /* Add some vertical spacing */
-    }
+  :host .nav-item a:hover { transform: none; }
+  :host .submenu li a:hover { transform: translateX(3px); }
 
-    :host .nav-item a {
-        padding: 1rem 1.25rem; /* Adjust padding for better touch targets */
-        transform: none; /* No horizontal movement on mobile hover for overlay nav */
-    }
-
-    :host .nav-item a:hover { /* Override desktop hover transform */
-      transform: none;
-    }
-
-    :host .nav-item.active a {
-        border-left: 4px solid var(--primary-color);
-        padding-left: calc(1.25rem - 4px);
-        border-bottom: none;
-    }
-
-    /* Adjust submenu item padding for mobile if desired */
-    :host .submenu li a {
-      padding: 0.75rem 1.5rem 0.75rem 2.5rem; /* More indent for submenu items */
-      font-size: 0.9rem;
-    }
-
-    /* Ensure red color applies on mobile too for reports submenu */
-    :host.mobile-open .submenu li a {
-      color: red;
-    }
-
-    :host.mobile-open .submenu li a mat-icon {
-      color: red;
-    }
-
-    :host.mobile-open .submenu li a:hover {
-      background-color: rgba(255, 0, 0, 0.05);
-      color: darkred;
-    }
-
-    :host.mobile-open .submenu .active {
-      background-color: rgba(255, 0, 0, 0.1);
-      color: darkred;
-    }
-
-    :host.mobile-open .submenu .active mat-icon {
-      color: darkred;
-    }
+  :host .mobile-user-profile { display: flex; }
+  :host .mobile-profile-divider { display: block; }
 }
 
 @media (max-width: 480px) {
-    :host {
-        width: 85%; /* Make mobile sidebar slightly narrower for very small screens */
-    }
+  :host { width: 85%; }
 }

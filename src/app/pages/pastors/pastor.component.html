@@ -1,151 +1,218 @@
-<div class="container mt-4">
-  <mat-card class="mb-4 mat-elevation-z2">
+<div class="pastor-page-header">
+  <div class="pastor-header-title">
+    <mat-icon class="pastor-header-icon">person</mat-icon>
+    <div>
+      <h1>Pastor Management</h1>
+      <span class="pastor-filter-label">| {{ currentFilterLabel }}</span>
+    </div>
+  </div>
+  <button mat-raised-button color="primary" (click)="startAdd()" class="create-pastor-btn" *ngIf="!isAdding && !isEditMode">
+    <mat-icon>add</mat-icon> Add New Pastor
+  </button>
+</div>
+
+<div class="pastor-management-container mat-elevation-z2">
+  <!-- Create / Edit Form Card -->
+  <mat-card *ngIf="isAdding || isEditMode" class="form-card mat-elevation-z2 animate__animated animate__fadeIn">
     <mat-card-header>
-      <mat-card-title class="page-title">Pastor Management</mat-card-title>
+      <mat-card-title>{{ isEditMode ? 'Edit Pastor' : 'Add New Pastor' }}</mat-card-title>
     </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="pastorForm" (ngSubmit)="onSubmit()" class="form-grid">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Name *</mat-label>
+            <input matInput formControlName="name" placeholder="Enter pastor's full name">
+            <mat-error *ngIf="pastorForm.get('name')?.invalid && pastorForm.get('name')?.touched">
+              Name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Phone Number *</mat-label>
+            <input matInput type="tel" formControlName="phoneNumber" placeholder="e.g. 0912456789">
+            <mat-error *ngIf="pastorForm.get('phoneNumber')?.invalid && pastorForm.get('phoneNumber')?.touched">
+              Valid phone number (10-15 digits) is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Assigned Hiyaw Mahider *</mat-label>
+            <mat-select formControlName="assignedHiyawMahider">
+              <mat-option value="">Select Hiyaw Mahider</mat-option>
+              <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
+                {{ hm.name }} ({{ hm.code }})
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="pastorForm.get('assignedHiyawMahider')?.invalid && pastorForm.get('assignedHiyawMahider')?.touched">
+              Please assign to a Hiyaw Mahider
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Role *</mat-label>
+            <mat-select formControlName="role">
+              <mat-option value="Pastor">Pastor</mat-option>
+              <mat-option value="Deputy Pastor">Deputy Pastor</mat-option>
+            </mat-select>
+            <mat-error *ngIf="pastorForm.get('role')?.invalid && pastorForm.get('role')?.touched">
+              Role is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Status *</mat-label>
+            <mat-select formControlName="status">
+              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address *</mat-label>
+            <textarea matInput formControlName="address" rows="2" placeholder="Enter residential address"></textarea>
+            <mat-error *ngIf="pastorForm.get('address')?.invalid && pastorForm.get('address')?.touched">
+              Address is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+    <mat-card-actions align="end" class="form-actions">
+      <button mat-button (click)="cancelAdd()">Cancel</button>
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="pastorForm.invalid || isLoading">
+        <mat-icon *ngIf="isLoading" class="spinner-icon">hourglass_empty</mat-icon>
+        <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+        {{ isEditMode ? 'Update Pastor' : 'Create Pastor' }}
+      </button>
+    </mat-card-actions>
   </mat-card>
 
-  <div class="row">
-    <div class="col-lg-8">
-      <mat-card class="mb-4 mat-elevation-z2">
-        <mat-card-header>
-          <div class="card-header-content">
-            <mat-card-title>Pastors</mat-card-title>
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search Pastors</mat-label>
-              <input matInput type="text" [(ngModel)]="searchTerm" (input)="onSearch()">
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
-          </div>
-        </mat-card-header>
+  <!-- Filter & Search Section -->
+  <mat-card *ngIf="!isAdding && !isEditMode" class="filter-card">
+    <mat-card-content>
+      <div class="filter-form-grid">
+        <mat-form-field appearance="outline" class="filter-field search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <mat-label>Search Pastors</mat-label>
+          <input matInput [(ngModel)]="searchTerm" (input)="loadPastors()" placeholder="Search by name, role..." />
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+    <mat-card-actions align="end" *ngIf="searchTerm || currentStatusFilter !== 'all'">
+      <button mat-stroked-button color="warn" (click)="clearFilters()">
+        <mat-icon>close</mat-icon> Clear Filters
+      </button>
+    </mat-card-actions>
+  </mat-card>
 
-        <mat-card-content>
-          <div *ngIf="isLoading" class="loading-spinner-container">
-            <mat-spinner diameter="40"></mat-spinner>
-            <span>Loading pastors...</span>
-          </div>
+  <!-- Status Chips Bar -->
+  <div *ngIf="!isAdding && !isEditMode" class="filter-chips">
+    <mat-chip-listbox aria-label="Pastor status filter">
+      <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''" (click)="filterPastors('all')">
+        All ({{ allPastors.length }})
+      </mat-chip-row>
+      <mat-chip-row [color]="currentStatusFilter === 'Active' ? 'primary' : ''" (click)="filterPastors('Active')">
+        Active ({{ activeCount }})
+      </mat-chip-row>
+      <mat-chip-row [color]="currentStatusFilter === 'Inactive' ? 'primary' : ''" (click)="filterPastors('Inactive')">
+        Inactive ({{ inactiveCount }})
+      </mat-chip-row>
+      <mat-chip-row [color]="currentStatusFilter === 'On Hold' ? 'primary' : ''" (click)="filterPastors('On Hold')">
+        On Hold ({{ onHoldCount }})
+      </mat-chip-row>
+    </mat-chip-listbox>
+  </div>
 
-          <div *ngIf="!isLoading && dataSource.data.length === 0 && initialLoadComplete" class="empty-state">
-            <mat-icon>sentiment_dissatisfied</mat-icon>
-            <p>No pastors found.</p>
-            <p *ngIf="searchTerm">Try adjusting your search criteria.</p>
-          </div>
+  <!-- Loading State -->
+  <div *ngIf="isLoading && dataSource.data.length === 0" class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading pastors...</p>
+  </div>
 
-          <div class="mat-elevation-z1" *ngIf="dataSource.data.length > 0">
-            <table mat-table [dataSource]="dataSource">
+  <div *ngIf="!isLoading && dataSource.data.length === 0 && initialLoadComplete && !isAdding && !isEditMode" class="empty-state">
+    <mat-icon>sentiment_dissatisfied</mat-icon>
+    <p>No pastors found.</p>
+    <p *ngIf="searchTerm || currentStatusFilter !== 'all'">Try adjusting your search criteria or filters.</p>
+  </div>
 
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> Name </th>
-                <td mat-cell *matCellDef="let pastor"> {{ pastor.name }} </td>
-              </ng-container>
+  <!-- Table Section -->
+  <div *ngIf="!isAdding && !isEditMode" class="pastor-table-container mat-elevation-z2" [class.d-none]="isLoading && dataSource.data.length === 0">
+    <div class="table-scroll-wrapper">
+      <table mat-table [dataSource]="dataSource" class="full-width-table">
 
-              <ng-container matColumnDef="phoneNumber">
-                <th mat-header-cell *matHeaderCellDef> Phone Number </th>
-                <td mat-cell *matCellDef="let pastor"> {{ pastor.phoneNumber }} </td>
-              </ng-container>
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef> Name </th>
+          <td mat-cell *matCellDef="let pastor" class="title-cell"> <strong>{{ pastor.name }}</strong> </td>
+        </ng-container>
 
-              <ng-container matColumnDef="address">
-                <th mat-header-cell *matHeaderCellDef> Address </th>
-                <td mat-cell *matCellDef="let pastor"> {{ pastor.address }} </td>
-              </ng-container>
+        <!-- Phone Number Column -->
+        <ng-container matColumnDef="phoneNumber">
+          <th mat-header-cell *matHeaderCellDef> Phone Number </th>
+          <td mat-cell *matCellDef="let pastor" class="nowrap-cell"> {{ pastor.phoneNumber }} </td>
+        </ng-container>
 
-              <ng-container matColumnDef="assignedHiyawMahider">
-                <th mat-header-cell *matHeaderCellDef> Assigned Hiyaw Mahider </th>
-                <td mat-cell *matCellDef="let pastor"> {{ getHiyawMahiderName(pastor.assignedHiyawMahider) }} </td>
-              </ng-container>
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef> Address </th>
+          <td mat-cell *matCellDef="let pastor"> {{ pastor.address }} </td>
+        </ng-container>
 
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef> Status </th>
-                <td mat-cell *matCellDef="let pastor">
-                  <span class="status-badge" [ngClass]="getStatusClass(pastor.status)">{{ pastor.status }}</span>
-                </td>
-              </ng-container>
+        <!-- Assigned Hiyaw Mahider Column -->
+        <ng-container matColumnDef="assignedHiyawMahider">
+          <th mat-header-cell *matHeaderCellDef> Assigned Hiyaw Mahider </th>
+          <td mat-cell *matCellDef="let pastor">
+            {{ getHiyawMahiderName(pastor.assignedHiyawMahider) }}
+          </td>
+        </ng-container>
 
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef> Actions </th>
-                <td mat-cell *matCellDef="let pastor">
-                  <button mat-icon-button color="primary" (click)="onEdit(pastor)" matTooltip="Edit Pastor">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" (click)="onDelete(pastor.id || '')" matTooltip="Delete Pastor">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef> Role </th>
+          <td mat-cell *matCellDef="let pastor">
+            <span class="role-badge">{{ pastor.role }}</span>
+          </td>
+        </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-            </table>
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let pastor" class="nowrap-cell">
+            <span class="status-chip" [ngClass]="getStatusClass(pastor.status)">
+              {{ pastor.status }}
+            </span>
+          </td>
+        </ng-container>
 
-            <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
-          </div>
-        </mat-card-content>
-      </mat-card>
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let pastor" class="nowrap-cell">
+            <button mat-icon-button *ngIf="pastor.status === 'Active'" (click)="togglePastorStatus(pastor)" matTooltip="Deactivate Pastor">
+              <mat-icon color="warn">block</mat-icon>
+            </button>
+            <button mat-icon-button *ngIf="pastor.status !== 'Active'" (click)="togglePastorStatus(pastor)" matTooltip="Activate Pastor">
+              <mat-icon color="accent">check_circle</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" (click)="onEdit(pastor)" matTooltip="Edit Pastor">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="onDelete(pastor.id!)" matTooltip="Delete Pastor">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
     </div>
-
-    <div class="col-lg-4">
-      <mat-card class="sticky-top mat-elevation-z2" style="top: 20px;">
-        <mat-card-header>
-          <mat-card-title>{{ isEditMode ? 'Edit Pastor' : 'Add New Pastor' }}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="pastorForm" (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Name *</mat-label>
-              <input matInput formControlName="name">
-              <mat-error *ngIf="pastorForm.get('name')?.invalid && pastorForm.get('name')?.touched">
-                Name is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Phone Number *</mat-label>
-              <input matInput type="tel" formControlName="phoneNumber">
-              <mat-error *ngIf="pastorForm.get('phoneNumber')?.invalid && pastorForm.get('phoneNumber')?.touched">
-                Valid phone number (10-15 digits) is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Address *</mat-label>
-              <textarea matInput formControlName="address" rows="3"></textarea>
-              <mat-error *ngIf="pastorForm.get('address')?.invalid && pastorForm.get('address')?.touched">
-                Address is required
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Assigned Hiyaw Mahider *</mat-label>
-              <mat-select formControlName="assignedHiyawMahider">
-                <mat-option value="">Select Hiyaw Mahider</mat-option>
-                <mat-option *ngFor="let hm of hiyawMahiders" [value]="hm.id">
-                  {{ hm.name }} ({{ hm.code }})
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="pastorForm.get('assignedHiyawMahider')?.invalid && pastorForm.get('assignedHiyawMahider')?.touched">
-                Please assign to a Hiyaw Mahider
-              </mat-error>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Status *</mat-label>
-              <mat-select formControlName="status">
-                <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <div class="form-actions">
-              <button mat-raised-button color="primary" type="submit" [disabled]="pastorForm.invalid || isLoading">
-                <mat-icon *ngIf="isLoading" class="spinner-icon">hourglass_empty</mat-icon>
-                {{ isEditMode ? 'Update Pastor' : 'Create Pastor' }}
-              </button>
-              <button mat-button type="button" (click)="resetForm()" *ngIf="isEditMode">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of pastors"></mat-paginator>
   </div>
 </div>

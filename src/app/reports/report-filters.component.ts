@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { ReportService } from '../core/report.service';
+import { ReportService } from '../core/services/report.service';
 import { Observable } from 'rxjs';
 
 @Component({

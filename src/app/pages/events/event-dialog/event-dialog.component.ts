@@ -9,8 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatNativeDateModule } from '@angular/material/core';
-import { Event } from '../../../core/events.model';
-import { Pastor } from '../../../core/pastor.model';
+import { Event } from '../../../core/models/events.model';
+import { Pastor } from '../../../core/models/pastor.model';
 
 @Component({
   selector: 'app-event-dialog',

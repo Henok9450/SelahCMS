@@ -16,7 +16,9 @@ import { MatListModule } from '@angular/material/list';
 import { switchMap, take, first, map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
-import { FollowUpReportService } from '../../core/follow-up-report.service';
+import { FollowUpReportService } from '../../core/services/follow-up-report.service';
+
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-follow-up-report',
@@ -35,7 +37,8 @@ import { FollowUpReportService } from '../../core/follow-up-report.service';
     MatExpansionModule,
     MatCardModule,
     MatDividerModule,
-    MatListModule
+    MatListModule,
+    MatIconModule
   ],
   templateUrl: './follow-up-report.component.html',
   styleUrls: ['./follow-up-report.component.css']

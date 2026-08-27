@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 
-import { AuthService } from '../core/auth.service';
+import { AuthService } from '../core/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { first } from 'rxjs/operators';
 

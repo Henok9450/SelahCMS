@@ -1,385 +1,515 @@
-/* General Body and Container Styling */
-body {
-  font-family: 'Roboto', sans-serif; /* Angular Material's default font */
-  margin: 0;
-  background-color: #f5f5f5; /* Light grey background */
-}
-
-.follow-up-container {
-  padding: 16px;
-  max-width: 1200px; /* Max width for larger screens */
-  margin: 16px auto; /* Center the container */
-  background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  border-radius: 8px; /* Slightly rounded corners */
-}
-
-h2 {
-  color: #3f51b5; /* Primary Material Design color */
-  text-align: center;
-  margin-bottom: 8px;
-}
-
-.subtitle {
-  text-align: center;
-  color: #616161;
-  margin-bottom: 24px;
-  font-size: 0.9em;
-}
-
-/* Filter Section Styling */
-.filter-section {
+/* ── Page Header ─────────────────────────────────── */
+.report-page-header {
   display: flex;
-  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
-  gap: 16px; /* Space between form fields */
-  margin-bottom: 24px;
-  align-items: flex-end; /* Align input fields at the bottom */
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: linear-gradient(135deg, #07514d 0%, #1a3a4a 100%);
+  color: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 16px rgba(7, 81, 77, 0.25);
 }
 
-.mat-form-field {
-  flex: 1 1 calc(50% - 16px); /* Two items per row on medium screens */
-  min-width: 250px; /* Minimum width for form fields */
+.report-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1;
+  min-width: 0;
 }
 
-/* Adjust for small screens: one form field per row */
-@media (max-width: 600px) {
-  .mat-form-field {
-      flex: 1 1 100%; /* Full width on small screens */
-  }
+.report-header-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #5eead4;
+  flex-shrink: 0;
 }
 
-/* Button Group Styling */
+.report-header-title h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+.report-header-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 2px;
+}
+
+/* ── Main Container ──────────────────────────────── */
+.report-main-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ── Filter Card ─────────────────────────────────── */
+.filter-card {
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 0;
+  overflow: hidden;
+}
+
+.card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1e293b;
+}
+
+.card-header-title mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #0d9488;
+}
+
+.filter-card mat-card-content {
+  padding: 1.25rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-field {
+  width: 100%;
+}
+
 .button-group {
   display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  gap: 8px;
-  width: 100%; /* Ensure buttons take full width if filters wrap */
-  margin-top: 16px;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.button-group button {
-  padding: 8px 16px; /* Adjust button padding */
+.submit-btn {
+  background: #0d9488 !important;
+  color: white !important;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0 1.25rem;
+  height: 40px;
 }
 
-/* Loading Spinner Styling */
-.loading-spinner {
+.submit-btn:hover:not([disabled]) {
+  background: #0f766e !important;
+}
+
+.reset-btn {
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  border-radius: 8px;
+  height: 40px;
+}
+
+.reset-btn:hover {
+  background: #f1f5f9 !important;
+}
+
+/* ── Loading Spinner ─────────────────────────────── */
+.loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-  color: #3f51b5;
+  padding: 3rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  color: #0d9488;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.loading-spinner span {
-  margin-top: 10px;
-  font-size: 1.1em;
+.loading-container p {
+  margin: 0;
+  font-weight: 500;
+  color: #64748b;
 }
 
-/* Report Sections (Accordion) Styling */
-.report-sections {
-  margin-top: 32px;
+/* ── Report Content ──────────────────────────────── */
+.report-content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-mat-expansion-panel {
-  margin-bottom: 16px;
-  border-radius: 8px;
-  overflow: hidden; /* Ensures border-radius applies to content */
+/* ── Stats Grid ──────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.stat-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-wrap mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 2px;
+}
+
+.stat-card.warning-card .stat-icon-wrap { background: #fee2e2; color: #dc2626; }
+.stat-card.attention-card .stat-icon-wrap { background: #ffedd5; color: #ea580c; }
+.stat-card.total-card .stat-icon-wrap { background: #e0f2fe; color: #0284c7; }
+
+/* ── Accordion & Expansion Panels ────────────────── */
+.report-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.custom-panel {
+  border-radius: 12px !important;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 0 !important;
 }
 
 mat-expansion-panel-header {
-  background-color: #e8eaf6; /* Light indigo for header */
-  color: #3f51b5;
+  padding: 1.25rem 1.5rem !important;
+  height: auto !important;
 }
 
 mat-panel-title {
-  font-weight: 500; /* Medium font weight for titles */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #1e293b;
 }
+
+.panel-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.warning-icon { color: #dc2626; }
+.attention-icon { color: #ea580c; }
 
 mat-panel-description {
-  color: #616161;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-/* Table Styling */
-.follow-up-table {
-  width: 100%;
-  /* Ensure table itself doesn't cause horizontal scroll on small screens */
+.count-badge {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.warning-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.attention-badge {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+/* ── Table Styling ───────────────────────────────── */
+.table-scroll-wrapper {
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  box-shadow: none; /* Remove default table shadow if any */
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  padding: 0.5rem 0;
 }
 
-/* Responsive Table Cells */
-.mat-header-cell, .mat-cell {
-  padding: 8px 16px;
-  border-bottom: 1px solid #e0e0e0;
-  white-space: nowrap; /* Prevent text wrapping in cells by default */
+.records-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
 }
 
-/* Data-specific columns can allow wrapping if content is long */
-.mat-column-reason,
-.mat-column-fullName {
-  white-space: normal;
+.mat-header-cell {
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #f8fafc;
+  padding: 0.875rem 1rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-/* For small screens, make table columns stack or scroll */
-@media (max-width: 768px) {
-  .follow-up-table {
-      border: 1px solid #e0e0e0; /* Add a border to the table on small screens */
-  }
+.mat-cell {
+  padding: 0.875rem 1rem;
+  color: #334155;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f1f5f9;
+}
 
-  /* Hide some less critical columns on smaller screens, or make them responsive */
-  .mat-column-zone,
-  .mat-column-hiyawMahiderName {
-      /* You can choose to hide them or make them smaller */
-      /* display: none; */
-      min-width: 100px; /* Ensure they still have some width if not hidden */
-  }
+.mat-row:hover {
+  background-color: #f8fafc;
+}
 
-  /* You could also consider a "card" like layout for rows on very small screens,
-     but this requires more complex Angular Material table customization.
-     For now, horizontal scrolling is a simpler responsive approach for tables. */
+.fw-600 {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.reason-cell {
+  color: #64748b;
+  font-style: italic;
+  max-width: 250px;
+}
+
+/* Badges */
+.zone-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  background: #e0f2fe;
+  color: #0369a1;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.date-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #475569;
+}
+
+.absence-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.followup-count-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  background: #ffedd5;
+  color: #ea580c;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.action-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .no-results {
-  padding: 20px;
-  text-align: center;
-  color: #757575;
-  background-color: #f9f9f9;
-  border-top: 1px solid #eee;
-  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  margin: 1rem 0;
 }
 
-/* Member Details Card Styling - Enhanced */
+.no-results mat-icon {
+  color: #10b981;
+}
+
+/* ── Member Details Card ─────────────────────────── */
 .member-details-card {
-    margin-top: 40px; /* Slightly more space from previous section */
-    max-width: 650px; /* A bit wider for content */
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 12px; /* More rounded corners */
-    overflow: hidden; /* Ensures header/footer radius applies */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Deeper, softer shadow */
-    transition: transform 0.3s ease-in-out; /* Subtle hover effect for engagement */
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  padding: 0;
+  overflow: hidden;
+  margin-top: 1rem;
 }
 
-.member-details-card:hover {
-    transform: translateY(-5px); /* Lift effect on hover */
+.details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.member-details-card mat-card-header {
-    background: linear-gradient(45deg, #3f51b5, #5c6bc0); /* Gradient background */
-    color: white;
-    padding: 24px; /* More padding for header */
-    display: flex;
-    flex-direction: column; /* Stack title and subtitle */
-    align-items: flex-start; /* Align text to the left */
-    gap: 4px; /* Space between title and subtitle */
+.details-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.member-details-card mat-card-title {
-    font-size: 1.8em; /* Larger title font */
-    font-weight: 700; /* Bolder title */
-    color: white;
-    letter-spacing: -0.5px; /* Tighter letter spacing for impact */
+.user-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #0d9488;
 }
 
-.member-details-card mat-card-subtitle {
-    font-size: 1.1em; /* Slightly larger subtitle */
-    color: rgba(255, 255, 255, 0.85); /* Whiter subtitle */
-    font-weight: 300; /* Lighter font weight */
+.details-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.details-sub {
+  font-size: 0.8rem;
+  color: #64748b;
 }
 
 .member-details-card mat-card-content {
-    padding: 24px; /* More internal padding */
-    background-color: #fcfcfc; /* Slightly off-white background for content */
+  padding: 1.25rem;
 }
 
-.member-details-card mat-list {
-    padding: 0; /* Remove default list padding */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
 }
 
-.member-details-card mat-list-item {
-    height: auto !important;
-    padding: 12px 0; /* More vertical padding for items */
-    border-bottom: 1px solid #e0e0e0; /* Subtle divider between items */
-    display: flex; /* Use flexbox for alignment of icon, title, and line */
-    align-items: flex-start; /* Align items to the top */
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
 }
 
-.member-details-card mat-list-item:last-child {
-    border-bottom: none; /* No border for the last item */
+.detail-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
-/* Style for the icon container within mat-list-item */
-.member-details-card mat-list-item .item-icon {
-    margin-right: 12px; /* Space between icon and text */
-    flex-shrink: 0; /* Prevent icon from shrinking */
-    padding-top: 4px; /* Adjust icon vertical alignment */
-}
-
-/* Style for SVG icons */
-.member-details-card mat-list-item .item-icon svg {
-    width: 24px; /* Standard icon size */
-    height: 24px;
-    fill: #616161; /* Grey color for icons */
-}
-
-
-.member-details-card mat-list-item .mat-list-item-content {
-    display: flex;
-    flex-direction: column; /* Stack title and line */
-    align-items: flex-start;
-    padding: 0; /* Remove default content padding */
-    flex-grow: 1; /* Allow content to take available space */
-}
-
-.member-details-card mat-list-item .mat-list-item-content span[matListItemTitle] {
-    font-weight: 600; /* Bolder label */
-    color: #424242; /* Darker grey for labels */
-    font-size: 0.9em; /* Slightly smaller label */
-    margin-bottom: 4px; /* Space between label and value */
-    text-transform: uppercase; /* Make labels uppercase */
-    letter-spacing: 0.5px; /* Add slight letter spacing */
-}
-
-.member-details-card mat-list-item .mat-list-item-content span[matListItemLine] {
-    font-size: 1.2em; /* Larger value font for prominence */
-    color: #212121; /* Darker color for the actual value */
-    font-weight: 500; /* Medium font weight for values */
-    word-wrap: break-word; /* Allow long words to break */
-    white-space: normal; /* Allow text to wrap */
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .member-details-card mat-card-actions {
-    padding: 16px 24px 24px; /* More padding for actions section */
-    display: flex;
-    justify-content: flex-end;
-    background-color: #f5f5f5; /* Light grey background for actions */
-    border-top: 1px solid #e0e0e0; /* Divider above actions */
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid #f1f5f9;
 }
 
-.member-details-card mat-card-actions button[mat-button] {
-    color: #3f51b5; /* Primary color for the button */
-    font-weight: 500;
-    text-transform: uppercase;
-    padding: 8px 16px;
-    border-radius: 4px;
-    transition: background-color 0.2s ease-in-out;
-}
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .report-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+  }
 
-.member-details-card mat-card-actions button[mat-button]:hover {
-    background-color: rgba(63, 81, 181, 0.08); /* Light hover effect */
-}
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
 
-/* Button Group - already defined, but reinforcing properties */
-.button-group {
-  display: flex;
-  flex-wrap: wrap; /* Allow buttons to wrap to the next line on small screens */
-  justify-content: flex-end; /* Aligns to the right by default */
-  gap: 12px; /* Increased gap for better visual separation */
-  margin-top: 24px; /* More space above the buttons */
-  margin-bottom: 16px; /* Space below if report starts immediately */
-}
-
-/* Individual Button Styling (overriding Material defaults where necessary) */
-.button-group button {
-  /* Base styles for both button types */
-  font-size: 1rem; /* Ensure readable font size */
-  padding: 10px 20px; /* Slightly more padding for better touch targets */
-  border-radius: 4px; /* Standard Material Design border-radius */
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, color 0.2s ease-in-out; /* Smooth transitions */
-  min-width: 120px; /* Ensure buttons have a minimum width */
-  height: 40px; /* Standard height for Material buttons */
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
-}
-
-/* Specific styles for Primary Button (Generate Report) */
-button[mat-raised-button][color="primary"] {
-  background-color: #3f51b5; /* Material Design Primary Blue */
-  color: white;
-  /* Box shadow is handled by mat-raised-button, no need to add here unless you want to override */
-}
-
-button[mat-raised-button][color="primary"]:hover {
-  background-color: #303f9f; /* Darker shade on hover */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly more prominent shadow on hover */
-}
-
-button[mat-raised-button][color="primary"]:disabled {
-  background-color: #9fa8da; /* Lighter primary color for disabled state */
-  color: rgba(255, 255, 255, 0.5); /* Faded text for disabled state */
-  cursor: not-allowed;
-  box-shadow: none; /* No shadow when disabled */
-}
-
-/* Specific styles for Stroked Button (Reset Filters) */
-button[mat-stroked-button] {
-  border-color: #3f51b5; /* Primary color for border */
-  color: #3f51b5; /* Primary color for text */
-  background-color: transparent; /* Ensure transparent background */
-}
-
-button[mat-stroked-button]:hover {
-  background-color: rgba(63, 81, 181, 0.04); /* Very light primary background on hover */
-  /* Angular Material usually adds a subtle shadow/ripple, can override if needed */
-}
-
-button[mat-stroked-button]:disabled {
-  border-color: #bdbdbd; /* Grey border for disabled state */
-  color: #bdbdbd; /* Grey text for disabled state */
-  cursor: not-allowed;
-}
-
-
-/* Responsive Adjustments for Buttons */
-@media (max-width: 600px) {
   .button-group {
-      flex-direction: column; /* Stack buttons vertically on small screens */
-      align-items: stretch; /* Make buttons take full width */
-      gap: 12px; /* Keep gap between stacked buttons */
+    flex-direction: column;
   }
 
   .button-group button {
-      width: 100%; /* Full width for stacked buttons */
-      min-width: unset; /* Remove min-width when stacked */
+    width: 100%;
+    justify-content: center;
   }
-}
 
-/* Responsive adjustments for the card */
-@media (max-width: 600px) {
-    .member-details-card {
-        margin-top: 24px; /* Less margin on small screens */
-        border-radius: 0; /* Full width, no rounded corners on very small screens */
-        box-shadow: none; /* No shadow to blend with body */
-    }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .member-details-card mat-card-header,
-    .member-details-card mat-card-content,
-    .member-details-card mat-card-actions {
-        padding-left: 16px;
-        padding-right: 16px;
-    }
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .member-details-card mat-card-header {
-        border-radius: 0;
-    }
-
-    .member-details-card mat-card-actions {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-
-    .member-details-card mat-card-title {
-        font-size: 1.5em; /* Adjust font size for smaller screens */
-    }
-
-    .member-details-card mat-card-subtitle {
-        font-size: 1em;
-    }
-
-    .member-details-card mat-list-item .mat-list-item-content span[matListItemLine] {
-        font-size: 1em; /* Adjust value font size */
-    }
+  mat-panel-description {
+    display: none;
+  }
 }
