@@ -264,20 +264,33 @@ export class TasksComponent implements OnInit, OnDestroy {
 
     if (this.currentUser) {
       taskToCreate.createdByUserId = this.currentUser.uid;
+      taskToCreate.createdByHiyawMahiderId = this.currentUserHiyawMahiderId ?? undefined;
+
+      // Determine the target Hiyaw Mahider for this task
+      // Admin can choose via filter; all other leaders use their own assigned Hiyaw Mahider
+      let targetHiyawMahiderId: string | null = null;
+
       if (this.currentUserRole === 'Admin' && this.selectedHiyawMahiderId) {
-        taskToCreate.hiyawMahiderId = this.selectedHiyawMahiderId;
-        taskToCreate.assignedToHiyawMahiderId = this.selectedHiyawMahiderId;
-        const mahider = this.hiyawMahiders.find(m => m.id === this.selectedHiyawMahiderId);
-        taskToCreate.hiyawMahiderName = mahider ? mahider.name : '';
+        // Admin selected a specific Hiyaw Mahider to scope the task
+        targetHiyawMahiderId = this.selectedHiyawMahiderId;
+      } else if (this.currentUserRole === 'Admin' && this.currentUserHiyawMahiderId) {
+        // Admin with own assigned group but no explicit filter chosen
+        targetHiyawMahiderId = this.currentUserHiyawMahiderId;
       } else if (
-        (this.currentUserRole === 'Pastor' || this.currentUserRole === 'Deputy Pastor') &&
+        ['Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(this.currentUserRole ?? '') &&
         this.currentUserHiyawMahiderId
       ) {
-        taskToCreate.createdByHiyawMahiderId = this.currentUserHiyawMahiderId;
-        taskToCreate.assignedToHiyawMahiderId = this.currentUserHiyawMahiderId;
-        taskToCreate.hiyawMahiderId = this.currentUserHiyawMahiderId;
-        const mahider = this.hiyawMahiders.find(m => m.id === this.currentUserHiyawMahiderId);
-        taskToCreate.hiyawMahiderName = mahider ? mahider.name : '';
+        // Leaders always stamp their own Hiyaw Mahider on the task so their members see it
+        targetHiyawMahiderId = this.currentUserHiyawMahiderId;
+      }
+
+      if (targetHiyawMahiderId) {
+        taskToCreate.hiyawMahiderId = targetHiyawMahiderId;
+        taskToCreate.assignedToHiyawMahiderId = targetHiyawMahiderId;
+        const mahider = this.hiyawMahiders.find(m => m.id === targetHiyawMahiderId);
+        taskToCreate.hiyawMahiderName = mahider ? (mahider.name || mahider.fullName || '') : '';
+      } else {
+        console.warn('No Hiyaw Mahider could be determined for this task.');
       }
     } else {
       console.warn('Cannot create task: No current user detected.');

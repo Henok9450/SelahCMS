@@ -140,32 +140,45 @@ export class TasksService {
     role: string | null,
     userHiyawMahiderId: string | null,
     adminFilterMahiderId: string | null,
-    statusFilter: string | null // Pass status filter here
+    statusFilter: string | null
   ): Observable<Task[]> {
     return new Observable(subscriber => {
       let tasksCollectionRef = collection(this.db, 'tasks');
       let q: any;
 
       if (role === 'Admin') {
+        // Admin sees all tasks, optionally filtered by a selected Hiyaw Mahider
         if (adminFilterMahiderId) {
           q = query(
             tasksCollectionRef,
-            where('createdByHiyawMahiderId', '==', adminFilterMahiderId), // <-- Change this line
+            where('hiyawMahiderId', '==', adminFilterMahiderId),
             orderBy('createdAt', 'desc')
           );
         } else {
           q = query(tasksCollectionRef, orderBy('createdAt', 'desc'));
         }
-      } else if (['Pastor', 'Deputy Pastor', 'Member'].includes(role || '')) {
+      } else if (['Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(role || '')) {
+        // Leaders see tasks belonging to their assigned Hiyaw Mahider
         if (userHiyawMahiderId) {
-          // Pastors/Members only see tasks related to their assigned Hiyaw Mahider
           q = query(
             tasksCollectionRef,
-            where('hiyawMahiderId', '==', userHiyawMahiderId), // Or createdByHiyawMahiderId depending on your exact requirement
+            where('hiyawMahiderId', '==', userHiyawMahiderId),
             orderBy('createdAt', 'desc')
           );
         } else {
-          // If a non-admin role has no assigned Hiyaw Mahider, return empty
+          subscriber.next([]);
+          return { unsubscribe: () => { } };
+        }
+      } else if (role === 'Member') {
+        // Members see tasks created FOR their specific Hiyaw Mahider
+        // hiyawMahiderId on the task is set from the creator's Hiyaw Mahider when a leader creates a task
+        if (userHiyawMahiderId) {
+          q = query(
+            tasksCollectionRef,
+            where('hiyawMahiderId', '==', userHiyawMahiderId),
+            orderBy('createdAt', 'desc')
+          );
+        } else {
           subscriber.next([]);
           return { unsubscribe: () => { } };
         }
