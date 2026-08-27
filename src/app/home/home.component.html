@@ -350,14 +350,14 @@
       </div>
     </div>
 
-    <!-- Attendance Breakdown Widget -->
+    <!-- Attendance Breakdown Widget (Personalized for every user) -->
     <div class="widget-card mat-elevation-z2" *ngIf="showAttendanceWidget">
       <div class="widget-header">
         <div class="widget-title">
           <mat-icon class="title-icon attendance-icon">fact_check</mat-icon>
           <div>
-            <h3>Attendance Breakdown</h3>
-            <span class="widget-subtitle">Fellowship participation analytics</span>
+            <h3>{{ userRole === 'Member' ? 'My Attendance Breakdown' : 'Attendance Breakdown' }}</h3>
+            <span class="widget-subtitle">{{ userRole === 'Member' ? 'Personal attendance & participation record' : 'Fellowship participation analytics' }}</span>
           </div>
         </div>
         <button mat-stroked-button color="primary" (click)="openAttendanceDetails()" class="view-all-btn">

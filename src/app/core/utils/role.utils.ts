@@ -53,8 +53,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
   'Member': [
     'members',
     'study-materials',
-    'tasks',
-    'events'
+    'tasks'
   ]
 };
 

@@ -372,8 +372,8 @@ export class AttendanceService {
   }
 
   getAttendanceCountsByHiyawMahider(
-    hiyawMahiderId: string,
-    userId: string
+    hiyawMahiderId?: string,
+    userId?: string | string[]
   ): Observable<{
     present: number;
     absent: number;
@@ -386,11 +386,22 @@ export class AttendanceService {
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 4);
 
+    const conditions: any[] = [
+      where('date', '>=', threeMonthsAgo)
+    ];
+
+    if (hiyawMahiderId) {
+      conditions.push(where('hiyawMahiderId', '==', hiyawMahiderId));
+    }
+
     const q = query(
       collection(this.firestore, 'attendances'),
-      where('hiyawMahiderId', '==', hiyawMahiderId),
-      where('date', '>=', threeMonthsAgo)
+      ...conditions
     );
+
+    const targetUserIds = Array.isArray(userId)
+      ? userId.filter(Boolean)
+      : (userId ? [userId] : []);
 
     return new Observable(observer => {
       getDocs(q)
@@ -411,8 +422,12 @@ export class AttendanceService {
             rawRecords.push(record);
 
             (record['members'] || []).forEach((member: any) => {
-              if (member.userId === userId) {
-                const status = member['status'] as keyof typeof counts;
+              // If targetUserIds is provided, match by userId or memberId. If not, count all
+              const matchesUser = targetUserIds.length === 0 ||
+                targetUserIds.some(id => id === member.userId || id === member.memberId || id === member.id);
+
+              if (matchesUser) {
+                const status = (member['status'] || member['attendanceStatus']) as keyof typeof counts;
                 if (status && counts.hasOwnProperty(status)) {
                   counts[status]++;
                 }

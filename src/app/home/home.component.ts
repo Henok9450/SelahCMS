@@ -363,7 +363,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.showReportsMenu = this.hasPermission('reports');
             this.showEventsWidget = this.hasPermission('events');
             this.showTasksWidget = this.hasPermission('tasks');
-            this.showAttendanceWidget = this.hasPermission('attendance');
+            this.showAttendanceWidget = true; // Every authenticated user gets their personalized attendance breakdown graph
             this.showProgressWidget = this.hasPermission('study-materials');
             this.showMembersMenu = this.hasPermission('members');
             this.eventsConfig.showDescription = ['Admin', 'Pastor', 'Deputy Pastor', 'Zone Coordinator'].includes(this.userRole);
@@ -375,34 +375,24 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
             if (this.userRole === 'Admin') {
               console.log('User role is Admin. Full system access.');
-              if (userData.assignedHiyawMahiderId && user?.uid) {
+              this.loadAttendanceData(userData.assignedHiyawMahiderId, user?.uid, userData.memberId);
+              if (userData.assignedHiyawMahiderId) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId, user.uid, userData.memberId);
               } else {
                 this.memberCount = 0;
-                this.initializeEmptyAttendanceData();
-                this.calculateLearningProgressAndDaysActive([]);
               }
             } else if (this.userRole === 'Pastor' || this.userRole === 'Deputy Pastor' || this.userRole === 'Zone Coordinator') {
               console.log(`User role is ${this.userRole}. Fetching data for assigned Hiyaw Mahider.`);
-              if (userData.assignedHiyawMahiderId && user.uid) {
+              this.loadAttendanceData(userData.assignedHiyawMahiderId, user?.uid, userData.memberId);
+              if (userData.assignedHiyawMahiderId) {
                 this.loadMemberCount(userData.assignedHiyawMahiderId as string);
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
               } else {
-                console.warn(`${this.userRole} user has no assigned Hiyaw Mahider ID. Displaying general data.`);
                 this.memberCount = 0;
-                this.initializeEmptyAttendanceData();
-                this.calculateLearningProgressAndDaysActive([]);
               }
             } else if (this.userRole === 'Member') {
-              console.log('User role is Member. Personal progress and fellowship access only.');
+              console.log('User role is Member. Personal progress and fellowship attendance access.');
               this.memberCount = 0; // Members view their own assignments & progress
-              if (userData.assignedHiyawMahiderId && user.uid) {
-                this.loadAttendanceData(userData.assignedHiyawMahiderId as string, user.uid, userData.memberId);
-              } else {
-                this.initializeEmptyAttendanceData();
-                this.calculateLearningProgressAndDaysActive([]);
-              }
+              this.loadAttendanceData(userData.assignedHiyawMahiderId, user?.uid, userData.memberId);
             } else {
               console.log('User role is Guest or default.');
               this.memberCount = 0;
@@ -449,12 +439,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
+  private loadAttendanceData(hiyawMahiderId?: string, userId?: string, memberId?: string): void {
+    const userIds = [userId, memberId].filter(Boolean) as string[];
+    console.log('loadAttendanceData called for Hiyaw Mahider ID:', hiyawMahiderId, 'User IDs:', userIds);
 
-  private loadAttendanceData(hiyawMahiderId: string, userId: string, memberId?: string): void {
-    const searchId = memberId || userId;
-    console.log('loadAttendanceData called for Hiyaw Mahider ID:', hiyawMahiderId, 'Access ID:', searchId);
-
-    this.attendanceService.getAttendanceCountsByHiyawMahider(hiyawMahiderId, searchId).pipe(
+    this.attendanceService.getAttendanceCountsByHiyawMahider(hiyawMahiderId, userIds).pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (result: {
