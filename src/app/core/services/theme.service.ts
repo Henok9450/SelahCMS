@@ -57,13 +57,13 @@ export class ThemeService {
   }
 
   private getInitialTheme(): AppTheme {
-    if (typeof window === 'undefined') return 'dark';
+    if (typeof window === 'undefined') return 'light';
     const saved = localStorage.getItem(this.THEME_STORAGE_KEY) as AppTheme | null;
     if (saved === 'dark' || saved === 'light') {
       return saved;
     }
-    // Default to dark theme
-    return 'dark';
+    // Default to light theme
+    return 'light';
   }
 
   private applyTheme(theme: AppTheme): void {
