@@ -1,7 +1,19 @@
 <div class="layout-container">
-    <!-- Show loading spinner while verifying auth state -->
-    <div *ngIf="isLoading" class="loading-overlay">
-      <mat-spinner diameter="50"></mat-spinner>
+    <!-- Show skeleton shell while verifying auth state -->
+    <div *ngIf="isLoading" class="skeleton-shell-overlay" style="padding: 2rem; width: 100%;">
+      <div style="display: flex; gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 50px; height: 50px;"></div>
+        <div style="flex: 1;">
+          <div class="skeleton-shimmer skeleton-title" style="width: 30%;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 20%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-grid" style="margin-bottom: 1.5rem;">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+          <div class="skeleton-shimmer skeleton-title" style="width: 40%;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 60%;"></div>
+        </div>
+      </div>
     </div>
   
     <!-- Main layout (only shown when authenticated) -->

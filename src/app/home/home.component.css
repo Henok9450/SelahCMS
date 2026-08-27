@@ -785,3 +785,59 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Dark Theme Overrides for Dashboard ──────────── */
+:host-context(body.dark-theme) .dashboard-page-container {
+  color: #f1f5f9;
+}
+
+:host-context(body.dark-theme) .metric-card,
+:host-context(body.dark-theme) .widget-card,
+:host-context(body.dark-theme) .hub-item-card,
+:host-context(body.dark-theme) .detail-container {
+  background: #131f33 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
+:host-context(body.dark-theme) .widget-header {
+  background: #0f192b !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+:host-context(body.dark-theme) .task-item {
+  background: #0f192b !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+:host-context(body.dark-theme) .task-item:hover,
+:host-context(body.dark-theme) .event-item:hover,
+:host-context(body.dark-theme) .hub-item-card:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+:host-context(body.dark-theme) .metric-number,
+:host-context(body.dark-theme) .event-name,
+:host-context(body.dark-theme) .task-name,
+:host-context(body.dark-theme) .widget-title h3,
+:host-context(body.dark-theme) .section-title h2,
+:host-context(body.dark-theme) .hub-info h4 {
+  color: #f1f5f9 !important;
+}
+
+:host-context(body.dark-theme) .metric-label,
+:host-context(body.dark-theme) .widget-subtitle,
+:host-context(body.dark-theme) .hub-info p,
+:host-context(body.dark-theme) .meta-item {
+  color: #94a3b8 !important;
+}
+
+:host-context(body.dark-theme) .dashboard-hero-banner {
+  background: linear-gradient(135deg, #032d29 0%, #072230 50%, #0a1928 100%) !important;
+  border: 1px solid rgba(94, 234, 212, 0.25) !important;
+}
+
+:host-context(body.dark-theme) .chart-legend-box {
+  background: #0f192b !important;
+  color: #94a3b8 !important;
+}

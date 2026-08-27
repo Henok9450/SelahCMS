@@ -71,10 +71,27 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="44"></mat-spinner>
-    <p>Analyzing member attendance & follow-up data...</p>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="isLoading" class="skeleton-followup-container" style="margin-top: 1.5rem;">
+    <div class="stats-grid" style="margin-bottom: 1.5rem;">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <div class="skeleton-shimmer skeleton-avatar"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-shimmer skeleton-title" style="width: 45%;"></div>
+            <div class="skeleton-shimmer skeleton-text" style="width: 70%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="skeleton-table-wrapper">
+      <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5]">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 25%;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 80px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 20%;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Report Content -->

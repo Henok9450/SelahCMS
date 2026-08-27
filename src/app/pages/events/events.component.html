@@ -88,10 +88,28 @@
       </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div *ngIf="isLoading" class="loading-spinner">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading events...</p>
+    <!-- Skeleton Shimmer Loading State -->
+    <div *ngIf="isLoading" class="skeleton-events-container" style="margin-top: 1rem;">
+      <div class="skeleton-table-wrapper" *ngIf="viewMode === 'table'">
+        <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5]">
+          <div class="skeleton-shimmer skeleton-text" style="width: 5%;"></div>
+          <div class="skeleton-shimmer skeleton-title" style="width: 30%; height: 18px; margin-bottom: 0;"></div>
+          <div class="skeleton-shimmer skeleton-badge" style="width: 90px;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+        </div>
+      </div>
+      <div class="skeleton-grid" *ngIf="viewMode === 'grid'">
+        <div class="skeleton-card" *ngFor="let c of [1,2,3,4,5,6]">
+          <div class="skeleton-shimmer skeleton-title" style="width: 70%;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 90%;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 60%;"></div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <div class="skeleton-shimmer skeleton-badge" style="width: 70px;"></div>
+            <div class="skeleton-shimmer skeleton-badge" style="width: 70px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Table View -->

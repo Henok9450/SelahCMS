@@ -246,9 +246,16 @@
       <!-- Available Members Section -->
       <div class="members-section">
         <h4>Available Members ({{ filteredMembers.length }})</h4>
-        <div *ngIf="isLoadingMembers" class="loading-section">
-          <mat-spinner diameter="30"></mat-spinner>
-          <span>Loading members...</span>
+        <div *ngIf="isLoadingMembers" class="skeleton-members-list" style="margin-bottom: 1rem;">
+          <div class="skeleton-card" *ngFor="let i of [1,2,3]" style="padding: 0.75rem; margin-bottom: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="flex: 1;">
+                <div class="skeleton-shimmer skeleton-title" style="width: 50%; height: 16px; margin-bottom: 4px;"></div>
+                <div class="skeleton-shimmer skeleton-text" style="width: 70%; height: 12px;"></div>
+              </div>
+              <div class="skeleton-shimmer skeleton-badge" style="width: 80px; height: 30px;"></div>
+            </div>
+          </div>
         </div>
 
         <div class="members-list" *ngIf="!isLoadingMembers">
@@ -923,10 +930,15 @@
 
   <!-- Hiyaw Mahiders List Card -->
   <div class="hiyaw-table-container mat-elevation-z2">
-    <!-- loading state -->
-    <div *ngIf="isLoading" class="loading-spinner">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading Hiyaw Mahiders...</p>
+    <!-- Skeleton Shimmer Loading State -->
+    <div *ngIf="isLoading" class="skeleton-hiyaw-container" style="padding: 1rem;">
+      <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5]">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 36px; height: 36px;"></div>
+        <div class="skeleton-shimmer skeleton-title" style="width: 25%; height: 18px; margin-bottom: 0;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 80px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 20%;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+      </div>
     </div>
 
     <!-- empty state -->

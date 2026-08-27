@@ -56,9 +56,17 @@
   </div>
 
 
-  <div *ngIf="isLoading" class="loading-spinner">
-    <mat-spinner></mat-spinner>
-    <p>Loading tasks...</p>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="isLoading" class="skeleton-tasks-container" style="margin-top: 1rem;">
+    <div class="skeleton-table-wrapper">
+      <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5]">
+        <div class="skeleton-shimmer skeleton-text" style="width: 5%;"></div>
+        <div class="skeleton-shimmer skeleton-title" style="width: 35%; height: 18px; margin-bottom: 0;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 80px;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 70px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="!isLoading" class="task-table-container mat-elevation-z2">

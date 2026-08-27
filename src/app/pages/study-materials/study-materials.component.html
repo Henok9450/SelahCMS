@@ -6,8 +6,22 @@
     </button>
   </div>
 
-  <div *ngIf="loading" class="spinner-container">
-    <mat-spinner></mat-spinner>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="loading" class="skeleton-grid" style="margin-bottom: 1.5rem;">
+    <div class="skeleton-card" *ngFor="let c of [1,2,3]">
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="skeleton-shimmer skeleton-avatar" style="border-radius: 8px;"></div>
+        <div style="flex: 1;">
+          <div class="skeleton-shimmer skeleton-title" style="width: 60%; height: 18px; margin-bottom: 4px;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 40%; height: 12px;"></div>
+        </div>
+      </div>
+      <div class="skeleton-shimmer skeleton-text" style="width: 90%; margin-top: 0.5rem;"></div>
+      <div class="skeleton-shimmer skeleton-text" style="width: 70%;"></div>
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+        <div class="skeleton-shimmer skeleton-badge" style="width: 90px; height: 32px;"></div>
+      </div>
+    </div>
   </div>
 
   <div class="materials-grid">

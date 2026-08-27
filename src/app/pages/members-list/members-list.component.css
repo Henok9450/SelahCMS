@@ -905,3 +905,53 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Dark Theme Overrides for Members Directory ──── */
+:host-context(body.dark-theme) .member-card,
+:host-context(body.dark-theme) .stat-card,
+:host-context(body.dark-theme) .filter-section,
+:host-context(body.dark-theme) .members-table-container,
+:host-context(body.dark-theme) .profile-modal-content {
+  background: #131f33 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #f1f5f9 !important;
+}
+
+:host-context(body.dark-theme) .member-name,
+:host-context(body.dark-theme) .stat-value,
+:host-context(body.dark-theme) .modal-title-wrap h2 {
+  color: #f1f5f9 !important;
+}
+
+:host-context(body.dark-theme) .member-group,
+:host-context(body.dark-theme) .stat-label,
+:host-context(body.dark-theme) .search-box input {
+  color: #94a3b8 !important;
+}
+
+:host-context(body.dark-theme) .search-box,
+:host-context(body.dark-theme) .view-toggle-group {
+  background: #0f192b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+:host-context(body.dark-theme) .members-table th {
+  background: #0f192b !important;
+  color: #94a3b8 !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+:host-context(body.dark-theme) .members-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  color: #f1f5f9 !important;
+}
+
+:host-context(body.dark-theme) .members-table tr:hover {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+:host-context(body.dark-theme) .email-btn {
+  background: #0f192b !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+}

@@ -129,10 +129,17 @@
     </mat-chip-listbox>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="isLoading && dataSource.data.length === 0" class="loading-spinner">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading pastors...</p>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="isLoading && dataSource.data.length === 0" class="skeleton-pastors-container" style="margin-top: 1rem;">
+    <div class="skeleton-table-wrapper">
+      <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5]">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 36px; height: 36px;"></div>
+        <div class="skeleton-shimmer skeleton-title" style="width: 25%; height: 18px; margin-bottom: 0;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 80px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 20%;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+      </div>
+    </div>
   </div>
 
   <div *ngIf="!isLoading && dataSource.data.length === 0 && initialLoadComplete && !isAdding && !isEditMode" class="empty-state">

@@ -1,0 +1,23 @@
+<!-- PWA Install Banner Overlay -->
+<div class="pwa-install-card animate__animated animate__fadeInUp" *ngIf="showBanner()">
+  <div class="pwa-crest-wrap">
+    <img src="assets/images/logo2.png" alt="SelahCMS" class="pwa-crest-img" />
+  </div>
+
+  <div class="pwa-content">
+    <div class="pwa-title-row">
+      <span class="pwa-title">Install SelahCMS</span>
+      <span class="pwa-tag">App</span>
+    </div>
+    <p class="pwa-desc">Install onto your phone or desktop for instant access & fast offline attendance tracking.</p>
+  </div>
+
+  <div class="pwa-actions">
+    <button mat-raised-button color="accent" class="pwa-install-btn" (click)="installApp()">
+      <mat-icon>download</mat-icon> Install
+    </button>
+    <button mat-icon-button class="pwa-dismiss-btn" (click)="dismiss()" matTooltip="Dismiss for now">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+</div>

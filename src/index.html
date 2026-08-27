@@ -2,12 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SelahCMS</title>
+  <title>SelahCMS - Gerji Emmanuel United Church</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07514d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SelahCMS">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="manifest" href="assets/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/images/logo2.png">
 </head>
 <body>
   <app-root></app-root>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        const swPath = '/assets/sw.js';
+        navigator.serviceWorker.register(swPath, { scope: '/' })
+          .then(function(registration) {
+            console.log('[PWA] ServiceWorker registration successful with scope: ', registration.scope);
+          })
+          .catch(function(err) {
+            navigator.serviceWorker.register('/sw.js')
+              .then(function(r) { console.log('[PWA] Fallback SW registered:', r.scope); })
+              .catch(function(e) { console.warn('[PWA] SW register skipped:', e); });
+          });
+      });
+    }
+  </script>
 </body>
 </html>

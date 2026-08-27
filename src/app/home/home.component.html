@@ -35,8 +35,21 @@
     </div>
   </div>
 
+  <!-- ── Skeleton Shimmer Loading Dashboard ───────────── -->
+  <div class="stats-row" *ngIf="isLoading">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 46px; height: 46px;"></div>
+        <div style="flex: 1;">
+          <div class="skeleton-shimmer skeleton-title" style="width: 50%; height: 26px; margin-bottom: 4px;"></div>
+          <div class="skeleton-shimmer skeleton-text" style="width: 75%; height: 12px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Quick Metric Stat Cards ───────────────────── -->
-  <div class="stats-row" *ngIf="showQuickStats">
+  <div class="stats-row" *ngIf="showQuickStats && !isLoading">
     <!-- Total Members Card -->
     <div class="metric-card member-metric mat-elevation-z2" routerLink="/pages/members-list" matTooltip="View Members Directory">
       <div class="metric-icon-wrap">
@@ -305,7 +318,7 @@
           <mat-icon class="title-icon progress-icon">menu_book</mat-icon>
           <div>
             <h3>Bible Study Progress</h3>
-            <span class="widget-subtitle">Curriculum completion tracking</span>
+            <span class="widget-subtitle">Study material completion tracking</span>
           </div>
         </div>
         <button mat-stroked-button color="primary" (click)="viewProgressDetails()" class="view-all-btn">

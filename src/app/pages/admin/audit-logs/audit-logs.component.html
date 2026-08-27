@@ -51,10 +51,17 @@
     </form>
   </mat-card>
 
-  <!-- Loading Spinner -->
-  <div *ngIf="isLoading" class="loading-state">
-    <mat-spinner diameter="40"></mat-spinner>
-    <span>Loading system audit trail...</span>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="isLoading" class="skeleton-audit-container" style="margin-top: 1.5rem;">
+    <div class="skeleton-table-wrapper">
+      <div class="skeleton-table-row" *ngFor="let r of [1,2,3,4,5,6]">
+        <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 32px; height: 32px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 18%;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 75px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 30%;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Empty State -->

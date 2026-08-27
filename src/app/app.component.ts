@@ -18,6 +18,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { environment } from '../environments/environment';
 import { MatDividerModule } from '@angular/material/divider';
+import { ThemeService } from './core/services/theme.service';
+import { PwaInstallBannerComponent } from './shared/pwa-install-banner/pwa-install-banner.component';
 
 @Component({
   selector: 'app-root',
@@ -37,7 +39,8 @@ import { MatDividerModule } from '@angular/material/divider';
     MatDividerModule,
     MatTooltipModule,
     SidebarComponent,
-    SessionTimeoutDialogComponent
+    SessionTimeoutDialogComponent,
+    PwaInstallBannerComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
@@ -60,6 +63,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private ngZone = inject(NgZone);
   authService = inject(AuthService);
+  themeService = inject(ThemeService);
 
   showSessionWarning$ = this.authService.showSessionWarning$;
 

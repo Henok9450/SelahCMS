@@ -19,6 +19,14 @@
       </a>
     </div>
     <div class="user-info">
+      <!-- Theme Switcher Button -->
+      <button mat-icon-button 
+              class="theme-toggle-btn" 
+              (click)="themeService.toggleTheme()" 
+              [matTooltip]="themeService.isDark() ? 'Switch to Light Theme' : 'Switch to Dark Theme'">
+        <mat-icon class="theme-icon">{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
       <div *ngIf="authService.authState$ | async as user; else loginButton"
            class="user-profile-pill"
            [matMenuTriggerFor]="userMenu"
@@ -86,4 +94,6 @@
   [secondsRemaining]="authService.warningCountdownSeconds"
   (stayLoggedIn)="authService.extendSession()"
   (logoutNow)="authService.logout(true)">
-</app-session-timeout-dialog>
+</app-session-timeout-dialog>
+
+<app-pwa-install-banner></app-pwa-install-banner>

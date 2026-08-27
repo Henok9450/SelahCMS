@@ -31,10 +31,50 @@
 </div>
 
 <div class="members-main-container">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="44"></mat-spinner>
-    <p>Loading fellowship members...</p>
+  <!-- Skeleton Shimmer Loading State -->
+  <div *ngIf="isLoading" class="skeleton-members-container">
+    <!-- Skeleton Stat Cards -->
+    <div class="stats-grid" style="margin-bottom: 1.5rem;">
+      <div class="skeleton-card" *ngFor="let s of [1,2,3,4]">
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <div class="skeleton-shimmer skeleton-avatar"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-shimmer skeleton-title" style="width: 40%; height: 24px;"></div>
+            <div class="skeleton-shimmer skeleton-text" style="width: 70%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton Member Grid Cards -->
+    <div class="skeleton-grid" *ngIf="viewMode === 'grid'">
+      <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6]">
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem;">
+          <div class="skeleton-shimmer skeleton-avatar" style="width: 52px; height: 52px;"></div>
+          <div style="flex: 1;">
+            <div class="skeleton-shimmer skeleton-title" style="width: 65%;"></div>
+            <div class="skeleton-shimmer skeleton-badge"></div>
+          </div>
+        </div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 90%;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 75%;"></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+          <div class="skeleton-shimmer skeleton-badge" style="width: 90px; height: 28px;"></div>
+          <div class="skeleton-shimmer skeleton-badge" style="width: 90px; height: 28px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skeleton Member Table -->
+    <div class="skeleton-table-wrapper" *ngIf="viewMode === 'table'">
+      <div class="skeleton-table-row" *ngFor="let row of [1,2,3,4,5,6]">
+        <div class="skeleton-shimmer skeleton-avatar" style="width: 38px; height: 38px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 25%;"></div>
+        <div class="skeleton-shimmer skeleton-badge" style="width: 80px;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 20%;"></div>
+        <div class="skeleton-shimmer skeleton-text" style="width: 15%;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Error State -->

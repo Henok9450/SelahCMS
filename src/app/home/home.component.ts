@@ -66,6 +66,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   showAttendanceWidget: boolean = true;
 
 
+  // Loading state
+  isLoading: boolean = true;
+
   // User info
   userName: string = 'Guest';
   userRole: string = '';
@@ -427,18 +430,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.calculateLearningProgressAndDaysActive([]);
               }
             }
+            this.isLoading = false;
             this.cdr.detectChanges();
           } else {
             console.warn('User data not found for authenticated user.');
             this.resetUserDataAndPermissions();
+            this.isLoading = false;
           }
         }).catch((error) => {
           console.error('Error fetching user data:', error);
           this.resetUserDataAndPermissions();
+          this.isLoading = false;
         });
       } else {
         console.log('User is not authenticated (Guest).');
         this.resetUserDataAndPermissions();
+        this.isLoading = false;
       }
     });
   }
