@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: SelahCMS
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: serve -s dist/hiyaw-mahider-learning-system/browser -l $PORT
+    envVars:
+      - key: NODE_OPTIONS
+        value: "--max-old-space-size=4096"
