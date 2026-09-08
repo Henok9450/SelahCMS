@@ -24,6 +24,7 @@
               class="lang-selector-btn" 
               [matMenuTriggerFor]="langMenu"
               [matTooltip]="(currentLang$ | async) === 'am' ? 'ቋንቋ: አማርኛ (ቀይር)' : 'Language: English (Change)'">
+        <mat-icon class="translate-icon">translate</mat-icon>
         <span class="lang-flag">{{ (currentLang$ | async) === 'am' ? '🇪🇹' : '🇬🇧' }}</span>
         <span class="lang-label">{{ (currentLang$ | async) === 'am' ? 'አማርኛ' : 'EN' }}</span>
         <mat-icon class="lang-chevron">arrow_drop_down</mat-icon>
