@@ -235,8 +235,8 @@ export class TranslationService {
       }
     });
 
-    // Protect data codes, times, and member names
-    const dataEls = document.querySelectorAll('.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, input, textarea');
+    // Protect data codes, times, member names, and live numeric metrics
+    const dataEls = document.querySelectorAll('.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, .metric-number, .center-percentage, .stat-value, input, textarea');
     dataEls.forEach(el => {
       if (!el.classList.contains('notranslate')) {
         el.classList.add('notranslate');

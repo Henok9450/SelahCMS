@@ -59,7 +59,7 @@
         <mat-icon>groups</mat-icon>
       </div>
       <div class="metric-data">
-        <span class="metric-number">{{ memberCount || 0 }}</span>
+        <span class="metric-number notranslate" translate="no">{{ memberCount || 0 }}</span>
         <span class="metric-label">Assigned Members</span>
       </div>
       <div class="metric-arrow">
@@ -73,7 +73,7 @@
         <mat-icon>event_available</mat-icon>
       </div>
       <div class="metric-data">
-        <span class="metric-number">{{ recentEvents.length || upcomingEventsCount || 0 }}</span>
+        <span class="metric-number notranslate" translate="no">{{ recentEvents.length || upcomingEventsCount || 0 }}</span>
         <span class="metric-label">Upcoming Events</span>
       </div>
       <div class="metric-arrow">
@@ -87,7 +87,7 @@
         <mat-icon>assignment_turned_in</mat-icon>
       </div>
       <div class="metric-data">
-        <span class="metric-number">{{ recentTasks.length || 0 }}</span>
+        <span class="metric-number notranslate" translate="no">{{ recentTasks.length || 0 }}</span>
         <span class="metric-label">Active Tasks</span>
       </div>
       <div class="metric-arrow">
@@ -101,7 +101,7 @@
         <mat-icon>{{ hasPermission('reports') ? 'trending_up' : 'menu_book' }}</mat-icon>
       </div>
       <div class="metric-data">
-        <span class="metric-number">{{ progressPercentage || 0 }}%</span>
+        <span class="metric-number notranslate" translate="no">{{ progressPercentage || 0 }}%</span>
         <span class="metric-label">Bible Study Progress</span>
       </div>
       <div class="metric-arrow">
@@ -333,18 +333,18 @@
         <div class="donut-chart-container">
           <canvas #progressChart></canvas>
           <div class="chart-center-overlay">
-            <span class="center-percentage">{{ progressPercentage }}%</span>
+            <span class="center-percentage notranslate" translate="no">{{ progressPercentage }}%</span>
             <span class="center-label">Complete</span>
           </div>
         </div>
         <div class="chart-legend-box">
           <div class="legend-item">
             <span class="legend-dot completed-dot"></span>
-            <span>Completed Units ({{ progressPercentage }}%)</span>
+            <span>Completed Units (<span class="notranslate" translate="no">{{ progressPercentage }}%</span>)</span>
           </div>
           <div class="legend-item">
             <span class="legend-dot remaining-dot"></span>
-            <span>Remaining Studies ({{ 100 - progressPercentage }}%)</span>
+            <span>Remaining Studies (<span class="notranslate" translate="no">{{ 100 - progressPercentage }}%</span>)</span>
           </div>
         </div>
       </div>

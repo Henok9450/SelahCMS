@@ -21,6 +21,7 @@ import { Event as AppEvent } from '../core/models/events.model';
 import { Task } from '../core/models/tasks.model';
 import { AttendanceDetailsDialogComponent } from './attendance-details-dialog.component';
 import { hasPermission, AppRole, ROLE_PERMISSIONS } from '../core/utils/role.utils';
+import { TranslationService } from '../core/services/translation.service';
 
 interface AttendanceRecord {
   id?: string;
@@ -151,7 +152,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private memberService: MemberService,
     private attendanceService: AttendanceService,
     private cdr: ChangeDetectorRef,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public translationService: TranslationService
   ) {
     Chart.register(...registerables);
     this.loadMaterialIcons();
@@ -162,6 +164,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setRoleBasedPermissions();
     this.loadEvents(); // Events loading logic is fine as it is
     this.loadCustomConfigurations();
+
+    // Re-render chart labels when language is toggled
+    this.translationService.currentLang$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.updateAttendanceChart();
+      this.renderProgressChart();
+      this.cdr.detectChanges();
+    });
 
     // Subscribe to contextualTasks$ from the TasksService
     // This observable already incorporates the role and Hiyaw Mahider ID filtering
@@ -557,7 +568,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (data.length === 0) {
-      labels.push('No Attendance Data');
+      labels.push(this.translationService?.currentLang === 'am' ? 'የመገኘት መረጃ የለም' : 'No Attendance Data');
       data.push(1);
       backgroundColors.push('#e0e0e0');
     }
@@ -592,6 +603,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               label: (context) => {
                 const label = context.label || '';
                 const value = context.raw || 0;
+                if (this.translationService?.currentLang === 'am') {
+                  return `${label}: ${value} መዝገብ`;
+                }
                 return `${label}: ${value} ${value === 1 ? 'record' : 'records'}`;
               }
             }
@@ -607,7 +621,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return `Progress: ${this.progressPercentage}% (${this.daysActive} days active in last 3 months)`;
   }
 
+  private readonly amharicStatusLabels: Record<string, string> = {
+    'present': 'ተገኝቷል',
+    'absent': 'አልተገኘም',
+    'excused': 'በፈቃድ',
+    'late': 'የዘገየ',
+    'new-guest': 'አዲስ እንግዳ',
+    'follow-up-needed': 'ክትትል የሚያስፈልገው'
+  };
+
   private formatStatusLabel(status: string): string {
+    if (this.translationService?.currentLang === 'am' && this.amharicStatusLabels[status]) {
+      return this.amharicStatusLabels[status];
+    }
     return status.split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
@@ -700,7 +726,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.progressChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Quarterly Progress', 'Remaining'],
+        labels: this.translationService?.currentLang === 'am'
+          ? ['የተጠናቀቀ', 'የቀረ']
+          : ['Quarterly Progress', 'Remaining'],
         datasets: [{
           data: [this.progressPercentage, 100 - this.progressPercentage],
           backgroundColor: ['#4CAF50', '#E0E0E0'],

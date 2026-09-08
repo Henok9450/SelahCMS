@@ -22,13 +22,13 @@ import { Timestamp } from '@angular/fire/firestore';
     <mat-dialog-content>
       <div class="progress-explanation" *ngIf="data.type === 'progress' && data.progressStats">
         <div class="stat-box">
-          <div class="stat-value">{{data.progressStats.percentage}}%</div>
+          <div class="stat-value notranslate" translate="no">{{data.progressStats.percentage}}%</div>
           <div class="stat-label">Total Progress</div>
         </div>
         <div class="explanation-text">
             <p><strong>How is this calculated?</strong></p>
             <p>Your progress is based on attendance over the last 3 months.</p>
-            <p>You were present for <strong>{{data.progressStats.presentCount}}</strong> out of <strong>{{data.progressStats.totalCount}}</strong> sessions.</p>
+            <p>You were present for <strong class="notranslate" translate="no">{{data.progressStats.presentCount}}</strong> out of <strong class="notranslate" translate="no">{{data.progressStats.totalCount}}</strong> sessions.</p>
         </div>
       </div>
 
