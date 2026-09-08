@@ -16,10 +16,11 @@
     <!-- ── Main Navigation ── -->
     <li class="nav-section-label">Navigation</li>
 
-    <li class="nav-item active">
-      <a routerLink="/home" routerLinkActive="active" (click)="onNavLinkClick()">
+    <li class="nav-item">
+      <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="onNavLinkClick()">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
@@ -28,30 +29,34 @@
     <li class="nav-section-label" *ngIf="(canViewZones$ | async) || (canViewHiyawMahider$ | async) || (canViewPastors$ | async) || (canViewAdminLogs$ | async)">Administration</li>
 
     <li class="nav-item" *ngIf="canViewZones$ | async">
-      <a routerLink="../pages/zone" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/zone" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>location_on</mat-icon>
         <span>Zones</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewHiyawMahider$ | async">
-      <a routerLink="../pages/hiyaw-mahider" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/hiyaw-mahider" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>diversity_3</mat-icon>
         <span>Hiyaw Mahider</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewPastors$ | async">
-      <a routerLink="../pages/pastors" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/pastors" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>supervisor_account</mat-icon>
         <span>Pastors</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewAdminLogs$ | async">
-      <a routerLink="../pages/admin/logs" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/admin/logs" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>admin_panel_settings</mat-icon>
         <span>Activity Logs</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
@@ -60,30 +65,34 @@
     <li class="nav-section-label">Community</li>
 
     <li class="nav-item" *ngIf="canViewAttendance$ | async">
-      <a routerLink="../pages/attendance" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/attendance" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>how_to_reg</mat-icon>
         <span>Attendance</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewMembers$ | async">
-      <a routerLink="../pages/members-list" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/members-list" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>group</mat-icon>
         <span>Members</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewTasks$ | async">
-      <a routerLink="../pages/tasks" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/tasks" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>assignment</mat-icon>
         <span>Tasks</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
     <li class="nav-item" *ngIf="canViewEvents$ | async">
-      <a routerLink="../pages/events" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/events" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>event</mat-icon>
         <span>Events</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
@@ -91,8 +100,8 @@
     <li class="nav-divider" *ngIf="canViewReports$ | async"></li>
     <li class="nav-section-label" *ngIf="canViewReports$ | async">Insights</li>
 
-    <li class="nav-item" [class.active]="showReportsSubmenu" *ngIf="canViewReports$ | async">
-      <a (click)="toggleReports()" class="has-submenu" routerLinkActive="active">
+    <li class="nav-item" [class.submenu-open]="showReportsSubmenu" *ngIf="canViewReports$ | async">
+      <a (click)="toggleReports()" class="has-submenu" [class.parent-active]="showReportsSubmenu">
         <mat-icon>assessment</mat-icon>
         <span>Reports</span>
         <mat-icon class="submenu-icon" [class.rotated]="showReportsSubmenu">
@@ -104,6 +113,7 @@
           <a [routerLink]="['/reports', report.id]" routerLinkActive="active" (click)="onNavLinkClick()">
             <mat-icon>{{report.icon}}</mat-icon>
             <span>{{report.title}}</span>
+            <span class="active-indicator-dot"></span>
           </a>
         </li>
       </ul>
@@ -114,9 +124,10 @@
     <li class="nav-section-label">Learning</li>
 
     <li class="nav-item">
-      <a routerLink="../pages/study-materials" routerLinkActive="active" (click)="onNavLinkClick()">
+      <a routerLink="/pages/study-materials" routerLinkActive="active" (click)="onNavLinkClick()">
         <mat-icon>menu_book</mat-icon>
         <span>Study Materials</span>
+        <span class="active-indicator-dot"></span>
       </a>
     </li>
 
