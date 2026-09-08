@@ -21,6 +21,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { ThemeService } from './core/services/theme.service';
 import { TranslationService, SupportedLanguage } from './core/services/translation.service';
 import { PwaInstallBannerComponent } from './shared/pwa-install-banner/pwa-install-banner.component';
+import { RoleNamePipe } from './shared/pipes/role-name.pipe';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +42,8 @@ import { PwaInstallBannerComponent } from './shared/pwa-install-banner/pwa-insta
     MatTooltipModule,
     SidebarComponent,
     SessionTimeoutDialogComponent,
-    PwaInstallBannerComponent
+    PwaInstallBannerComponent,
+    RoleNamePipe
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

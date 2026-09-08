@@ -259,6 +259,7 @@ export class TranslationService {
       '.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, ' +
       '.metric-number, .center-percentage, .stat-value, .summary-count, .count-badge, .absence-badge, .date-badge, ' +
       '.zone-badge, .dist-count, .stat-count, .nowrap-cell, .time-cell, ' +
+      '.user-role-badge, .user-role-tag, .role-pill, .role-badge, ' +
       'mat-paginator, .mat-mdc-paginator-range-label, .mat-paginator-range-label, input, textarea'
     );
     dataEls.forEach(el => {

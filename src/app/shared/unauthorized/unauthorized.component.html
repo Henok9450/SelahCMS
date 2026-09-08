@@ -12,7 +12,7 @@
         The page you're trying to access requires special permissions.
       </p>
       <p *ngIf="authService.authState$ | async as user" class="current-role">
-        Your current role: <strong>{{ user.role }}</strong>
+        Your current role: <strong class="notranslate" translate="no">{{ user.role | appRoleName }}</strong>
       </p>
     </mat-card-content>
   

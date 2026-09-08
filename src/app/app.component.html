@@ -77,7 +77,7 @@
 
         <!-- Avatar initials + role -->
         <div class="user-avatar-badge">{{ getUserInitials(userName) }}</div>
-        <span class="user-role-badge">{{ user.role }}</span>
+        <span class="user-role-badge notranslate" translate="no">{{ user.role | appRoleName }}</span>
         <mat-icon class="dropdown-chevron">expand_more</mat-icon>
       </div>
 
@@ -90,7 +90,7 @@
       <mat-menu #userMenu="matMenu" class="user-account-menu">
         <div class="menu-user-info">
           <span class="menu-name">{{ userName }}</span>
-          <span class="menu-role" *ngIf="authService.authState$ | async as user">{{ user.email || user.role }}</span>
+          <span class="menu-role notranslate" translate="no" *ngIf="authService.authState$ | async as user">{{ user.email || (user.role | appRoleName) }}</span>
         </div>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="changePassword()">

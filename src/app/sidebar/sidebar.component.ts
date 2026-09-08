@@ -17,6 +17,8 @@ interface Report {
   icon: string;
 }
 
+import { RoleNamePipe } from '../shared/pipes/role-name.pipe';
+
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
@@ -29,6 +31,7 @@ interface Report {
     MatMenuModule,
     MatButtonModule,
     MatListModule,
+    RoleNamePipe
   ],
 })
 export class SidebarComponent implements OnInit {

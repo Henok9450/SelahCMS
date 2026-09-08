@@ -174,9 +174,9 @@
             <div class="card-avatar">
               {{ getInitials(member?.full_name || '') }}
             </div>
-            <span class="role-pill" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
+            <span class="role-pill notranslate" translate="no" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
               <mat-icon class="role-icon">{{ getRoleIcon(member?.role) }}</mat-icon>
-              {{ member?.role || 'Member' }}
+              {{ (member?.role || 'Member') | appRoleName }}
             </span>
           </div>
 
@@ -274,9 +274,9 @@
                 <span class="text-muted" *ngIf="!member?.email">—</span>
               </td>
               <td class="col-role">
-                <span class="role-badge" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
+                <span class="role-badge notranslate" translate="no" [ngClass]="'role-' + (member?.role || 'member').toLowerCase().replace(' ', '-')">
                   <mat-icon class="inline-role-icon">{{ getRoleIcon(member?.role) }}</mat-icon>
-                  {{ member?.role || 'Member' }}
+                  {{ (member?.role || 'Member') | appRoleName }}
                 </span>
               </td>
               <td class="col-status">
@@ -324,9 +324,9 @@
       </div>
       <h2 class="modal-name">{{ selectedMember.full_name }}</h2>
       <div class="modal-badges">
-        <span class="role-pill" [ngClass]="'role-' + (selectedMember.role || 'member').toLowerCase().replace(' ', '-')">
+        <span class="role-pill notranslate" translate="no" [ngClass]="'role-' + (selectedMember.role || 'member').toLowerCase().replace(' ', '-')">
           <mat-icon class="role-icon">{{ getRoleIcon(selectedMember.role) }}</mat-icon>
-          {{ selectedMember.role || 'Member' }}
+          {{ (selectedMember.role || 'Member') | appRoleName }}
         </span>
         <span class="status-chip" [ngClass]="'status-' + (selectedMember.status || 'active').toLowerCase()">
           {{ selectedMember.status || 'Active' }}

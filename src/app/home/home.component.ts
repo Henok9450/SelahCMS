@@ -37,6 +37,7 @@ interface AttendanceRecord {
 
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RoleNamePipe } from '../shared/pipes/role-name.pipe';
 
 @Component({
   selector: 'app-home',
@@ -52,6 +53,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatListModule,
     MatCardModule,
     MatTooltipModule,
+    RoleNamePipe,
   ],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {

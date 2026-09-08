@@ -8,7 +8,7 @@
       </div>
       <div class="user-info-wrap">
         <span class="user-name-title">{{ userName }}</span>
-        <span class="user-role-badge">{{ user.role }}</span>
+        <span class="user-role-badge notranslate" translate="no">{{ user.role | appRoleName }}</span>
       </div>
     </li>
     <li class="nav-divider mobile-profile-divider" *ngIf="authService.authState$ | async"></li>

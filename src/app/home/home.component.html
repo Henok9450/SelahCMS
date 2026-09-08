@@ -16,7 +16,7 @@
           <span class="group-name-tag" *ngIf="assignedHiyawMahider">{{ assignedHiyawMahider }}</span>
           <span class="group-name-tag" *ngIf="!assignedHiyawMahider">Gerji Emmanuel United Church</span>
           <span class="bullet-sep">•</span>
-          <span class="user-role-tag">{{ userRole || 'Fellowship Leader' }}</span>
+          <span class="user-role-tag notranslate" translate="no">{{ (userRole || 'Fellowship Leader') | appRoleName }}</span>
         </p>
       </div>
     </div>

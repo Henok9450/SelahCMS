@@ -18,6 +18,7 @@ import { Member } from '../../core/models/member.model';
 import { AuthService } from '../../core/services/auth.service';
 import { MemberService } from '../../core/services/member.service';
 import { HiyawMahiderService } from '../../core/services/hiyaw-mahider.service';
+import { RoleNamePipe } from '../../shared/pipes/role-name.pipe';
 
 @Component({
   selector: 'app-members-list',
@@ -37,6 +38,7 @@ import { HiyawMahiderService } from '../../core/services/hiyaw-mahider.service';
     MatCardModule,
     MatChipsModule,
     MatTooltipModule,
+    RoleNamePipe,
   ],
 })
 export class MembersListComponent implements OnInit, OnDestroy {

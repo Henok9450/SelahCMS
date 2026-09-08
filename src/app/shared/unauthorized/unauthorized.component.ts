@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon'; // Add this import
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service'; // Import AuthService
 import { inject } from '@angular/core'; // Import inject
+import { RoleNamePipe } from '../pipes/role-name.pipe';
 
 @Component({
   selector: 'app-unauthorized',
@@ -17,7 +18,8 @@ import { inject } from '@angular/core'; // Import inject
     MatCardModule,
     MatButtonModule,
     MatIconModule, // Add this to imports array
-    RouterModule
+    RouterModule,
+    RoleNamePipe
   ]
 })
 export class UnauthorizedComponent {
