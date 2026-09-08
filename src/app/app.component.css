@@ -138,6 +138,114 @@
   gap: 0.75rem;
 }
 
+/* ── Language Switcher Button ── */
+.lang-selector-btn {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  height: 38px;
+  padding: 0 10px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.22s ease;
+  line-height: normal;
+}
+
+.lang-selector-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #5eead4;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(94, 234, 212, 0.3);
+}
+
+.lang-flag {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.lang-label {
+  font-family: 'Inter', 'Noto Sans Ethiopic', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.lang-chevron {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-left: -2px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Language Dropdown Menu ── */
+::ng-deep .lang-dropdown-menu.mat-mdc-menu-panel {
+  border-radius: 12px !important;
+  min-width: 220px !important;
+  padding: 4px 0 !important;
+  background: #1a3a4a !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+::ng-deep .lang-dropdown-menu .mat-mdc-menu-item {
+  color: rgba(255, 255, 255, 0.85) !important;
+  height: 48px !important;
+  line-height: 1.2 !important;
+  padding: 0 16px !important;
+}
+
+::ng-deep .lang-dropdown-menu .mat-mdc-menu-item:hover {
+  background: rgba(76, 201, 240, 0.12) !important;
+  color: #ffffff !important;
+}
+
+::ng-deep .lang-dropdown-menu .mat-mdc-menu-item.selected-lang {
+  background: rgba(76, 201, 240, 0.20) !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.lang-option-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.lang-option-flag {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.lang-option-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.lang-name {
+  font-family: 'Inter', 'Noto Sans Ethiopic', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.lang-sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lang-check-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #4cc9f0;
+  margin-left: auto;
+}
+
 .theme-toggle-btn {
   color: rgba(255, 255, 255, 0.85);
   background: rgba(255, 255, 255, 0.08);

@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { environment } from '../environments/environment';
 import { MatDividerModule } from '@angular/material/divider';
 import { ThemeService } from './core/services/theme.service';
+import { TranslationService, SupportedLanguage } from './core/services/translation.service';
 import { PwaInstallBannerComponent } from './shared/pwa-install-banner/pwa-install-banner.component';
 
 @Component({
@@ -64,6 +65,9 @@ export class AppComponent implements OnInit, OnDestroy {
   private ngZone = inject(NgZone);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
+  translationService = inject(TranslationService);
+
+  currentLang$ = this.translationService.currentLang$;
 
   showSessionWarning$ = this.authService.showSessionWarning$;
 
@@ -138,6 +142,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   changePassword() {
     this.router.navigate(['/change-password']);
+  }
+
+  setLanguage(lang: SupportedLanguage): void {
+    this.translationService.setLanguage(lang);
   }
 
   // --- Mobile Menu Methods ---

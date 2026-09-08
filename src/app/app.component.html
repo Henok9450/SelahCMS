@@ -19,6 +19,39 @@
       </a>
     </div>
     <div class="user-info">
+      <!-- Language Switcher Button -->
+      <button mat-button 
+              class="lang-selector-btn" 
+              [matMenuTriggerFor]="langMenu"
+              [matTooltip]="(currentLang$ | async) === 'am' ? 'ቋንቋ: አማርኛ (ቀይር)' : 'Language: English (Change)'">
+        <span class="lang-flag">{{ (currentLang$ | async) === 'am' ? '🇪🇹' : '🇬🇧' }}</span>
+        <span class="lang-label">{{ (currentLang$ | async) === 'am' ? 'አማርኛ' : 'EN' }}</span>
+        <mat-icon class="lang-chevron">arrow_drop_down</mat-icon>
+      </button>
+
+      <mat-menu #langMenu="matMenu" class="lang-dropdown-menu">
+        <button mat-menu-item (click)="setLanguage('en')" [class.selected-lang]="(currentLang$ | async) === 'en'">
+          <div class="lang-option-row">
+            <span class="lang-option-flag">🇬🇧</span>
+            <div class="lang-option-text">
+              <span class="lang-name">English</span>
+              <span class="lang-sub">Original</span>
+            </div>
+            <mat-icon *ngIf="(currentLang$ | async) === 'en'" class="lang-check-icon">check</mat-icon>
+          </div>
+        </button>
+        <button mat-menu-item (click)="setLanguage('am')" [class.selected-lang]="(currentLang$ | async) === 'am'">
+          <div class="lang-option-row">
+            <span class="lang-option-flag">🇪🇹</span>
+            <div class="lang-option-text">
+              <span class="lang-name">አማርኛ</span>
+              <span class="lang-sub">Amharic (Live)</span>
+            </div>
+            <mat-icon *ngIf="(currentLang$ | async) === 'am'" class="lang-check-icon">check</mat-icon>
+          </div>
+        </button>
+      </mat-menu>
+
       <!-- Theme Switcher Button -->
       <button mat-icon-button 
               class="theme-toggle-btn" 

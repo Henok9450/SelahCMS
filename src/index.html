@@ -16,8 +16,14 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="manifest" href="assets/manifest.webmanifest">
   <link rel="apple-touch-icon" href="assets/images/logo2.png">
+  <!-- Ethiopic Font Support for Amharic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Container for Live Google Website Translator -->
+  <div id="google_translate_element" style="display:none;" aria-hidden="true"></div>
   <app-root></app-root>
   <script>
     if ('serviceWorker' in navigator) {

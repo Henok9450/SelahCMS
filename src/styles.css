@@ -1234,3 +1234,50 @@ mat-chip-row[color="accent"],
 .skeleton-table-row:last-child {
   border-bottom: none;
 }
+
+/* ═══════════════════════════════════════════════════
+   Live Website Translator & Amharic Typography
+   ═══════════════════════════════════════════════════ */
+
+body.lang-amharic,
+[lang="am"],
+.lang-amharic * {
+  font-family: 'Noto Sans Ethiopic', 'Inter', 'Nyala', 'Abyssinica SIL', sans-serif !important;
+}
+
+/* Hide Google Translate top banner, iframe overlays, and balloon tooltips */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+#google_translate_element {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-balloon-frame,
+#goog-gt-tt {
+  display: none !important;
+}
+
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
