@@ -89,7 +89,7 @@
 
       <mat-menu #userMenu="matMenu" class="user-account-menu">
         <div class="menu-user-info">
-          <span class="menu-name">{{ userName }}</span>
+          <span class="menu-name notranslate" translate="no">{{ userName }}</span>
           <span class="menu-role" *ngIf="authService.authState$ | async as user">{{ user.email || user.role }}</span>
         </div>
         <mat-divider></mat-divider>

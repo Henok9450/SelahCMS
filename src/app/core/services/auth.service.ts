@@ -457,6 +457,7 @@ export class AuthService {
   async getUserData(uid: string): Promise<{
     role: string,
     displayName: string,
+    fullName?: string,
     assignedHiyawMahiderId: string,
     assignedHiyawMahiderName: string,
     memberId?: string
@@ -492,7 +493,8 @@ export class AuthService {
 
       return {
         role: member.role || 'Member',
-        displayName: member.full_name || 'Guest',
+        displayName: member.full_name || '',
+        fullName: member.full_name || '',
         assignedHiyawMahiderId: member.hyaw_mahider_id || '',
         assignedHiyawMahiderName: hiyawMahiderName,
         memberId: member.id // Map backend UUID

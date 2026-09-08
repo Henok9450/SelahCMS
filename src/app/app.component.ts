@@ -107,8 +107,9 @@ export class AppComponent implements OnInit, OnDestroy {
       if (user && (user.uid || user.firebase_uid)) {
         const uid = user.uid || user.firebase_uid;
         this.authService.getUserData(uid).then(userData => {
-          if (userData && userData.displayName) {
-            this.userName = userData.displayName;
+          const resolvedName = userData?.displayName || userData?.fullName;
+          if (resolvedName) {
+            this.userName = resolvedName;
           }
         });
       }
