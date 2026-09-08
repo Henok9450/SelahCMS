@@ -154,7 +154,7 @@ export class AuthService {
                 deputyPastor: '',
                 active: apiMember?.status === 'active',
                 firstLogin: false, // API doesn't track this flag usually, assume false or manage elsewhere
-                displayName: firebaseUser.displayName || apiMember?.full_name || 'User',
+                displayName: apiMember?.full_name || firebaseUser.displayName || 'User',
                 emailVerified: firebaseUser.emailVerified,
                 createdAt: apiMember?.created_at ? new Date(apiMember.created_at) : new Date(),
                 updatedAt: new Date()
@@ -464,11 +464,14 @@ export class AuthService {
   } | null> {
     try {
       // 🆕 CHANGED: Fetch from MemberService instead of UserService
-      const member = await firstValueFrom(this.memberService.getMemberByFirebaseUid(uid));
+      let member = await firstValueFrom(this.memberService.getMemberByFirebaseUid(uid)).catch(() => null);
+      if (!member && this.auth.currentUser?.email) {
+        member = await firstValueFrom(this.memberService.getMemberByEmail(this.auth.currentUser.email)).catch(() => null);
+      }
       console.log('🔍 [AuthService] getUserData member:', member);
 
       if (!member) {
-        console.warn('⚠️ [AuthService] No member found for UID:', uid);
+        console.warn('⚠️ [AuthService] No member found for UID or Email:', uid);
         return null;
       }
 

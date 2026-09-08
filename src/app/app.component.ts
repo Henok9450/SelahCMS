@@ -103,11 +103,11 @@ export class AppComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.userName = user?.displayName || user?.fullName || user?.full_name || user?.email || 'User';
+      this.userName = user?.fullName || user?.full_name || user?.displayName || user?.email || 'User';
       if (user && (user.uid || user.firebase_uid)) {
         const uid = user.uid || user.firebase_uid;
         this.authService.getUserData(uid).then(userData => {
-          const resolvedName = userData?.displayName || userData?.fullName;
+          const resolvedName = userData?.fullName || userData?.displayName;
           if (resolvedName) {
             this.userName = resolvedName;
           }

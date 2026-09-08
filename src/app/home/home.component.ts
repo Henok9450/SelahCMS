@@ -343,8 +343,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.authService.authState$.pipe(takeUntil(this.unsubscribe$)).subscribe((user) => {
       if (user && user.uid) {
         console.log('User is authenticated. UID:', user.uid);
-        if (user.displayName || (user as any).fullName || (user as any).full_name) {
-          this.userName = user.displayName || (user as any).fullName || (user as any).full_name;
+        const preferredName = (user as any).fullName || (user as any).full_name || user.displayName;
+        if (preferredName) {
+          this.userName = preferredName;
         } else if (user.email) {
           this.userName = user.email.split('@')[0];
         }
