@@ -212,15 +212,35 @@ export class TranslationService {
   }
 
   /**
-   * Prevents Google Translate from mutating Material Icon text ligatures
+   * Prevents Google Translate from mutating Material Icons, phone numbers, and entity data
    */
   public protectIcons(): void {
     if (typeof document === 'undefined') return;
+
+    // Protect icons
     const icons = document.querySelectorAll('mat-icon, .mat-icon, .material-icons, .material-icons-outlined');
     icons.forEach(icon => {
       if (!icon.classList.contains('notranslate')) {
         icon.classList.add('notranslate');
         icon.setAttribute('translate', 'no');
+      }
+    });
+
+    // Protect phones, emails, and contact links
+    const contacts = document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"], .contact-link, .phone-link, .email-link, .phone-btn, .email-btn, .col-phone, .col-email');
+    contacts.forEach(el => {
+      if (!el.classList.contains('notranslate')) {
+        el.classList.add('notranslate');
+        el.setAttribute('translate', 'no');
+      }
+    });
+
+    // Protect data codes, times, and member names
+    const dataEls = document.querySelectorAll('.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, input, textarea');
+    dataEls.forEach(el => {
+      if (!el.classList.contains('notranslate')) {
+        el.classList.add('notranslate');
+        el.setAttribute('translate', 'no');
       }
     });
   }

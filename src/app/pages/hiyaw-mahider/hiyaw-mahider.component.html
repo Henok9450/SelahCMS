@@ -998,13 +998,13 @@
 
           <ng-container matColumnDef="hostName">
             <th mat-header-cell *matHeaderCellDef>Host Name</th>
-            <td mat-cell *matCellDef="let hm">{{ hm.HostName }}</td>
+            <td mat-cell *matCellDef="let hm" class="notranslate" translate="no">{{ hm.HostName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="hostContactNumber">
             <th mat-header-cell *matHeaderCellDef>Host Contact</th>
-            <td mat-cell *matCellDef="let hm">
-              <a [href]="'tel:' + hm.HostContactNumber" class="contact-link">
+            <td mat-cell *matCellDef="let hm" class="notranslate" translate="no">
+              <a [href]="'tel:' + hm.HostContactNumber" class="contact-link notranslate" translate="no">
                 {{ hm.HostContactNumber }}
               </a>
             </td>
@@ -1032,14 +1032,14 @@
 
           <ng-container matColumnDef="pastor">
             <th mat-header-cell *matHeaderCellDef>Pastor</th>
-            <td mat-cell *matCellDef="let hm">
+            <td mat-cell *matCellDef="let hm" class="notranslate" translate="no">
               {{ hm.pastor || "N/A" }}
             </td>
           </ng-container>
 
           <ng-container matColumnDef="deputyPastor">
             <th mat-header-cell *matHeaderCellDef>Deputy Pastor</th>
-            <td mat-cell *matCellDef="let hm">
+            <td mat-cell *matCellDef="let hm" class="notranslate" translate="no">
               {{ hm.deputyPastor || "N/A" }}
             </td>
           </ng-container>
@@ -1049,7 +1049,7 @@
             <td mat-cell *matCellDef="let hm">
               <div *ngIf="hm.studyDay" class="study-info">
                 <span class="study-day">{{ hm.studyDay }}</span>
-                <span class="study-time" *ngIf="hm.studyTime"
+                <span class="study-time notranslate" translate="no" *ngIf="hm.studyTime"
                   >at {{ hm.studyTime }}</span
                 >
               </div>

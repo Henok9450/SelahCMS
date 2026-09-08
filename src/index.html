@@ -26,10 +26,11 @@
   <div id="google_translate_element" style="display:none;" aria-hidden="true"></div>
   <app-root></app-root>
 
-  <!-- Prevent Google Translate from translating Material Icons text ligatures -->
+  <!-- Prevent Google Translate from translating Icons, User Names, Phones, and Entity Data -->
   <script>
     (function() {
-      function protectIcons() {
+      function protectDataAndIcons() {
+        // 1. All icon elements
         var icons = document.querySelectorAll('mat-icon, .mat-icon, .material-icons, .material-icons-outlined');
         for (var i = 0; i < icons.length; i++) {
           if (!icons[i].classList.contains('notranslate')) {
@@ -37,10 +38,29 @@
             icons[i].setAttribute('translate', 'no');
           }
         }
+
+        // 2. All phone numbers, emails, and contact links
+        var contacts = document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"], .contact-link, .phone-link, .email-link, .phone-btn, .email-btn, .col-phone, .col-email');
+        for (var j = 0; j < contacts.length; j++) {
+          if (!contacts[j].classList.contains('notranslate')) {
+            contacts[j].classList.add('notranslate');
+            contacts[j].setAttribute('translate', 'no');
+          }
+        }
+
+        // 3. User names, avatar initials, codes, IDs, and timestamps
+        var dataElements = document.querySelectorAll('.user-name-title, .user-avatar-badge, .card-avatar, .member-avatar, .code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, input, textarea');
+        for (var k = 0; k < dataElements.length; k++) {
+          if (!dataElements[k].classList.contains('notranslate')) {
+            dataElements[k].classList.add('notranslate');
+            dataElements[k].setAttribute('translate', 'no');
+          }
+        }
       }
-      var observer = new MutationObserver(protectIcons);
+
+      var observer = new MutationObserver(protectDataAndIcons);
       observer.observe(document.documentElement, { childList: true, subtree: true });
-      document.addEventListener('DOMContentLoaded', protectIcons);
+      document.addEventListener('DOMContentLoaded', protectDataAndIcons);
     })();
   </script>
 

@@ -182,7 +182,7 @@
 
           <!-- Card Content -->
           <div class="card-body">
-            <h3 class="member-title">{{ member?.full_name || 'N/A' }}</h3>
+            <h3 class="member-title notranslate" translate="no">{{ member?.full_name || 'N/A' }}</h3>
             
             <div class="status-row">
               <span class="status-indicator" [ngClass]="'status-' + (member?.status || 'active').toLowerCase()">
@@ -192,9 +192,9 @@
 
             <!-- Quick Contacts -->
             <div class="contact-actions">
-              <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="contact-btn phone-btn" matTooltip="Call member">
+              <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="contact-btn phone-btn notranslate" translate="no" matTooltip="Call member">
                 <mat-icon>phone</mat-icon>
-                <span>{{ member?.phone }}</span>
+                <span class="notranslate" translate="no">{{ member?.phone }}</span>
               </a>
               <span *ngIf="!member?.phone" class="no-phone">
                 <mat-icon>phone_disabled</mat-icon> No phone
@@ -256,20 +256,20 @@
                   {{ getInitials(member?.full_name || '') }}
                 </div>
               </td>
-              <td class="col-name">
-                <span class="member-name">{{ member?.full_name || 'N/A' }}</span>
+              <td class="col-name notranslate" translate="no">
+                <span class="member-name notranslate" translate="no">{{ member?.full_name || 'N/A' }}</span>
               </td>
-              <td class="col-phone">
-                <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="phone-link">
+              <td class="col-phone notranslate" translate="no">
+                <a *ngIf="member?.phone" [href]="'tel:' + member?.phone" (click)="$event.stopPropagation()" class="phone-link notranslate" translate="no">
                   <mat-icon class="phone-icon">phone</mat-icon>
-                  <span>{{ member.phone }}</span>
+                  <span class="notranslate" translate="no">{{ member.phone }}</span>
                 </a>
                 <span class="text-muted" *ngIf="!member?.phone">—</span>
               </td>
-              <td class="col-email">
-                <a *ngIf="member?.email" [href]="'mailto:' + member?.email" (click)="$event.stopPropagation()" class="email-link">
+              <td class="col-email notranslate" translate="no">
+                <a *ngIf="member?.email" [href]="'mailto:' + member?.email" (click)="$event.stopPropagation()" class="email-link notranslate" translate="no">
                   <mat-icon class="email-icon">email</mat-icon>
-                  <span>{{ member.email }}</span>
+                  <span class="notranslate" translate="no">{{ member.email }}</span>
                 </a>
                 <span class="text-muted" *ngIf="!member?.email">—</span>
               </td>
