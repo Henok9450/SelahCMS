@@ -1239,20 +1239,51 @@ mat-chip-row[color="accent"],
    Live Website Translator & Amharic Typography
    ═══════════════════════════════════════════════════ */
 
+/* Apply Amharic font to all text EXCEPT Material Icons */
 body.lang-amharic,
 [lang="am"],
-.lang-amharic * {
+.lang-amharic *:not(mat-icon):not(.mat-icon):not(.material-icons):not(.material-icons-outlined) {
   font-family: 'Noto Sans Ethiopic', 'Inter', 'Nyala', 'Abyssinica SIL', sans-serif !important;
 }
 
-/* Hide Google Translate top banner, iframe overlays, and balloon tooltips */
+/* Explicitly preserve Material Icons glyph rendering and prevent translation */
+mat-icon,
+.mat-icon,
+.material-icons,
+.material-icons-outlined {
+  font-family: 'Material Icons' !important;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-wrap: normal !important;
+  white-space: nowrap !important;
+  direction: ltr !important;
+}
+
+/* Hide Google Translate top banner, floating circular badge, iframes, and tooltips */
+.VIpgJd-ZVi9od-OR9Gae-haAclf,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf-ti6hGc,
+.VIpgJd-ZVi9od-l4eHX-hSRGPd,
+.VIpgJd-ZVi9od-xl07Ob-OEVmcd,
+.goog-te-gadget,
+.goog-te-gadget-icon,
+.goog-te-gadget-simple,
 .goog-te-banner-frame.skiptranslate,
 .goog-te-banner-frame,
 iframe.goog-te-banner-frame,
-iframe.skiptranslate {
+iframe.skiptranslate,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-balloon-frame,
+#goog-gt-tt {
   display: none !important;
   visibility: hidden !important;
+  opacity: 0 !important;
   height: 0 !important;
+  width: 0 !important;
+  pointer-events: none !important;
 }
 
 body {
@@ -1268,13 +1299,6 @@ body {
   height: 0;
   width: 0;
   overflow: hidden;
-}
-
-.goog-tooltip,
-.goog-tooltip:hover,
-.goog-te-balloon-frame,
-#goog-gt-tt {
-  display: none !important;
 }
 
 .goog-text-highlight {

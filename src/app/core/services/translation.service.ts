@@ -189,14 +189,18 @@ export class TranslationService {
   }
 
   /**
-   * Listens for Angular navigation to re-apply translation if needed
+   * Listens for Angular navigation to re-apply translation if needed and protect icons
    */
   private listenToRouteChanges(): void {
+    this.protectIcons();
+
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
+        this.protectIcons();
         if (this.currentLang === 'am') {
           setTimeout(() => {
+            this.protectIcons();
             const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
             if (select && select.value !== 'am') {
               select.value = 'am';
@@ -205,5 +209,19 @@ export class TranslationService {
           }, 300);
         }
       });
+  }
+
+  /**
+   * Prevents Google Translate from mutating Material Icon text ligatures
+   */
+  public protectIcons(): void {
+    if (typeof document === 'undefined') return;
+    const icons = document.querySelectorAll('mat-icon, .mat-icon, .material-icons, .material-icons-outlined');
+    icons.forEach(icon => {
+      if (!icon.classList.contains('notranslate')) {
+        icon.classList.add('notranslate');
+        icon.setAttribute('translate', 'no');
+      }
+    });
   }
 }

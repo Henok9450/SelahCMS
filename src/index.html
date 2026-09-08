@@ -25,18 +25,35 @@
   <!-- Container for Live Google Website Translator -->
   <div id="google_translate_element" style="display:none;" aria-hidden="true"></div>
   <app-root></app-root>
+
+  <!-- Prevent Google Translate from translating Material Icons text ligatures -->
+  <script>
+    (function() {
+      function protectIcons() {
+        var icons = document.querySelectorAll('mat-icon, .mat-icon, .material-icons, .material-icons-outlined');
+        for (var i = 0; i < icons.length; i++) {
+          if (!icons[i].classList.contains('notranslate')) {
+            icons[i].classList.add('notranslate');
+            icons[i].setAttribute('translate', 'no');
+          }
+        }
+      }
+      var observer = new MutationObserver(protectIcons);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', protectIcons);
+    })();
+  </script>
+
+  <!-- Service Worker Registration -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
-        const swPath = '/assets/sw.js';
-        navigator.serviceWorker.register(swPath, { scope: '/' })
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
           .then(function(registration) {
-            console.log('[PWA] ServiceWorker registration successful with scope: ', registration.scope);
+            console.log('[PWA] ServiceWorker registered with scope:', registration.scope);
           })
           .catch(function(err) {
-            navigator.serviceWorker.register('/sw.js')
-              .then(function(r) { console.log('[PWA] Fallback SW registered:', r.scope); })
-              .catch(function(e) { console.warn('[PWA] SW register skipped:', e); });
+            console.warn('[PWA] ServiceWorker registration skipped:', err);
           });
       });
     }
