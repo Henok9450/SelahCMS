@@ -101,7 +101,7 @@
       <div class="stat-card warning-card">
         <div class="stat-icon-wrap"><mat-icon>warning</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ followUpData.absentMembers.length }}</span>
+          <span class="stat-value notranslate" translate="no">{{ followUpData.absentMembers.length }}</span>
           <span class="stat-label">4+ Consecutive Absences</span>
         </div>
       </div>
@@ -109,7 +109,7 @@
       <div class="stat-card attention-card">
         <div class="stat-icon-wrap"><mat-icon>contact_phone</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ followUpData.followUpNeededMembers.length }}</span>
+          <span class="stat-value notranslate" translate="no">{{ followUpData.followUpNeededMembers.length }}</span>
           <span class="stat-label">Follow-Up Needed</span>
         </div>
       </div>
@@ -117,7 +117,7 @@
       <div class="stat-card total-card">
         <div class="stat-icon-wrap"><mat-icon>groups</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ followUpData.absentMembers.length + followUpData.followUpNeededMembers.length }}</span>
+          <span class="stat-value notranslate" translate="no">{{ followUpData.absentMembers.length + followUpData.followUpNeededMembers.length }}</span>
           <span class="stat-label">Total Attention Items</span>
         </div>
       </div>
@@ -133,7 +133,7 @@
             <span>Members with 4+ Consecutive Absences</span>
           </mat-panel-title>
           <mat-panel-description>
-            <span class="count-badge warning-badge">{{ followUpData.absentMembers.length }} members found</span>
+            <span class="count-badge warning-badge"><span class="notranslate" translate="no">{{ followUpData.absentMembers.length }}</span> members found</span>
           </mat-panel-description>
         </mat-expansion-panel-header>
 
@@ -198,7 +198,7 @@
             <span>Members Marked "Follow Up Needed"</span>
           </mat-panel-title>
           <mat-panel-description>
-            <span class="count-badge attention-badge">{{ followUpData.followUpNeededMembers.length }} members found</span>
+            <span class="count-badge attention-badge"><span class="notranslate" translate="no">{{ followUpData.followUpNeededMembers.length }}</span> members found</span>
           </mat-panel-description>
         </mat-expansion-panel-header>
 

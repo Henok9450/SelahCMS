@@ -63,15 +63,15 @@
         <mat-chip-listbox aria-label="Event status filter">
           <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''"
                         (click)="filterTasks('all')">
-            All ({{ events.length }})
+            All (<span class="notranslate" translate="no">{{ events.length }}</span>)
           </mat-chip-row>
           <mat-chip-row [color]="currentStatusFilter === 'upcoming' ? 'primary' : ''"
                         (click)="filterTasks('upcoming')">
-            Upcoming ({{ upcomingCount }})
+            Upcoming (<span class="notranslate" translate="no">{{ upcomingCount }}</span>)
           </mat-chip-row>
           <mat-chip-row [color]="currentStatusFilter === 'completed' ? 'primary' : ''"
                         (click)="filterTasks('completed')">
-            Completed ({{ completedCount }})
+            Completed (<span class="notranslate" translate="no">{{ completedCount }}</span>)
           </mat-chip-row>
         </mat-chip-listbox>
       </div>
@@ -214,7 +214,7 @@
         </table>
       </div>
 
-      <mat-paginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons aria-label="Select page of events"></mat-paginator>
+      <mat-paginator class="notranslate" translate="no" [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons aria-label="Select page of events"></mat-paginator>
     </div>
 
     <!-- Grid View -->
@@ -288,7 +288,7 @@
         </ng-container>
       </div>
 
-      <mat-paginator [pageSizeOptions]="[6, 12, 24]" showFirstLastButtons class="mat-elevation-z2"></mat-paginator>
+      <mat-paginator class="notranslate mat-elevation-z2" translate="no" [pageSizeOptions]="[6, 12, 24]" showFirstLastButtons></mat-paginator>
     </div>
   </ng-container>
 

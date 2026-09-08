@@ -25,7 +25,7 @@
     <!-- Member Count Badge -->
     <div class="header-count-badge">
       <mat-icon>people</mat-icon>
-      <span>{{ totalCount }} Members</span>
+      <span class="notranslate" translate="no">{{ totalCount }}</span> <span>Members</span>
     </div>
   </div>
 </div>
@@ -89,7 +89,7 @@
       <div class="stat-card total-card">
         <div class="stat-icon-wrap"><mat-icon>groups</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ totalCount }}</span>
+          <span class="stat-value notranslate" translate="no">{{ totalCount }}</span>
           <span class="stat-label">Total in Fellowship</span>
         </div>
       </div>
@@ -97,7 +97,7 @@
       <div class="stat-card pastor-card">
         <div class="stat-icon-wrap"><mat-icon>person</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ getRoleCount('Pastor') + getRoleCount('Deputy Pastor') }}</span>
+          <span class="stat-value notranslate" translate="no">{{ getRoleCount('Pastor') + getRoleCount('Deputy Pastor') }}</span>
           <span class="stat-label">Pastors & Deputies</span>
         </div>
       </div>
@@ -105,7 +105,7 @@
       <div class="stat-card member-card">
         <div class="stat-icon-wrap"><mat-icon>how_to_reg</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ getRoleCount('Member') }}</span>
+          <span class="stat-value notranslate" translate="no">{{ getRoleCount('Member') }}</span>
           <span class="stat-label">Core Members</span>
         </div>
       </div>
@@ -113,7 +113,7 @@
       <div class="stat-card coordinator-card">
         <div class="stat-icon-wrap"><mat-icon>admin_panel_settings</mat-icon></div>
         <div class="stat-info">
-          <span class="stat-value">{{ getRoleCount('Zone Coordinator') + getRoleCount('Admin') }}</span>
+          <span class="stat-value notranslate" translate="no">{{ getRoleCount('Zone Coordinator') + getRoleCount('Admin') }}</span>
           <span class="stat-label">Coordinators / Admin</span>
         </div>
       </div>
@@ -223,7 +223,7 @@
         [pageIndex]="pageIndex"
         (page)="onPageChange($event)"
         aria-label="Select page"
-        class="custom-paginator mat-elevation-z1">
+        class="custom-paginator mat-elevation-z1 notranslate" translate="no">
       </mat-paginator>
     </div>
 
@@ -302,7 +302,7 @@
         [pageIndex]="pageIndex"
         (page)="onPageChange($event)"
         aria-label="Select page"
-        class="custom-paginator">
+        class="custom-paginator notranslate" translate="no">
       </mat-paginator>
     </div>
   </ng-container>

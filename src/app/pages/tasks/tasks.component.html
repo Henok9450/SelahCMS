@@ -42,15 +42,15 @@
     <mat-chip-listbox aria-label="Task status filter">
       <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''"
                     (click)="filterTasks('all')">
-        All ({{ tasks.length }})
+        All (<span class="notranslate" translate="no">{{ tasks.length }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'pending' ? 'primary' : ''"
                     (click)="filterTasks('pending')">
-        Pending ({{ pendingCount }})
+        Pending (<span class="notranslate" translate="no">{{ pendingCount }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'completed' ? 'primary' : ''"
                     (click)="filterTasks('completed')">
-        Completed ({{ completedCount }})
+        Completed (<span class="notranslate" translate="no">{{ completedCount }}</span>)
       </mat-chip-row>
     </mat-chip-listbox>
   </div>
@@ -135,7 +135,8 @@
       </table>
     </div>
 
-    <mat-paginator [length]="filteredTasks.length"
+    <mat-paginator class="notranslate" translate="no"
+                   [length]="filteredTasks.length"
                    [pageSize]="pageSizeOptions[1]"
                    [pageSizeOptions]="pageSizeOptions"
                    aria-label="Select page of tasks">

@@ -99,13 +99,13 @@
   <div *ngIf="!isEditing" class="filter-chips">
     <mat-chip-listbox aria-label="Zone status filter">
       <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''" (click)="filterZones('all')">
-        All ({{ zones.length }})
+        All (<span class="notranslate" translate="no">{{ zones.length }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'active' ? 'primary' : ''" (click)="filterZones('active')">
-        Active ({{ activeCount }})
+        Active (<span class="notranslate" translate="no">{{ activeCount }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'inactive' ? 'primary' : ''" (click)="filterZones('inactive')">
-        Inactive ({{ inactiveCount }})
+        Inactive (<span class="notranslate" translate="no">{{ inactiveCount }}</span>)
       </mat-chip-row>
     </mat-chip-listbox>
   </div>

@@ -208,7 +208,7 @@
 
       <!-- Search Results -->
       <div *ngIf="dataSource.data.length > 0 && !searchLoading" class="search-results-section animate__animated animate__fadeIn">
-        <h4 class="search-results-title">Search Results ({{ totalResults }} records found)</h4>
+        <h4 class="search-results-title">Search Results (<span class="notranslate" translate="no">{{ totalResults }}</span> records found)</h4>
         <div class="results-table">
           <div class="table-scroll-wrapper">
             <table mat-table [dataSource]="dataSource" class="mat-elevation-z1">
@@ -266,7 +266,7 @@
             </table>
           </div>
         </div>
-        <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" [pageSize]="pageSize" [length]="totalResults"
+        <mat-paginator class="notranslate" translate="no" [pageSizeOptions]="[5, 10, 25, 50]" [pageSize]="pageSize" [length]="totalResults"
           (page)="onPageChange($event)" aria-label="Select page of search results">
         </mat-paginator>
       </div>

@@ -79,7 +79,7 @@
         <!-- Timestamp Column -->
         <ng-container matColumnDef="timestamp">
           <mat-header-cell *matHeaderCellDef>Timestamp</mat-header-cell>
-          <mat-cell *matCellDef="let log" class="time-cell">
+          <mat-cell *matCellDef="let log" class="time-cell notranslate" translate="no">
             {{ log.timestamp | date:'medium' }}
           </mat-cell>
         </ng-container>
@@ -140,6 +140,8 @@
     </div>
 
     <mat-paginator
+      class="notranslate"
+      translate="no"
       [length]="totalLogs"
       [pageSize]="pageSize"
       [pageSizeOptions]="[10, 25, 50, 100]"

@@ -115,16 +115,16 @@
   <div *ngIf="!isAdding && !isEditMode" class="filter-chips">
     <mat-chip-listbox aria-label="Pastor status filter">
       <mat-chip-row [color]="currentStatusFilter === 'all' ? 'primary' : ''" (click)="filterPastors('all')">
-        All ({{ allPastors.length }})
+        All (<span class="notranslate" translate="no">{{ allPastors.length }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'Active' ? 'primary' : ''" (click)="filterPastors('Active')">
-        Active ({{ activeCount }})
+        Active (<span class="notranslate" translate="no">{{ activeCount }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'Inactive' ? 'primary' : ''" (click)="filterPastors('Inactive')">
-        Inactive ({{ inactiveCount }})
+        Inactive (<span class="notranslate" translate="no">{{ inactiveCount }}</span>)
       </mat-chip-row>
       <mat-chip-row [color]="currentStatusFilter === 'On Hold' ? 'primary' : ''" (click)="filterPastors('On Hold')">
-        On Hold ({{ onHoldCount }})
+        On Hold (<span class="notranslate" translate="no">{{ onHoldCount }}</span>)
       </mat-chip-row>
     </mat-chip-listbox>
   </div>
@@ -220,6 +220,6 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
     </div>
-    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of pastors"></mat-paginator>
+    <mat-paginator class="notranslate" translate="no" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of pastors"></mat-paginator>
   </div>
 </div>

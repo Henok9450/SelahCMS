@@ -188,11 +188,14 @@ export class TranslationService {
     return matches ? decodeURIComponent(matches[1]) : null;
   }
 
+  private domObserver?: MutationObserver;
+
   /**
    * Listens for Angular navigation to re-apply translation if needed and protect icons
    */
   private listenToRouteChanges(): void {
     this.protectIcons();
+    this.startDomObserver();
 
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -212,7 +215,23 @@ export class TranslationService {
   }
 
   /**
-   * Prevents Google Translate from mutating Material Icons, phone numbers, and entity data
+   * Observes live DOM additions (async data, modals, tables) to continuously protect data from Google Translate
+   */
+  private startDomObserver(): void {
+    if (typeof window === 'undefined' || typeof MutationObserver === 'undefined') return;
+
+    this.domObserver = new MutationObserver(() => {
+      this.protectIcons();
+    });
+
+    this.domObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  /**
+   * Prevents Google Translate from mutating Material Icons, phone numbers, dynamic numbers, and entity data
    */
   public protectIcons(): void {
     if (typeof document === 'undefined') return;
@@ -235,8 +254,13 @@ export class TranslationService {
       }
     });
 
-    // Protect data codes, times, member names, and live numeric metrics
-    const dataEls = document.querySelectorAll('.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, .metric-number, .center-percentage, .stat-value, input, textarea');
+    // Protect data codes, times, dynamic stats, pagination, and numeric metrics
+    const dataEls = document.querySelectorAll(
+      '.code-badge, .header-time, .header-date, .study-time, .col-name, .member-name, .member-title, ' +
+      '.metric-number, .center-percentage, .stat-value, .summary-count, .count-badge, .absence-badge, .date-badge, ' +
+      '.zone-badge, .dist-count, .stat-count, .nowrap-cell, .time-cell, ' +
+      'mat-paginator, .mat-mdc-paginator-range-label, .mat-paginator-range-label, input, textarea'
+    );
     dataEls.forEach(el => {
       if (!el.classList.contains('notranslate')) {
         el.classList.add('notranslate');

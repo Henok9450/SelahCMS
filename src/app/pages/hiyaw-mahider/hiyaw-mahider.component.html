@@ -40,7 +40,7 @@
           <div class="summary-card">
             <mat-icon class="summary-icon">people</mat-icon>
             <div class="summary-text">
-              <div class="summary-count">{{ viewAssignedMembers.length }}</div>
+              <div class="summary-count notranslate" translate="no">{{ viewAssignedMembers.length }}</div>
               <div class="summary-label">Total Members</div>
             </div>
           </div>
@@ -59,7 +59,7 @@
               <span *ngSwitchDefault>person</span>
             </mat-icon>
             <div class="summary-text">
-              <div class="summary-count">{{ getRoleCount(role) }}</div>
+              <div class="summary-count notranslate" translate="no">{{ getRoleCount(role) }}</div>
               <div class="summary-label">{{ role }}s</div>
             </div>
           </div>
@@ -68,7 +68,7 @@
         <!-- Members List with Enhanced Role Editing -->
         <div class="members-list-section">
           <div class="section-header">
-            <h4>Assigned Members ({{ viewAssignedMembers.length }})</h4>
+            <h4>Assigned Members (<span class="notranslate" translate="no">{{ viewAssignedMembers.length }}</span>)</h4>
             <button
               mat-stroked-button
               color="primary"
@@ -245,7 +245,7 @@
 
       <!-- Available Members Section -->
       <div class="members-section">
-        <h4>Available Members ({{ filteredMembers.length }})</h4>
+        <h4>Available Members (<span class="notranslate" translate="no">{{ filteredMembers.length }}</span>)</h4>
         <div *ngIf="isLoadingMembers" class="skeleton-members-list" style="margin-bottom: 1rem;">
           <div class="skeleton-card" *ngFor="let i of [1,2,3]" style="padding: 0.75rem; margin-bottom: 0.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -323,7 +323,7 @@
 
       <!-- Currently Assigned Members Section -->
       <div class="assigned-members-section" *ngIf="assignedMembers.length > 0">
-        <h4>Currently Assigned Members ({{ assignedMembers.length }})</h4>
+        <h4>Currently Assigned Members (<span class="notranslate" translate="no">{{ assignedMembers.length }}</span>)</h4>
         <div class="assigned-members-list">
           <div
             class="assigned-member-card"
@@ -1127,6 +1127,8 @@
         </table>
 
         <mat-paginator
+          class="notranslate"
+          translate="no"
           [pageSizeOptions]="[5, 10, 20]"
           showFirstLastButtons
           [length]="dataSource.data.length"
