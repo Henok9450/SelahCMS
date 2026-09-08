@@ -51,6 +51,14 @@ export class TranslationService {
   private initGoogleTranslate(): void {
     if (typeof window === 'undefined') return;
 
+    // Apply font styling for initial language right away
+    this.updateBodyFontClass(this.currentLang);
+
+    // Make sure cookies match current preference
+    if (this.currentLang === 'am') {
+      this.setGoogleTranslateCookies('am');
+    }
+
     window.googleTranslateInitCallback = () => {
       this.ngZone.run(() => {
         try {
@@ -62,10 +70,8 @@ export class TranslationService {
               autoDisplay: false
             }, 'google_translate_element');
 
-            // Apply active language once initialized
-            setTimeout(() => {
-              this.applyLanguageToDom(this.currentLang);
-            }, 300);
+            // Wait for combo box safely with retry (no reload loop!)
+            this.syncDomLanguageWithRetry(this.currentLang, 15);
           }
         } catch (e) {
           console.warn('[TranslationService] Error initializing Google Translate widget:', e);
@@ -94,9 +100,15 @@ export class TranslationService {
 
     this.currentLangSubject.next(lang);
     localStorage.setItem(this.STORAGE_KEY, lang);
+    this.updateBodyFontClass(lang);
 
     this.setGoogleTranslateCookies(lang);
-    this.applyLanguageToDom(lang);
+
+    // Attempt to change combo box dynamically; reload once only if widget not ready
+    const applied = this.tryApplyToDom(lang);
+    if (!applied) {
+      window.location.reload();
+    }
   }
 
   /**
@@ -133,20 +145,30 @@ export class TranslationService {
   }
 
   /**
-   * Applies the selected language to the Google Translate combo box or reloads if needed
+   * Attempts to set the Google Translate dropdown value in the DOM
    */
-  private applyLanguageToDom(lang: SupportedLanguage): void {
+  private tryApplyToDom(lang: SupportedLanguage): boolean {
     const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
     if (select) {
       select.value = lang;
       select.dispatchEvent(new Event('change'));
-      // Add or remove body class for typography
-      this.updateBodyFontClass(lang);
-    } else {
-      // If combo box is not yet rendered or user explicitly toggled, a reload seamlessly initiates it
-      this.updateBodyFontClass(lang);
-      window.location.reload();
+      return true;
     }
+    return false;
+  }
+
+  /**
+   * Retries syncing language without ever calling reload
+   */
+  private syncDomLanguageWithRetry(lang: SupportedLanguage, maxRetries: number): void {
+    let retries = 0;
+    const interval = setInterval(() => {
+      retries++;
+      const applied = this.tryApplyToDom(lang);
+      if (applied || retries >= maxRetries) {
+        clearInterval(interval);
+      }
+    }, 200);
   }
 
   private updateBodyFontClass(lang: SupportedLanguage): void {
@@ -174,14 +196,13 @@ export class TranslationService {
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
         if (this.currentLang === 'am') {
-          // Re-trigger translation for dynamic content
           setTimeout(() => {
             const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
             if (select && select.value !== 'am') {
               select.value = 'am';
               select.dispatchEvent(new Event('change'));
             }
-          }, 250);
+          }, 300);
         }
       });
   }

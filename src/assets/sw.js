@@ -38,19 +38,37 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
+  let url;
+  try {
+    url = new URL(event.request.url);
+  } catch (e) {
+    return;
+  }
 
-  if (url.origin.includes('firestore.googleapis.com') || url.origin.includes('identitytoolkit')) {
+  // Only handle http and https requests (skip chrome-extension://, moz-extension://, data:, etc.)
+  if (!url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Only cache same-origin assets. Skip Firebase, Google Translate, CDN, and extension requests
+  if (
+    url.origin !== self.location.origin ||
+    url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('google.com') ||
+    url.hostname.includes('gstatic.com')
+  ) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
+            cache.put(event.request, responseClone).catch((err) => {
+              console.warn('[SW] Cache put skipped:', err);
+            });
           });
         }
         return networkResponse;
