@@ -25,7 +25,7 @@
             <mat-icon class="api-icon">hub</mat-icon>
             <div>
               <span class="selector-main-title">Select from Central Church API</span>
-              <span class="selector-sub-title">Filtered by roles: <strong>Pastor</strong> &amp; <strong>Deputy Pastor</strong></span>
+              <span class="selector-sub-title">Search church members to assign as Pastor or Deputy Pastor</span>
             </div>
           </div>
           <button mat-stroked-button type="button" class="fallback-toggle-btn" (click)="toggleExternalPastor()">
@@ -69,7 +69,7 @@
               </div>
             </mat-option>
             <mat-option *ngIf="!isSearchingMembers && filteredEligiblePastors.length === 0" disabled>
-              No verified members with role 'Pastor' or 'Deputy Pastor' found
+              No church members found matching search
             </mat-option>
           </mat-autocomplete>
 

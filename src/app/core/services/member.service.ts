@@ -70,8 +70,7 @@ export class MemberService {
   }
 
   /**
-   * Fetches members from the central API who have the role of 'Pastor' or 'Deputy Pastor'.
-   * Used for API-first pastor selection.
+   * Fetches members from the central API for pastor selection/assignment.
    */
   getPastorEligibleMembers(searchTerm?: string): Observable<Member[]> {
     const filters: MemberFilters = {
@@ -83,12 +82,9 @@ export class MemberService {
     }
 
     return this.getMembers(filters).pipe(
-      map(response => {
-        const members = response.data || [];
-        return members.filter(m => m.role === 'Pastor' || m.role === 'Deputy Pastor');
-      }),
+      map(response => response.data || []),
       catchError(error => {
-        console.error('Error fetching pastor-eligible members:', error);
+        console.error('Error fetching members for pastor assignment:', error);
         return of([]);
       })
     );

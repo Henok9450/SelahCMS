@@ -383,11 +383,15 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
       resolvedAddress = member.contact;
     }
 
+    const assignedRole = (member.role === 'Deputy Pastor' || member.role === 'Pastor') 
+      ? member.role 
+      : (this.pastorForm.get('role')?.value || 'Pastor');
+
     this.pastorForm.patchValue({
       name: member.full_name,
       phoneNumber: member.phone || '',
       address: resolvedAddress,
-      role: member.role === 'Deputy Pastor' ? 'Deputy Pastor' : 'Pastor',
+      role: assignedRole,
       memberId: member.id,
       memberCode: member.member_code,
       email: member.email || '',
