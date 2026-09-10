@@ -31,6 +31,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatChipsModule } from '@angular/material/chips';
+import { HiyawMahiderFormDialogComponent } from './hiyaw-mahider-form-dialog/hiyaw-mahider-form-dialog.component';
 
 @Component({
   selector: 'app-hiyaw-mahider',
@@ -170,17 +171,30 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // 🆕 NEW: Start Add mode
+  // Open Create Dialog
   startAdd(): void {
-    this.isAdding = true;
-    this.addingItem = this.getDefaultHiyawMahider();
-    this.pastorSearchTermCreate = '';
-    this.deputyPastorSearchTermCreate = '';
-    this.filterPastors('', 'create', 'pastor');
-    this.filterPastors('', 'create', 'deputyPastor');
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.codeError = null;
+    const dialogRef = this.dialog.open(HiyawMahiderFormDialogComponent, {
+      width: '680px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'hiyaw-mahider-dialog-panel',
+      data: {
+        mode: 'create',
+        zones: this.zones,
+        pastors: this.pastors
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        this.snackBar.open(result.message || 'Hiyaw Mahider created successfully', 'Close', {
+          duration: 4000,
+          horizontalPosition: 'end',
+          verticalPosition: 'bottom'
+        });
+        this.loadHiyawMahiders();
+      }
+    });
   }
 
   // 🆕 NEW: Cancel Add mode
@@ -1586,13 +1600,31 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Open Edit Dialog
   startEdit(hm: HiyawMahider): void {
-    this.editingItem = { ...hm };
-    this.isEditMode = true;
-    this.successMessage = null;
-    this.errorMessage = null;
-    this.pastorSearchTermEdit = this.editingItem.pastor || '';
-    this.deputyPastorSearchTermEdit = this.editingItem.deputyPastor || '';
+    const dialogRef = this.dialog.open(HiyawMahiderFormDialogComponent, {
+      width: '680px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      panelClass: 'hiyaw-mahider-dialog-panel',
+      data: {
+        mode: 'edit',
+        item: { ...hm },
+        zones: this.zones,
+        pastors: this.pastors
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.success) {
+        this.snackBar.open(result.message || 'Hiyaw Mahider updated successfully', 'Close', {
+          duration: 4000,
+          horizontalPosition: 'end',
+          verticalPosition: 'bottom'
+        });
+        this.loadHiyawMahiders();
+      }
+    });
   }
 
   cancelEdit(): void {
