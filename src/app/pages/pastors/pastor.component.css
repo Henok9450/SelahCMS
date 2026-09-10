@@ -323,3 +323,212 @@ td.mat-cell {
     display: none;
   }
 }
+
+/* ── API-First Member Selector Styles ──────────────── */
+.api-member-selector-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 1.15rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.selector-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.selector-badge-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.api-icon {
+  color: #059669;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.selector-main-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #065f46;
+}
+
+.selector-sub-title {
+  display: block;
+  font-size: 0.78rem;
+  color: #047857;
+  margin-top: 1px;
+}
+
+.fallback-toggle-btn {
+  font-size: 0.8rem;
+  border-color: #86efac;
+  color: #065f46;
+}
+
+.fallback-toggle-btn:hover {
+  background: #dcfce7;
+}
+
+.member-search-wrap {
+  margin-top: 0.5rem;
+}
+
+.member-lookup-field {
+  background: white;
+  border-radius: 8px;
+}
+
+.pastor-member-option {
+  height: auto !important;
+  line-height: normal !important;
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.member-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.member-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.name-text {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.92rem;
+}
+
+.code-badge {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.role-pill {
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 12px;
+}
+
+.role-pill.deputy-pill {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.already-badge {
+  background: #fee2e2;
+  color: #991b1b;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+}
+
+.member-sub-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.76rem;
+  color: #64748b;
+}
+
+.phone-item, .email-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.phone-item mat-icon, .email-item mat-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+  color: #94a3b8;
+}
+
+.selected-member-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  margin-top: 0.5rem;
+}
+
+.selected-member-banner.edit-banner {
+  margin-bottom: 1.25rem;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.selected-member-banner.edit-banner .check-icon {
+  color: #2563eb;
+}
+
+.selected-member-banner .check-icon {
+  color: #059669;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.member-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.banner-title {
+  font-size: 0.88rem;
+  color: #065f46;
+}
+
+.banner-meta {
+  font-size: 0.76rem;
+  color: #047857;
+}
+
+.manual-notice-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.82rem;
+  color: #92400e;
+}
+
+.manual-notice-banner mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #d97706;
+}

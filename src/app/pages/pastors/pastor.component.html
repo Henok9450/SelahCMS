@@ -18,6 +18,86 @@
       <mat-card-title>{{ isEditMode ? 'Edit Pastor' : 'Add New Pastor' }}</mat-card-title>
     </mat-card-header>
     <mat-card-content>
+      <!-- API-First Member Selector Section (Create Mode) -->
+      <div class="api-member-selector-box" *ngIf="!isEditMode">
+        <div class="selector-top-row">
+          <div class="selector-badge-title">
+            <mat-icon class="api-icon">hub</mat-icon>
+            <div>
+              <span class="selector-main-title">Select from Central Church API</span>
+              <span class="selector-sub-title">Filtered by roles: <strong>Pastor</strong> &amp; <strong>Deputy Pastor</strong></span>
+            </div>
+          </div>
+          <button mat-stroked-button type="button" class="fallback-toggle-btn" (click)="toggleExternalPastor()">
+            <mat-icon>{{ isExternalPastor ? 'cloud_download' : 'person_add' }}</mat-icon>
+            {{ isExternalPastor ? 'Use Member API' : 'Manual Entry (Visiting Pastor)' }}
+          </button>
+        </div>
+
+        <!-- Autocomplete field if not in manual fallback mode -->
+        <div class="member-search-wrap" *ngIf="!isExternalPastor">
+          <mat-form-field appearance="outline" class="full-width member-lookup-field">
+            <mat-icon matPrefix>search</mat-icon>
+            <mat-label>Search central directory by name or member code...</mat-label>
+            <input
+              matInput
+              type="text"
+              [value]="memberSearchInput"
+              (input)="onMemberSearchInput($any($event.target).value)"
+              [matAutocomplete]="autoMember"
+              placeholder="e.g. Dawit, Abebe, MEM-001..."
+            />
+            <mat-spinner *ngIf="isSearchingMembers" matSuffix diameter="20"></mat-spinner>
+            <button mat-icon-button matSuffix *ngIf="memberSearchInput && !isSearchingMembers" (click)="clearMemberSearch()">
+              <mat-icon>clear</mat-icon>
+            </button>
+          </mat-form-field>
+
+          <mat-autocomplete #autoMember="matAutocomplete" (optionSelected)="selectMember($event.option.value)">
+            <mat-option *ngFor="let member of filteredEligiblePastors" [value]="member" class="pastor-member-option">
+              <div class="member-option-content">
+                <div class="member-name-row">
+                  <span class="name-text">{{ member.full_name }}</span>
+                  <span class="code-badge" *ngIf="member.member_code">{{ member.member_code }}</span>
+                  <span class="role-pill" [class.deputy-pill]="member.role === 'Deputy Pastor'">{{ member.role }}</span>
+                  <span *ngIf="isMemberAlreadyRegistered(member)" class="already-badge">Already in Roster</span>
+                </div>
+                <div class="member-sub-info">
+                  <span *ngIf="member.phone" class="phone-item"><mat-icon>phone</mat-icon> {{ member.phone }}</span>
+                  <span *ngIf="member.email" class="email-item"><mat-icon>email</mat-icon> {{ member.email }}</span>
+                </div>
+              </div>
+            </mat-option>
+            <mat-option *ngIf="!isSearchingMembers && filteredEligiblePastors.length === 0" disabled>
+              No verified members with role 'Pastor' or 'Deputy Pastor' found
+            </mat-option>
+          </mat-autocomplete>
+
+          <!-- Verified Member Selected Banner -->
+          <div *ngIf="selectedMember" class="selected-member-banner animate__animated animate__fadeIn">
+            <mat-icon class="check-icon">verified</mat-icon>
+            <div class="member-banner-text">
+              <span class="banner-title">Linked Church Member: <strong>{{ selectedMember.full_name }}</strong></span>
+              <span class="banner-meta">Code: <code>{{ selectedMember.member_code }}</code> | Role: <strong>{{ selectedMember.role }}</strong> | Contact auto-populated</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isExternalPastor" class="manual-notice-banner">
+          <mat-icon>info</mat-icon>
+          <span>Entering details manually for a visiting/external pastor not registered in the central system.</span>
+        </div>
+      </div>
+
+      <!-- Linked Member Pill (Edit Mode) -->
+      <div *ngIf="isEditMode && pastorForm.get('memberCode')?.value" class="selected-member-banner edit-banner">
+        <mat-icon class="check-icon">verified</mat-icon>
+        <div class="member-banner-text">
+          <span class="banner-title">Central API Linked: <strong>{{ pastorForm.get('name')?.value }}</strong></span>
+          <span class="banner-meta">Code: <code>{{ pastorForm.get('memberCode')?.value }}</code></span>
+        </div>
+      </div>
+
       <form [formGroup]="pastorForm" (ngSubmit)="onSubmit()" class="form-grid">
         <div class="form-row">
           <mat-form-field appearance="outline" class="half-width">

@@ -69,6 +69,31 @@ export class MemberService {
     );
   }
 
+  /**
+   * Fetches members from the central API who have the role of 'Pastor' or 'Deputy Pastor'.
+   * Used for API-first pastor selection.
+   */
+  getPastorEligibleMembers(searchTerm?: string): Observable<Member[]> {
+    const filters: MemberFilters = {
+      pageSize: 50,
+      includes: ['smallTeam']
+    };
+    if (searchTerm && searchTerm.trim()) {
+      filters.search = searchTerm.trim();
+    }
+
+    return this.getMembers(filters).pipe(
+      map(response => {
+        const members = response.data || [];
+        return members.filter(m => m.role === 'Pastor' || m.role === 'Deputy Pastor');
+      }),
+      catchError(error => {
+        console.error('Error fetching pastor-eligible members:', error);
+        return of([]);
+      })
+    );
+  }
+
   // Opt-in: aggressive fetch with safer limits for admin/export flows
   getAllMembersAggressive(filters: MemberFilters = {}, options?: { maxPages?: number; pageSize?: number }): Observable<{ data: Member[], meta: any }> {
     const pageSize = options?.pageSize ?? 75; // slightly smaller for responsiveness
