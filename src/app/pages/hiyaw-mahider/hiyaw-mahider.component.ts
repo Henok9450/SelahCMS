@@ -1174,58 +1174,45 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // In hiyaw-mahider.component.ts - Updated loadMembers method
   loadMembers(): void {
-    console.log('🔍 Loading members (sequential paged) ...');
+    console.log('🔍 Loading members for assignment ...');
+
+    // If already loaded, apply current filter immediately
+    if (this.members && this.members.length > 0) {
+      this.filterMembers();
+      return;
+    }
 
     this.isLoadingMembers = true;
     this.errorMessage = null;
-    this.members = [];
-    this.filteredMembers = [];
 
-    const pageSize = 100; // larger page for fewer requests
-    const maxPages = 6;   // adjust if you expect more pages
-    const pages = Array.from({ length: maxPages }, (_, i) => i + 1);
-    const seen = new Set<string>();
-
-    from(pages).pipe(
-      concatMap(page =>
-        this.memberService.getMembersPaged({
+    this.memberService.getMembersPaged({
+      status: 'active',
+      includes: ['smallTeam'],
+      page: 1,
+      pageSize: 500
+    }).pipe(
+      catchError(error => {
+        console.error('❌ Failed to load 500 members batch, trying fallback:', error);
+        return this.memberService.getMembers({
           status: 'active',
           includes: ['smallTeam'],
-          page,
-          pageSize
-        }).pipe(
-          catchError(error => {
-            console.error(`❌ Page ${page} load failed:`, error);
-            // Continue with other pages
-            return of(null);
-          })
-        )
-      ),
-      reduce((acc, res) => {
-        if (res?.data) {
-          res.data.forEach(m => {
-            if (!seen.has(m.id)) {
-              seen.add(m.id);
-              acc.push(m);
-            }
-          });
-        }
-        return acc;
-      }, [] as Member[])
+          page: 1,
+          pageSize: 200
+        });
+      })
     ).subscribe({
-      next: (combined) => {
-        this.members = combined;
-        this.filteredMembers = [...this.members];
+      next: (response) => {
+        this.members = response.data || [];
         this.isLoadingMembers = false;
-
-        console.log(`📊 RESULT: ${this.members.length} members loaded across up to ${maxPages} pages`);
+        console.log(`📊 RESULT: ${this.members.length} members loaded across directory`);
 
         if (this.members.length === 0) {
           this.errorMessage = 'No members found in the system. Please check if members exist in the database.';
         }
+        this.filterMembers();
       },
       error: (error) => {
-        console.error('❌ Paged member loading FAILED:', error);
+        console.error('❌ Member loading FAILED:', error);
         this.isLoadingMembers = false;
         this.handleMemberLoadError(error);
       }
@@ -1249,51 +1236,17 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   filterMembers(): void {
-    console.log('🔍 Filtering members with term:', this.memberSearchTerm);
-
     const term = this.memberSearchTerm?.trim();
 
-    // Debounce remote searches to reduce API spam
-    if (this.memberSearchTimeout) {
-      clearTimeout(this.memberSearchTimeout);
-      this.memberSearchTimeout = null;
-    }
-
-    // No term: show cached list
     if (!term) {
       this.isSearchingMembers = false;
       this.filteredMembers = [...this.members];
-      console.log('📋 Showing all members:', this.filteredMembers.length);
       return;
     }
 
-    this.memberSearchTimeout = setTimeout(() => {
-      // Always attempt a remote fuzzy search via API
-      this.isSearchingMembers = true;
-      this.memberService.getMembersPaged({
-        status: 'active',
-        includes: ['smallTeam'],
-        search: term,
-        page: 1,
-        pageSize: 20
-      }).subscribe({
-        next: (response) => {
-          const lower = term.toLowerCase();
-          const remote = response.data || [];
-          // Apply a local relevance filter on top of server results
-          this.filteredMembers = this.filterLocallyFrom(remote, lower);
-          this.isSearchingMembers = false;
-          console.log('📋 Remote search returned (post-filter):', this.filteredMembers.length, 'members');
-        },
-        error: (error) => {
-          console.error('❌ Remote member search failed:', error);
-          this.isSearchingMembers = false;
-          // Show empty results when remote search fails to avoid mixing unrelated cached data
-          this.filteredMembers = [];
-          this.errorMessage = 'Search failed (server error). Please try again.';
-        }
-      });
-    }, 300); // 300ms debounce
+    const lower = term.toLowerCase();
+    this.filteredMembers = this.filterLocally(lower);
+    this.isSearchingMembers = false;
   }
 
   // Local filter helper

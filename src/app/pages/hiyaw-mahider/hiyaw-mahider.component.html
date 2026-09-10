@@ -238,7 +238,16 @@
             (input)="filterMembers()"
             placeholder="Search by name, code, phone, or email"
           />
-          <mat-icon matSuffix>search</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            *ngIf="memberSearchTerm"
+            aria-label="Clear"
+            (click)="memberSearchTerm = ''; filterMembers()"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-icon matSuffix *ngIf="!memberSearchTerm">search</mat-icon>
         </mat-form-field>
       </div>
 
