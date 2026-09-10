@@ -71,18 +71,30 @@ export class MemberService {
 
   /**
    * Fetches members from the central API for pastor selection/assignment.
+   * Loads a comprehensive pool of active members with caching and performs fuzzy search.
    */
   getPastorEligibleMembers(searchTerm?: string): Observable<Member[]> {
-    const filters: MemberFilters = {
-      pageSize: 50,
+    return this.getMembersPaged({
+      status: 'active',
+      page: 1,
+      pageSize: 500,
       includes: ['smallTeam']
-    };
-    if (searchTerm && searchTerm.trim()) {
-      filters.search = searchTerm.trim();
-    }
-
-    return this.getMembers(filters).pipe(
-      map(response => response.data || []),
+    }).pipe(
+      map(response => {
+        const all = response.data || [];
+        if (!searchTerm || !searchTerm.trim()) {
+          return all;
+        }
+        const term = searchTerm.toLowerCase().trim();
+        return all.filter(m =>
+          (m.full_name && m.full_name.toLowerCase().includes(term)) ||
+          (m.member_code && m.member_code.toLowerCase().includes(term)) ||
+          (m.phone && m.phone.toLowerCase().includes(term)) ||
+          (m.email && m.email.toLowerCase().includes(term)) ||
+          (m.first_name && m.first_name.toLowerCase().includes(term)) ||
+          (m.last_name && m.last_name.toLowerCase().includes(term))
+        );
+      }),
       catchError(error => {
         console.error('Error fetching members for pastor assignment:', error);
         return of([]);

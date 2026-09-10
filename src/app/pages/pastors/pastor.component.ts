@@ -334,25 +334,52 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // API-First Member Selection Methods
   loadEligiblePastors(searchTerm?: string): void {
+    if (this.eligiblePastors && this.eligiblePastors.length > 0) {
+      this.filterLocalMembers(searchTerm ?? this.memberSearchInput);
+      return;
+    }
+
     this.isSearchingMembers = true;
-    this.memberService.getPastorEligibleMembers(searchTerm).pipe(
+    this.memberService.getPastorEligibleMembers().pipe(
       takeUntil(this.destroy$)
     ).subscribe({
       next: (members) => {
         this.eligiblePastors = members;
-        this.filteredEligiblePastors = members;
+        this.filterLocalMembers(searchTerm ?? this.memberSearchInput);
         this.isSearchingMembers = false;
       },
       error: (err) => {
-        console.error('Error loading pastor eligible members:', err);
+        console.error('Error loading members for pastor assignment:', err);
         this.isSearchingMembers = false;
       }
     });
   }
 
+  filterLocalMembers(term: string): void {
+    if (!this.eligiblePastors || this.eligiblePastors.length === 0) {
+      this.filteredEligiblePastors = [];
+      return;
+    }
+
+    if (!term || !term.trim()) {
+      this.filteredEligiblePastors = this.eligiblePastors.slice(0, 40);
+      return;
+    }
+
+    const lower = term.toLowerCase().trim();
+    this.filteredEligiblePastors = this.eligiblePastors.filter(m =>
+      (m.full_name && m.full_name.toLowerCase().includes(lower)) ||
+      (m.member_code && m.member_code.toLowerCase().includes(lower)) ||
+      (m.phone && m.phone.toLowerCase().includes(lower)) ||
+      (m.email && m.email.toLowerCase().includes(lower)) ||
+      (m.first_name && m.first_name.toLowerCase().includes(lower)) ||
+      (m.last_name && m.last_name.toLowerCase().includes(lower))
+    );
+  }
+
   onMemberSearchInput(value: string): void {
     this.memberSearchInput = value;
-    this.memberSearchSubject.next(value);
+    this.filterLocalMembers(value);
   }
 
   clearMemberSearch(): void {
@@ -366,7 +393,7 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
       memberCode: '',
       email: ''
     });
-    this.loadEligiblePastors();
+    this.filterLocalMembers('');
   }
 
   selectMember(member: Member): void {
