@@ -125,6 +125,10 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
   assignedMembersMap: Map<string, Member[]> = new Map(); // For all Hiyaw Mahiders
   assignedMembers: Member[] = []; // For current assignment dialog only
 
+  // Assignment dialog UX state
+  activeAssignmentTab: 'available' | 'assigned' = 'available';
+  visibleMembersLimit = 40;
+
   showMemberAssignment = false;
   selectedHiyawMahiderForAssignment: HiyawMahider | null = null;
   availableRoles: UserRole[] = [];
@@ -1241,12 +1245,44 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!term) {
       this.isSearchingMembers = false;
       this.filteredMembers = [...this.members];
+      this.visibleMembersLimit = 40;
       return;
     }
 
     const lower = term.toLowerCase();
     this.filteredMembers = this.filterLocally(lower);
     this.isSearchingMembers = false;
+  }
+
+  // Getter for virtual/paged display of members in assignment dialog
+  get visibleFilteredMembers(): Member[] {
+    if (!this.filteredMembers) return [];
+    if (this.memberSearchTerm && this.memberSearchTerm.trim()) {
+      return this.filteredMembers;
+    }
+    return this.filteredMembers.slice(0, this.visibleMembersLimit);
+  }
+
+  loadMoreMembers(): void {
+    this.visibleMembersLimit += 40;
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+  }
+
+  getRoleBadgeClass(role: string): string {
+    if (!role) return 'role-member';
+    const normalized = role.toLowerCase().replace(/\s+/g, '-');
+    return `role-${normalized}`;
+  }
+
+  isMemberInCurrentGroup(member: Member): boolean {
+    if (!this.selectedHiyawMahiderForAssignment || !member) return false;
+    return member.hyaw_mahider_id === this.selectedHiyawMahiderForAssignment.id;
   }
 
   // Local filter helper
@@ -1298,12 +1334,15 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showMemberAssignment = true;
     this.memberSearchTerm = '';
     this.assignmentErrorMessage = null; // Clear any previous error
+    this.activeAssignmentTab = 'available';
+    this.visibleMembersLimit = 40;
 
     // Set assignedMembers for dialog from the Map
     this.assignedMembers = this.assignedMembersMap.get(hiyawMahider.id) || [];
 
-    // Load members for assignment
+    // Load members for assignment and ensure assigned list is fresh
     this.loadMembers();
+    this.loadAssignedMembers(hiyawMahider.id);
   }
 
   // In HiyawMahiderComponent - Update closeMemberAssignment method

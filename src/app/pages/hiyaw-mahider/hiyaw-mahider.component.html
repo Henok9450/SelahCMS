@@ -204,208 +204,299 @@
   >
     <div class="dialog-overlay" (click)="closeMemberAssignment()"></div>
     <div class="dialog-content">
+      <!-- Branded Header -->
       <div class="dialog-header">
-        <h3>Assign Members to {{ selectedHiyawMahiderForAssignment.name }}</h3>
-        <button mat-icon-button (click)="closeMemberAssignment()">
+        <div class="dialog-header-left">
+          <div class="header-icon-wrap">
+            <mat-icon>group_add</mat-icon>
+          </div>
+          <div>
+            <h3>Assign Members to Hiyaw Mahider</h3>
+            <div class="dialog-subtitle">
+              <span>Target:</span>
+              <strong class="group-name">{{ selectedHiyawMahiderForAssignment.name }}</strong>
+              <span class="group-code" *ngIf="selectedHiyawMahiderForAssignment.code">({{ selectedHiyawMahiderForAssignment.code }})</span>
+            </div>
+          </div>
+        </div>
+        <button mat-icon-button (click)="closeMemberAssignment()" class="dialog-close-btn" matTooltip="Close">
           <mat-icon>close</mat-icon>
         </button>
       </div>
 
-      <!-- 🆕 ADD: Assignment Error Message Section -->
-      <div *ngIf="assignmentErrorMessage" class="assignment-error-section">
-        <mat-card appearance="outlined" class="assignment-error-card">
-          <mat-card-content>
-            <div class="assignment-error-header">
-              <mat-icon color="warn">error</mat-icon>
-              <span>Assignment Error</span>
-            </div>
-            <p class="assignment-error-message">{{ assignmentErrorMessage }}</p>
-            <div class="assignment-error-actions">
-              <button mat-button (click)="assignmentErrorMessage = null">
-                Dismiss
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
+      <!-- Segmented Navigation Tabs -->
+      <div class="assignment-tabs-bar">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeAssignmentTab === 'available'"
+          (click)="activeAssignmentTab = 'available'"
+        >
+          <mat-icon>person_search</mat-icon>
+          <span>Available Directory</span>
+          <span class="tab-badge">{{ filteredMembers.length }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeAssignmentTab === 'assigned'"
+          (click)="activeAssignmentTab = 'assigned'"
+        >
+          <mat-icon>how_to_reg</mat-icon>
+          <span>Assigned to Group</span>
+          <span class="tab-badge" [class.highlight]="assignedMembers.length > 0">
+            {{ assignedMembers.length }}
+          </span>
+        </button>
       </div>
 
-      <div class="search-section">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Search Members</mat-label>
-          <input
-            matInput
-            [(ngModel)]="memberSearchTerm"
-            (input)="filterMembers()"
-            placeholder="Search by name, code, phone, or email"
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            *ngIf="memberSearchTerm"
-            aria-label="Clear"
-            (click)="memberSearchTerm = ''; filterMembers()"
-          >
+      <!-- Scrollable Dialog Body -->
+      <div class="dialog-body">
+        <!-- Assignment Error Alert -->
+        <div *ngIf="assignmentErrorMessage" class="assignment-error-banner">
+          <mat-icon color="warn">error_outline</mat-icon>
+          <div class="error-text">
+            <strong>Assignment Error:</strong> {{ assignmentErrorMessage }}
+          </div>
+          <button mat-icon-button (click)="assignmentErrorMessage = null" class="dismiss-error-btn">
             <mat-icon>close</mat-icon>
           </button>
-          <mat-icon matSuffix *ngIf="!memberSearchTerm">search</mat-icon>
-        </mat-form-field>
-      </div>
-
-      <!-- Available Members Section -->
-      <div class="members-section">
-        <h4>Available Members (<span class="notranslate" translate="no">{{ filteredMembers.length }}</span>)</h4>
-        <div *ngIf="isLoadingMembers" class="skeleton-members-list" style="margin-bottom: 1rem;">
-          <div class="skeleton-card" *ngFor="let i of [1,2,3]" style="padding: 0.75rem; margin-bottom: 0.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="flex: 1;">
-                <div class="skeleton-shimmer skeleton-title" style="width: 50%; height: 16px; margin-bottom: 4px;"></div>
-                <div class="skeleton-shimmer skeleton-text" style="width: 70%; height: 12px;"></div>
-              </div>
-              <div class="skeleton-shimmer skeleton-badge" style="width: 80px; height: 30px;"></div>
-            </div>
-          </div>
         </div>
 
-        <div class="members-list" *ngIf="!isLoadingMembers">
-          <div class="member-card" *ngFor="let member of filteredMembers">
-            <div class="member-info">
-              <div class="member-name">{{ member.full_name }}</div>
-              <div class="member-details">
-                {{ member.member_code }} • {{ member.phone }}
-                <span *ngIf="member.email">• {{ member.email }}</span>
-                • Current Role:
-                <span
-                  class="role-badge"
-                  [class]="
-                    'role-' + member.role.toLowerCase().replace(' ', '-')
-                  "
-                >
-                  {{ member.role }}
-                </span>
-              </div>
-            </div>
-            <div class="member-actions">
-              <mat-form-field appearance="outline" class="role-field">
-                <mat-label>Assign as</mat-label>
-                <mat-select #roleSelect [value]="member.role">
-                  <mat-option
-                    *ngFor="let role of availableRoles"
-                    [value]="role"
-                  >
-                    {{ role }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
+        <!-- ════ TAB 1: Available Directory ════ -->
+        <div class="tab-pane" *ngIf="activeAssignmentTab === 'available'">
+          <!-- Search Header Bar -->
+          <div class="search-toolbar">
+            <mat-form-field appearance="outline" class="search-form-field" subscriptSizing="dynamic">
+              <mat-icon matPrefix class="search-icon-prefix">search</mat-icon>
+              <mat-label>Search Members</mat-label>
+              <input
+                matInput
+                [(ngModel)]="memberSearchTerm"
+                (input)="filterMembers()"
+                placeholder="Search by name, member code, phone, or email..."
+              />
               <button
-                mat-raised-button
-                color="primary"
-                (click)="assignMemberToHiyawMahider(member, roleSelect.value)"
-                [disabled]="!roleSelect.value || isMemberUpdating(member.id)"
+                mat-icon-button
+                matSuffix
+                *ngIf="memberSearchTerm"
+                aria-label="Clear search"
+                (click)="memberSearchTerm = ''; filterMembers()"
               >
-                <mat-spinner
-                  *ngIf="isMemberUpdating(member.id)"
-                  diameter="20"
-                ></mat-spinner>
-                {{ isMemberUpdating(member.id) ? "Assigning..." : "Assign" }}
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-form-field>
+            <div class="search-meta-badge">
+              <span class="meta-count" *ngIf="!memberSearchTerm">
+                <strong>{{ filteredMembers.length }}</strong> members in directory
+              </span>
+              <span class="meta-count" *ngIf="memberSearchTerm">
+                Found <strong>{{ filteredMembers.length }}</strong> matches
+              </span>
+            </div>
+          </div>
+
+          <!-- Loading Skeleton -->
+          <div *ngIf="isLoadingMembers" class="skeleton-members-list">
+            <div class="skeleton-card" *ngFor="let i of [1,2,3,4]">
+              <div class="skeleton-avatar"></div>
+              <div class="skeleton-info">
+                <div class="skeleton-line title"></div>
+                <div class="skeleton-line sub"></div>
+              </div>
+              <div class="skeleton-actions"></div>
+            </div>
+          </div>
+
+          <!-- Members List -->
+          <div class="members-cards-container" *ngIf="!isLoadingMembers">
+            <div
+              class="member-card"
+              *ngFor="let member of visibleFilteredMembers"
+              [class.already-in-group]="isMemberInCurrentGroup(member)"
+            >
+              <!-- Left Column: Avatar + Details -->
+              <div class="member-card-left">
+                <div class="member-avatar" [class.assigned-avatar]="isMemberInCurrentGroup(member)">
+                  {{ getInitials(member.full_name) }}
+                </div>
+                <div class="member-details-col">
+                  <div class="member-header-row">
+                    <span class="member-name">{{ member.full_name }}</span>
+                    <span class="member-code-tag" *ngIf="member.member_code">{{ member.member_code }}</span>
+                    <span class="role-badge" [ngClass]="getRoleBadgeClass(member.role)">{{ member.role }}</span>
+                    <span class="in-group-indicator" *ngIf="isMemberInCurrentGroup(member)">
+                      <mat-icon>check_circle</mat-icon> Assigned here
+                    </span>
+                  </div>
+
+                  <div class="member-contact-row">
+                    <span class="contact-pill" *ngIf="member.phone">
+                      <mat-icon>phone</mat-icon> {{ member.phone }}
+                    </span>
+                    <span class="contact-pill" *ngIf="member.email">
+                      <mat-icon>email</mat-icon> {{ member.email }}
+                    </span>
+                    <span class="status-indicator" *ngIf="member.status">
+                      <span class="status-dot" [class.active-dot]="member.status.toLowerCase() === 'active'"></span>
+                      {{ member.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column: Role Select + Action Button -->
+              <div class="member-card-right">
+                <mat-form-field appearance="outline" class="role-select-box" subscriptSizing="dynamic">
+                  <mat-label>Role</mat-label>
+                  <mat-select #roleSelect [value]="member.role || 'Member'">
+                    <mat-option *ngFor="let role of availableRoles" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+                <button
+                  mat-flat-button
+                  [color]="isMemberInCurrentGroup(member) ? 'accent' : 'primary'"
+                  class="action-assign-btn"
+                  (click)="assignMemberToHiyawMahider(member, roleSelect.value)"
+                  [disabled]="!roleSelect.value || isMemberUpdating(member.id)"
+                >
+                  <mat-spinner *ngIf="isMemberUpdating(member.id)" diameter="18" class="btn-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isMemberUpdating(member.id)">
+                    {{ isMemberInCurrentGroup(member) ? 'sync' : 'person_add' }}
+                  </mat-icon>
+                  <span>
+                    {{ isMemberUpdating(member.id) ? 'Updating...' : (isMemberInCurrentGroup(member) ? 'Update' : 'Assign') }}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty State for Search -->
+            <div *ngIf="filteredMembers.length === 0 && memberSearchTerm" class="empty-search-state">
+              <mat-icon class="empty-icon">search_off</mat-icon>
+              <h4>No members found</h4>
+              <p>No directory records matched "<strong>{{ memberSearchTerm }}</strong>". Try searching by first name, last name, phone, or member code.</p>
+              <button mat-stroked-button (click)="memberSearchTerm = ''; filterMembers()">
+                Clear Search
+              </button>
+            </div>
+
+            <!-- Empty State for No Members in Directory -->
+            <div *ngIf="filteredMembers.length === 0 && !memberSearchTerm" class="empty-search-state">
+              <mat-icon class="empty-icon">group_off</mat-icon>
+              <h4>No members available</h4>
+              <p>No active members found in the central directory.</p>
+            </div>
+
+            <!-- Load More Pagination Bar -->
+            <div
+              class="load-more-section"
+              *ngIf="!memberSearchTerm && filteredMembers.length > visibleMembersLimit"
+            >
+              <span class="showing-count">
+                Showing {{ visibleFilteredMembers.length }} of {{ filteredMembers.length }} members
+              </span>
+              <button mat-stroked-button class="load-more-btn" (click)="loadMoreMembers()">
+                <mat-icon>expand_more</mat-icon> Load More Members
               </button>
             </div>
           </div>
-
-          <div
-            *ngIf="filteredMembers.length === 0 && memberSearchTerm"
-            class="empty-state"
-          >
-            <mat-icon>search_off</mat-icon>
-            <p>No members found matching "{{ memberSearchTerm }}"</p>
-          </div>
-
-          <div
-            *ngIf="filteredMembers.length === 0 && !memberSearchTerm"
-            class="empty-state"
-          >
-            <mat-icon>group_off</mat-icon>
-            <p>No members available for assignment</p>
-          </div>
         </div>
-      </div>
 
-      <!-- Currently Assigned Members Section -->
-      <div class="assigned-members-section" *ngIf="assignedMembers.length > 0">
-        <h4>Currently Assigned Members (<span class="notranslate" translate="no">{{ assignedMembers.length }}</span>)</h4>
-        <div class="assigned-members-list">
-          <div
-            class="assigned-member-card"
-            *ngFor="let member of assignedMembers"
-          >
-            <div class="assigned-member-info">
-              <div class="member-avatar">
-                <mat-icon>person</mat-icon>
-              </div>
-              <div class="member-details">
-                <div class="member-name">{{ member.full_name }}</div>
-                <div class="member-code">{{ member.member_code }}</div>
-              </div>
+        <!-- ════ TAB 2: Currently Assigned Members ════ -->
+        <div class="tab-pane" *ngIf="activeAssignmentTab === 'assigned'">
+          <div class="assigned-list-container">
+            <div class="assigned-info-header" *ngIf="assignedMembers.length > 0">
+              <span class="info-text">
+                <mat-icon>info</mat-icon>
+                Members actively assigned to <strong>{{ selectedHiyawMahiderForAssignment.name }}</strong>. You can change their role directly below.
+              </span>
             </div>
-            <div class="assigned-member-actions">
-              <mat-form-field appearance="outline" class="role-select">
-                <mat-label>Role</mat-label>
-                <mat-select
-                  [value]="member.role"
-                  (selectionChange)="updateMemberRole(member, $event.value)"
-                  [disabled]="isMemberUpdating(member.id)"
-                >
-                  <mat-option
-                    *ngFor="let role of availableRoles"
-                    [value]="role"
+
+            <div class="assigned-member-card" *ngFor="let member of assignedMembers">
+              <div class="member-card-left">
+                <div class="member-avatar assigned-avatar">
+                  {{ getInitials(member.full_name) }}
+                </div>
+                <div class="member-details-col">
+                  <div class="member-header-row">
+                    <span class="member-name">{{ member.full_name }}</span>
+                    <span class="member-code-tag" *ngIf="member.member_code">{{ member.member_code }}</span>
+                    <span class="role-badge" [ngClass]="getRoleBadgeClass(member.role)">{{ member.role }}</span>
+                  </div>
+                  <div class="member-contact-row">
+                    <span class="contact-pill" *ngIf="member.phone">
+                      <mat-icon>phone</mat-icon> {{ member.phone }}
+                    </span>
+                    <span class="contact-pill" *ngIf="member.email">
+                      <mat-icon>email</mat-icon> {{ member.email }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="member-card-right">
+                <mat-form-field appearance="outline" class="role-select-box" subscriptSizing="dynamic">
+                  <mat-label>Assigned Role</mat-label>
+                  <mat-select
+                    [value]="member.role"
+                    (selectionChange)="updateMemberRole(member, $event.value)"
+                    [disabled]="isMemberUpdating(member.id)"
                   >
-                    {{ role }}
-                  </mat-option>
-                </mat-select>
-                <mat-progress-spinner
-                  *ngIf="isMemberUpdating(member.id)"
-                  matSuffix
-                  diameter="20"
-                  mode="indeterminate"
-                >
-                </mat-progress-spinner>
-              </mat-form-field>
+                    <mat-option *ngFor="let role of availableRoles" [value]="role">
+                      {{ role }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-spinner *ngIf="isMemberUpdating(member.id)" diameter="22"></mat-spinner>
+              </div>
+            </div>
+
+            <!-- Empty State for Assigned -->
+            <div *ngIf="assignedMembers.length === 0" class="empty-search-state">
+              <mat-icon class="empty-icon">person_add_disabled</mat-icon>
+              <h4>No Members Assigned Yet</h4>
+              <p>This Hiyaw Mahider doesn't have any members assigned yet.</p>
+              <button mat-flat-button color="primary" (click)="activeAssignmentTab = 'available'">
+                <mat-icon>person_search</mat-icon> Browse Directory to Assign
+              </button>
             </div>
           </div>
         </div>
+
+        <!-- CORS Warning Section -->
+        <div *ngIf="corsWarning" class="cors-warning-section">
+          <mat-card class="warning-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon color="warn">warning</mat-icon> CORS Issue Detected
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>Member assignment features are limited due to CORS restrictions.</p>
+              <div class="cors-solutions">
+                <button mat-stroked-button color="primary" (click)="installCorsExtension()">Install CORS Extension</button>
+                <button mat-stroked-button (click)="setupProxyConfiguration()">Setup Proxy Config</button>
+                <button mat-button (click)="dismissCorsWarning()">Dismiss</button>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
       </div>
 
-      <!-- CORS Warning Section -->
-      <div *ngIf="corsWarning" class="cors-warning-section">
-        <mat-card class="warning-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon color="warn">warning</mat-icon>
-              CORS Issue Detected
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <p>
-              Member assignment features are limited due to CORS restrictions.
-            </p>
-            <div class="cors-solutions">
-              <button
-                mat-stroked-button
-                color="primary"
-                (click)="installCorsExtension()"
-              >
-                Install CORS Extension
-              </button>
-              <button mat-stroked-button (click)="setupProxyConfiguration()">
-                Setup Proxy Config
-              </button>
-              <button mat-button (click)="dismissCorsWarning()">Dismiss</button>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <div class="dialog-actions">
-        <button mat-button (click)="closeMemberAssignment()">Close</button>
+      <!-- Dialog Footer -->
+      <div class="dialog-footer">
+        <div class="footer-summary">
+          <mat-icon>people_outline</mat-icon>
+          <span>Currently assigned: <strong>{{ assignedMembers.length }}</strong> members</span>
+        </div>
+        <button mat-stroked-button (click)="closeMemberAssignment()" class="footer-close-btn">
+          <mat-icon>close</mat-icon> Close
+        </button>
       </div>
     </div>
   </div>
