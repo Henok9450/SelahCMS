@@ -67,9 +67,10 @@
            [matTooltip]="userName + ' • Account Settings'">
 
         <!-- Live Date & Time Block -->
-        <div class="header-datetime">
+        <div class="header-datetime" [matTooltip]="(now | date:'fullDate') + ' • ' + (now | date:'mediumTime')">
           <span class="header-time">{{ now | date:'HH:mm:ss' }}</span>
-          <span class="header-date">{{ now | date:'EEE, d MMM yyyy' }}</span>
+          <span class="header-date full-date">{{ now | date:'EEE, d MMM yyyy' }}</span>
+          <span class="header-date short-date">{{ now | date:'d MMM' }}</span>
         </div>
 
         <!-- Divider line -->
@@ -91,6 +92,10 @@
         <div class="menu-user-info">
           <span class="menu-name">{{ userName }}</span>
           <span class="menu-role notranslate" translate="no" *ngIf="authService.authState$ | async as user">{{ user.email || (user.role | appRoleName) }}</span>
+          <div class="menu-datetime-stamp">
+            <mat-icon class="menu-datetime-icon">schedule</mat-icon>
+            <span>{{ now | date:'EEE, d MMM yyyy • HH:mm:ss' }}</span>
+          </div>
         </div>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="changePassword()">

@@ -336,6 +336,14 @@
   letter-spacing: 0.04em;
 }
 
+.full-date {
+  display: block;
+}
+
+.short-date {
+  display: none;
+}
+
 /* Vertical divider between clock and avatar */
 .pill-divider {
   width: 1px;
@@ -401,6 +409,24 @@
 .menu-role {
   font-size: 0.75rem;
   color: #64748b;
+}
+
+.menu-datetime-stamp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+}
+
+.menu-datetime-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #0d9488;
 }
 
 /* Mobile menu toggle */
@@ -486,18 +512,31 @@
     width: 100%;
     height: 60px;
     z-index: 1000;
-    padding: 0 1rem;
+    padding: 0 0.6rem;
     box-sizing: border-box;
+  }
+
+  .header-content {
+    padding: 0;
   }
 
   /* Mobile brand scaling */
   .logo-crest {
-    width: 38px;
-    height: 38px;
+    width: 36px;
+    height: 36px;
   }
 
-  .brand-title { font-size: 1.1rem; }
-  .brand-subtitle { display: none; }
+  .brand-link {
+    gap: 0.5rem;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-subtitle {
+    display: none;
+  }
 
   /* Push content below fixed header */
   .main-layout-wrapper {
@@ -509,25 +548,153 @@
     box-sizing: border-box;
   }
 
-  .content-area { padding: 1rem; margin-top: 0; }
+  .content-area {
+    padding: 1rem;
+    margin-top: 0;
+  }
 
-  .mobile-menu-toggle { display: flex; align-items: center; justify-content: center; }
+  .mobile-menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.35rem;
+    padding: 5px;
+  }
 
   .dashboard-header .user-info {
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
 
+  /* Language button compact on mobile */
+  .lang-selector-btn,
+  .lang-selector-btn.mat-mdc-button {
+    height: 34px !important;
+    padding: 0 8px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .lang-selector-btn .lang-chevron {
+    display: none !important;
+  }
+
+  /* Theme toggle button compact on mobile */
+  .theme-toggle-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .theme-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* User profile pill on mobile */
+  .user-profile-pill {
+    padding: 4px 8px 4px 10px;
+    gap: 0.45rem;
+  }
+
+  /* Live Date & Time: KEEP VISIBLE ON MOBILE! */
   .header-datetime {
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.15;
+  }
+
+  .header-time {
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .full-date {
     display: none;
   }
 
+  .short-date {
+    display: block;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Vertical divider stays visible */
   .pill-divider {
-    display: none;
+    display: block !important;
+    height: 20px;
   }
 
-  .footer { padding: 1rem; }
+  .user-avatar-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+
+  .dropdown-chevron {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer {
+    padding: 1rem;
+  }
 }
 
 @media (max-width: 600px) {
-  .brand-typography { display: none; }
+  /* Hide the wide role badge in header on small mobile to make plenty of room for timestamp */
+  .user-role-badge {
+    display: none;
+  }
+
+  .brand-typography {
+    display: none;
+  }
+}
+
+@media (max-width: 440px) {
+  .dashboard-header {
+    padding: 0 0.4rem;
+  }
+
+  .dashboard-header .user-info {
+    gap: 0.25rem;
+  }
+
+  .user-profile-pill {
+    padding: 3px 6px 3px 8px;
+    gap: 0.35rem;
+  }
+
+  /* Compact language selector: show flag only on small phones */
+  .lang-selector-btn .lang-label {
+    display: none !important;
+  }
+
+  .lang-selector-btn,
+  .lang-selector-btn.mat-mdc-button {
+    padding: 0 6px !important;
+    min-width: 32px !important;
+  }
+
+  .header-time {
+    font-size: 0.76rem;
+  }
+
+  .short-date {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .short-date {
+    display: none;
+  }
+
+  .dropdown-chevron {
+    display: none;
+  }
 }
