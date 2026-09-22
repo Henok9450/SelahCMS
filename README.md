@@ -28,7 +28,7 @@ export const environment = {
     appId: '...',
     measurementId: '...'
   },
-  apiUrl: 'https://backend.main.api.geuc.et/api/v1'
+  apiUrl: 'https://backend.main.api.xxxx.et/api/v1'
 };
 ```
 
