@@ -284,6 +284,50 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
     return this.attendanceForm.get('date') as FormControl;
   }
 
+  studyDayFilter = (d: Date | null): boolean => {
+    if (!d) return false;
+    if (!this.selectedHiyawMahider || !this.selectedHiyawMahider.studyDay) {
+      return true;
+    }
+
+    const dayMap: { [key: string]: number } = {
+      'sunday': 0,
+      'monday': 1,
+      'tuesday': 2,
+      'wednesday': 3,
+      'thursday': 4,
+      'friday': 5,
+      'saturday': 6
+    };
+
+    const targetDay = dayMap[this.selectedHiyawMahider.studyDay.trim().toLowerCase()];
+    if (targetDay === undefined) {
+      return true;
+    }
+
+    return d.getDay() === targetDay;
+  };
+
+  private getMostRecentStudyDate(studyDay: string, fromDate: Date = new Date()): Date {
+    const dayMap: { [key: string]: number } = {
+      'sunday': 0,
+      'monday': 1,
+      'tuesday': 2,
+      'wednesday': 3,
+      'thursday': 4,
+      'friday': 5,
+      'saturday': 6
+    };
+    const targetDay = dayMap[studyDay.trim().toLowerCase()];
+    if (targetDay === undefined) return fromDate;
+
+    const result = new Date(fromDate);
+    const currentDay = result.getDay();
+    let diff = (currentDay - targetDay + 7) % 7;
+    result.setDate(result.getDate() - diff);
+    return result;
+  }
+
   loadHiyawMahiders(): void {
     console.log('📚 [ATTENDANCE] Loading Hiyaw Mahiders...');
     this.loading = true;
@@ -409,10 +453,21 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
 
       this.loading = true;
 
-      this.attendanceForm.patchValue({
-        hiyawMahiderId: this.selectedHiyawMahider.id,
-        studyDay: this.selectedHiyawMahider.studyDay
-      });
+      if (this.selectedHiyawMahider.studyDay) {
+        const currentDate = this.dateControl.value ? new Date(this.dateControl.value) : new Date();
+        const targetDate = this.getMostRecentStudyDate(this.selectedHiyawMahider.studyDay, currentDate);
+        this.selectedDate = targetDate;
+        this.attendanceForm.patchValue({
+          hiyawMahiderId: this.selectedHiyawMahider.id,
+          studyDay: this.selectedHiyawMahider.studyDay,
+          date: targetDate
+        });
+      } else {
+        this.attendanceForm.patchValue({
+          hiyawMahiderId: this.selectedHiyawMahider.id,
+          studyDay: this.selectedHiyawMahider.studyDay
+        });
+      }
 
       // 🔒 VALIDATION: Ensure members are loaded before filtering
       if (this.allMembers.length === 0) {
