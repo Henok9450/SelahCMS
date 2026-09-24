@@ -9,7 +9,7 @@ import { HiyawMahider, HiyawMahiderStatus } from '../../core/models/hiyaw-mahide
 import { Pastor } from '../../core/models/pastor.model';
 import { Zone } from '../../core/models/zone.model';
 import { Member, UserRole } from '../../core/models/member.model';
-import { Observable, catchError, of, tap, forkJoin, from, concatMap, reduce, Subject } from 'rxjs';
+import { Observable, catchError, of, tap, forkJoin, from, concatMap, reduce, Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuditLogService } from '../../core/services/audit-log.service';
 import { Auth } from '@angular/fire/auth';
@@ -367,6 +367,14 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Update the role in ALL local arrays
         this.updateRoleInAllArrays(member.id, newRole);
+
+        // Sync with Hiyaw Mahider Pastor/Deputy Pastor fields & Pastor collection
+        const targetHiyawId = this.selectedHiyawMahiderForView?.id ||
+                              this.selectedHiyawMahiderForAssignment?.id ||
+                              member.hyaw_mahider_id;
+        if (targetHiyawId) {
+          this.syncPastorWithHiyawMahider(member, newRole, targetHiyawId, oldRole);
+        }
 
         // Remove loading state
         this.updatingRoles.delete(member.id);
@@ -750,6 +758,9 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
         // Update role in all arrays
         this.updateRoleInAllArrays(member.id, role);
 
+        // Sync with Hiyaw Mahider Pastor/Deputy Pastor fields & Pastor collection
+        this.syncPastorWithHiyawMahider(member, role, selectedHiyawId);
+
         // Refresh assigned members
         this.loadAssignedMembers(selectedHiyawId);
 
@@ -800,10 +811,18 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
 
     console.log(`🗑️ Removing member ${memberName} from ${hiyawMahiderName} by setting hyaw_mahider_id to null`);
 
+    const targetHiyawId = this.selectedHiyawMahiderForView.id;
+    const memberRole = member.role;
+
     this.memberService.removeMemberFromHiyawMahider(member.id).subscribe({
       next: (updatedMember) => {
         console.log('✅ Member removal successful', updatedMember);
         this.successMessage = `✅ Member ${memberName} removed from ${hiyawMahiderName}`;
+
+        // Sync pastor removal if member was Pastor or Deputy Pastor
+        if (targetHiyawId) {
+          this.syncPastorWithHiyawMahider(member, 'Member', targetHiyawId, memberRole);
+        }
 
         // Update local members list
         const index = this.members.findIndex(m => m.id === member.id);
@@ -841,6 +860,8 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const hiyawMahiderName = this.selectedHiyawMahiderForView.name;
     const memberCount = this.viewAssignedMembers.length;
+    const targetHiyawId = this.selectedHiyawMahiderForView.id;
+    const assignedMembersCopy = [...this.viewAssignedMembers];
 
     if (!confirm(`Are you sure you want to remove ALL ${memberCount} members from ${hiyawMahiderName}? This action cannot be undone.`)) {
       return;
@@ -861,6 +882,13 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.successMessage = `✅ All ${memberCount} members removed from ${hiyawMahiderName}`;
         this.isLoading = false;
 
+        // Sync pastor removal for all removed members
+        if (targetHiyawId) {
+          assignedMembersCopy.forEach(m => {
+            this.syncPastorWithHiyawMahider(m, 'Member', targetHiyawId, m.role);
+          });
+        }
+
         // Refresh the view
         this.loadViewAssignedMembers(this.selectedHiyawMahiderForView!.id);
 
@@ -875,6 +903,135 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loadViewAssignedMembers(this.selectedHiyawMahiderForView!.id);
       }
     });
+  }
+
+  // 🆕 Synchronize Pastor/Deputy Pastor assignments across Hiyaw Mahider & Pastor Component
+  private async syncPastorWithHiyawMahider(member: Member, newRole: UserRole, targetHiyawMahiderId: string, oldRole?: UserRole): Promise<void> {
+    if (!targetHiyawMahiderId || !member) return;
+
+    try {
+      const hm = this.dataSource.data.find(h => h.id === targetHiyawMahiderId);
+      const memberName = member.full_name;
+
+      if (newRole === 'Pastor') {
+        // Update Hiyaw Mahider document in Firestore
+        await this.hiyawMahiderService.updateHiyawMahider(targetHiyawMahiderId, {
+          pastor: memberName
+        });
+
+        // Update local table data immediately
+        if (hm) {
+          hm.pastor = memberName;
+          this.dataSource.data = [...this.dataSource.data];
+        }
+
+        // Sync in pastors collection (for Pastor Component)
+        await this.upsertPastorRecord(member, 'Pastor', targetHiyawMahiderId);
+      } else if (newRole === 'Deputy Pastor') {
+        // Update Hiyaw Mahider document in Firestore
+        await this.hiyawMahiderService.updateHiyawMahider(targetHiyawMahiderId, {
+          deputyPastor: memberName
+        });
+
+        // Update local table data immediately
+        if (hm) {
+          hm.deputyPastor = memberName;
+          this.dataSource.data = [...this.dataSource.data];
+        }
+
+        // Sync in pastors collection (for Pastor Component)
+        await this.upsertPastorRecord(member, 'Deputy Pastor', targetHiyawMahiderId);
+      } else if (oldRole === 'Pastor' || oldRole === 'Deputy Pastor' || hm?.pastor === memberName || hm?.deputyPastor === memberName) {
+        const updates: Partial<HiyawMahider> = {};
+        if (hm && hm.pastor === memberName) {
+          updates.pastor = '';
+          hm.pastor = '';
+        }
+        if (hm && hm.deputyPastor === memberName) {
+          updates.deputyPastor = '';
+          hm.deputyPastor = '';
+        }
+
+        if (Object.keys(updates).length > 0) {
+          await this.hiyawMahiderService.updateHiyawMahider(targetHiyawMahiderId, updates);
+          this.dataSource.data = [...this.dataSource.data];
+        }
+
+        // Unassign in pastors collection
+        await this.unassignPastorRecord(member, targetHiyawMahiderId);
+      }
+    } catch (err) {
+      console.error('⚠️ Failed to sync pastor with Hiyaw Mahider / Pastor component:', err);
+    }
+  }
+
+  private async upsertPastorRecord(member: Member, role: 'Pastor' | 'Deputy Pastor', hiyawMahiderId: string): Promise<void> {
+    const existingPastor = this.pastors.find(p =>
+      (p.memberId && p.memberId === member.id) ||
+      (p.memberCode && p.memberCode === member.member_code) ||
+      (p.name && p.name.trim().toLowerCase() === member.full_name.trim().toLowerCase())
+    );
+
+    let resolvedAddress = '';
+    if (member.contact && typeof member.contact === 'object') {
+      resolvedAddress = member.contact.address || '';
+    } else if (typeof member.contact === 'string') {
+      resolvedAddress = member.contact;
+    }
+
+    if (existingPastor && existingPastor.id) {
+      await firstValueFrom(this.pastorService.updatePastor(existingPastor.id, {
+        name: member.full_name,
+        phoneNumber: member.phone || existingPastor.phoneNumber || '',
+        address: resolvedAddress || existingPastor.address || '',
+        email: member.email || existingPastor.email || '',
+        assignedHiyawMahider: hiyawMahiderId,
+        role: role,
+        status: 'Active',
+        memberId: member.id,
+        memberCode: member.member_code,
+        updatedAt: new Date()
+      }));
+      console.log('✅ Updated existing pastor record in pastors collection');
+    } else {
+      const newPastor: Pastor = {
+        name: member.full_name,
+        phoneNumber: member.phone || '',
+        address: resolvedAddress,
+        email: member.email || '',
+        assignedHiyawMahider: hiyawMahiderId,
+        status: 'Active',
+        role: role,
+        memberId: member.id,
+        memberCode: member.member_code,
+        isExternal: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      await firstValueFrom(this.pastorService.createPastor(newPastor));
+      console.log('✅ Created new pastor record in pastors collection');
+    }
+
+    // Refresh local pastors cache
+    this.loadPastors();
+  }
+
+  private async unassignPastorRecord(member: Member, hiyawMahiderId: string): Promise<void> {
+    const existingPastor = this.pastors.find(p =>
+      (p.memberId && p.memberId === member.id) ||
+      (p.memberCode && p.memberCode === member.member_code) ||
+      (p.name && p.name.trim().toLowerCase() === member.full_name.trim().toLowerCase())
+    );
+
+    if (existingPastor && existingPastor.id && existingPastor.assignedHiyawMahider === hiyawMahiderId) {
+      await firstValueFrom(this.pastorService.updatePastor(existingPastor.id, {
+        assignedHiyawMahider: '',
+        status: 'Inactive',
+        updatedAt: new Date()
+      }));
+      this.loadPastors();
+      console.log('✅ Unassigned pastor record from pastors collection');
+    }
   }
 
   // 🆕 NEW: Helper method to get role count for view dialog

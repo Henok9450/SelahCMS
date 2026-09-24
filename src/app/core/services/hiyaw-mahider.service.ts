@@ -129,12 +129,12 @@ export class HiyawMahiderService {
     if (data.status !== undefined && data.status !== null) {
       updateData.status = data.status;
     }
-    if (data.pastor !== undefined && data.pastor !== null) {
-      updateData.pastor = data.pastor;
+    if (data.pastor !== undefined) {
+      updateData.pastor = data.pastor || '';
       updateData.pastorLower = data.pastor ? this.normalizeSearchTerm(data.pastor) : '';
     }
-    if (data.deputyPastor !== undefined && data.deputyPastor !== null) {
-      updateData.deputyPastor = data.deputyPastor;
+    if (data.deputyPastor !== undefined) {
+      updateData.deputyPastor = data.deputyPastor || '';
       updateData.deputyPastorLower = data.deputyPastor ? this.normalizeSearchTerm(data.deputyPastor) : '';
     }
     if (data.studyDay !== undefined && data.studyDay !== null) {
