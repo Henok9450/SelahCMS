@@ -197,14 +197,32 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   togglePastorStatus(pastor: Pastor): void {
     if (!pastor.id) return;
-    const newStatus = pastor.status === 'Active' ? 'Inactive' : 'Active';
+    const newStatus: 'Active' | 'Inactive' = pastor.status === 'Active' ? 'Inactive' : 'Active';
     
     this.pastorService.updatePastor(pastor.id, { status: newStatus }).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         pastor.status = newStatus;
         this.applyFilter();
-        this.auditLogService.log('PASTOR_UPDATED', 'Pastor', pastor.id, pastor.name, { status: newStatus });
+        this.auditLogService.log('PASTOR_UPDATED', 'Pastor', pastor.id!, pastor.name, { status: newStatus });
         this.snackBar.open(`Pastor marked as ${newStatus}`, 'Close', { duration: 3000 });
+
+        // Option 1 Sync: If deactivated (Inactive), clear from Hiyaw Mahider. If activated (Active), restore assignment.
+        if (pastor.assignedHiyawMahider) {
+          const field = pastor.role === 'Pastor' ? 'pastor' : 'deputyPastor';
+          if (newStatus === 'Inactive') {
+            this.hiyawMahiderService.getHiyawMahiderById(pastor.assignedHiyawMahider).then(hm => {
+              if (hm && hm[field] === pastor.name) {
+                this.hiyawMahiderService.updateHiyawMahider(pastor.assignedHiyawMahider, {
+                  [field]: null
+                }).catch(err => console.error('Failed to clear Hiyaw Mahider on pastor deactivation:', err));
+              }
+            }).catch(err => console.error('Error fetching Hiyaw Mahider on deactivation:', err));
+          } else if (newStatus === 'Active') {
+            this.hiyawMahiderService.updateHiyawMahider(pastor.assignedHiyawMahider, {
+              [field]: pastor.name
+            }).catch(err => console.error('Failed to restore Hiyaw Mahider on pastor activation:', err));
+          }
+        }
       },
       error: (err) => {
         console.error('Failed to update status:', err);
@@ -245,34 +263,53 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.snackBar.open('Pastor updated successfully!', 'Close', { duration: 3000 });
           this.auditLogService.log('PASTOR_UPDATED', 'Pastor', this.currentPastorId!, pastorData.name, pastorData);
 
+          const isStatusChanged = oldPastor.status !== pastorData.status;
           const isHiyawMahiderChanged = oldPastor.assignedHiyawMahider !== pastorData.assignedHiyawMahider;
           const isRoleChanged = oldPastor.role !== pastorData.role;
           const isNameChanged = oldPastor.name !== pastorData.name;
 
-          if (isHiyawMahiderChanged || isRoleChanged || isNameChanged) {
-            if (oldPastor.assignedHiyawMahider) {
-              const oldField = oldPastor.role === 'Pastor' ? 'pastor' : 'deputyPastor';
-              this.hiyawMahiderService.getHiyawMahiderById(oldPastor.assignedHiyawMahider).then(hm => {
-                if (hm && hm[oldField] === oldPastor.name) {
-                  this.hiyawMahiderService.updateHiyawMahider(oldPastor.assignedHiyawMahider, {
-                    [oldField]: null
-                  });
-                }
-              }).catch(err => console.error('Failed to clear old Hiyaw Mahider assignment:', err));
-            }
+          if (isStatusChanged || isHiyawMahiderChanged || isRoleChanged || isNameChanged) {
+            // If pastor is set to Inactive or On Hold: clear old/current assignment
+            if (pastorData.status !== 'Active') {
+              if (oldPastor.assignedHiyawMahider) {
+                const oldField = oldPastor.role === 'Pastor' ? 'pastor' : 'deputyPastor';
+                this.hiyawMahiderService.getHiyawMahiderById(oldPastor.assignedHiyawMahider).then(hm => {
+                  if (hm && hm[oldField] === oldPastor.name) {
+                    this.hiyawMahiderService.updateHiyawMahider(oldPastor.assignedHiyawMahider, {
+                      [oldField]: null
+                    });
+                  }
+                }).catch(err => console.error('Failed to clear Hiyaw Mahider assignment on inactive:', err));
+              }
+              if (pastorData.assignedHiyawMahider && pastorData.assignedHiyawMahider !== oldPastor.assignedHiyawMahider) {
+                const newField = pastorData.role === 'Pastor' ? 'pastor' : 'deputyPastor';
+                this.hiyawMahiderService.getHiyawMahiderById(pastorData.assignedHiyawMahider).then(hm => {
+                  if (hm && hm[newField] === pastorData.name) {
+                    this.hiyawMahiderService.updateHiyawMahider(pastorData.assignedHiyawMahider, {
+                      [newField]: null
+                    });
+                  }
+                }).catch(err => console.error('Failed to clear new Hiyaw Mahider assignment on inactive:', err));
+              }
+            } else {
+              // Pastor is Active
+              if (oldPastor.assignedHiyawMahider && (isHiyawMahiderChanged || isRoleChanged || isNameChanged || isStatusChanged)) {
+                const oldField = oldPastor.role === 'Pastor' ? 'pastor' : 'deputyPastor';
+                this.hiyawMahiderService.getHiyawMahiderById(oldPastor.assignedHiyawMahider).then(hm => {
+                  if (hm && hm[oldField] === oldPastor.name) {
+                    this.hiyawMahiderService.updateHiyawMahider(oldPastor.assignedHiyawMahider, {
+                      [oldField]: null
+                    });
+                  }
+                }).catch(err => console.error('Failed to clear old Hiyaw Mahider assignment:', err));
+              }
 
-            if (pastorData.assignedHiyawMahider) {
-              const newField = pastorData.role === 'Pastor' ? 'pastor' : 'deputyPastor';
-              this.hiyawMahiderService.updateHiyawMahider(pastorData.assignedHiyawMahider, {
-                [newField]: pastorData.name
-              }).catch(err => console.error('Failed to update new Hiyaw Mahider assignment:', err));
-            }
-          } else {
-            if (pastorData.assignedHiyawMahider) {
-              const currentField = pastorData.role === 'Pastor' ? 'pastor' : 'deputyPastor';
-              this.hiyawMahiderService.updateHiyawMahider(pastorData.assignedHiyawMahider, {
-                [currentField]: pastorData.name
-              }).catch(err => console.error('Failed to sync Hiyaw Mahider assignment:', err));
+              if (pastorData.assignedHiyawMahider) {
+                const newField = pastorData.role === 'Pastor' ? 'pastor' : 'deputyPastor';
+                this.hiyawMahiderService.updateHiyawMahider(pastorData.assignedHiyawMahider, {
+                  [newField]: pastorData.name
+                }).catch(err => console.error('Failed to update Hiyaw Mahider assignment:', err));
+              }
             }
           }
 
@@ -303,7 +340,7 @@ export class PastorComponent implements OnInit, AfterViewInit, OnDestroy {
           this.snackBar.open('Pastor created successfully!', 'Close', { duration: 3000 });
           this.auditLogService.log('PASTOR_CREATED', 'Pastor', docRef.id, pastorData.name, pastorData);
 
-          if (pastorData.assignedHiyawMahider) {
+          if (pastorData.assignedHiyawMahider && pastorData.status === 'Active') {
             const fieldToUpdate = pastorData.role === 'Pastor' ? 'pastor' : 'deputyPastor';
             this.hiyawMahiderService.updateHiyawMahider(pastorData.assignedHiyawMahider, {
               [fieldToUpdate]: pastorData.name
