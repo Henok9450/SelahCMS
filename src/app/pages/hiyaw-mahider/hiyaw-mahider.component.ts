@@ -1346,24 +1346,9 @@ export class HiyawMahiderComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingMembers = true;
     this.errorMessage = null;
 
-    this.memberService.getMembersPaged({
-      status: 'active',
-      includes: ['smallTeam'],
-      page: 1,
-      pageSize: 500
-    }).pipe(
-      catchError(error => {
-        console.error('❌ Failed to load 500 members batch, trying fallback:', error);
-        return this.memberService.getMembers({
-          status: 'active',
-          includes: ['smallTeam'],
-          page: 1,
-          pageSize: 200
-        });
-      })
-    ).subscribe({
-      next: (response) => {
-        this.members = response.data || [];
+    this.memberService.getAllActiveMembers().subscribe({
+      next: (members) => {
+        this.members = members || [];
         this.isLoadingMembers = false;
         console.log(`📊 RESULT: ${this.members.length} members loaded across directory`);
 

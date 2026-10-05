@@ -70,18 +70,89 @@ export class MemberService {
   }
 
   /**
+   * Fetches ALL active members across all pages sequentially.
+   * Handles 700+ members by automatically requesting subsequent pages if a batch returns 500 records.
+   * Result is cached with TTL to avoid redundant network calls.
+   */
+  getAllActiveMembers(options?: { forceRefresh?: boolean }): Observable<Member[]> {
+    const cacheKey = 'all_active_members_full';
+    const cached = this.membersCache.get(cacheKey);
+
+    if (!options?.forceRefresh && cached && Date.now() - cached.timestamp < this.cacheTTL) {
+      return of(cached.data);
+    }
+
+    return new Observable(observer => {
+      const allMembers: Member[] = [];
+      const seenIds = new Set<string>();
+      const pageSize = 500;
+      const maxPages = 10; // Supports up to 5,000 members safely
+
+      const fetchPage = async (page: number) => {
+        try {
+          console.log(`📡 Fetching active members batch page ${page} (pageSize: ${pageSize})...`);
+
+          const result = await this.getMembers({
+            status: 'active',
+            includes: ['smallTeam'],
+            page,
+            pageSize
+          }).pipe(
+            timeout(this.requestTimeout),
+            catchError(err => {
+              console.error(`❌ Batch fetch page ${page} failed:`, err);
+              return of({ data: [] as Member[], meta: {} });
+            })
+          ).toPromise();
+
+          const pageData = result?.data || [];
+          let newRecords = 0;
+
+          pageData.forEach(member => {
+            if (!seenIds.has(member.id)) {
+              seenIds.add(member.id);
+              allMembers.push(member);
+              newRecords++;
+            }
+          });
+
+          console.log(`📊 Page ${page}: ${pageData.length} returned (${newRecords} new). Running total: ${allMembers.length}`);
+
+          if (pageData.length >= pageSize && page < maxPages) {
+            await this.delay(80);
+            await fetchPage(page + 1);
+          } else {
+            this.membersCache.set(cacheKey, {
+              data: allMembers,
+              meta: { totalRecords: allMembers.length },
+              timestamp: Date.now()
+            });
+            console.log(`✅ Loaded ALL ${allMembers.length} active members across directory`);
+            observer.next(allMembers);
+            observer.complete();
+          }
+        } catch (error) {
+          console.error(`❌ Error in multi-page active members fetch:`, error);
+          if (allMembers.length > 0) {
+            observer.next(allMembers);
+            observer.complete();
+          } else {
+            observer.error(error);
+          }
+        }
+      };
+
+      fetchPage(1);
+    });
+  }
+
+  /**
    * Fetches members from the central API for pastor selection/assignment.
    * Loads a comprehensive pool of active members with caching and performs fuzzy search.
    */
   getPastorEligibleMembers(searchTerm?: string): Observable<Member[]> {
-    return this.getMembersPaged({
-      status: 'active',
-      page: 1,
-      pageSize: 500,
-      includes: ['smallTeam']
-    }).pipe(
-      map(response => {
-        const all = response.data || [];
+    return this.getAllActiveMembers().pipe(
+      map(all => {
         if (!searchTerm || !searchTerm.trim()) {
           return all;
         }

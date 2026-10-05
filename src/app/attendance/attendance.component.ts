@@ -361,26 +361,12 @@ export class AttendanceComponent implements OnInit, AfterViewInit {
   }
 
   loadAllMembers(): void {
-    console.log('👥 [ATTENDANCE] Loading members from REST API...');
-    console.log('📤 [ATTENDANCE] Request params:', {
-      status: 'active',
-      includes: ['smallTeam'],
-      page: 1,
-      pageSize: 500
-    });
-
+    console.log('👥 [ATTENDANCE] Loading all members via MemberService...');
     this.loading = true;
     // Use MemberService to fetch members from REST API
-    this.memberService.getMembersPaged({
-      status: 'active',
-      includes: ['smallTeam'],
-      page: 1,
-      pageSize: 500 // Fetch enough members for attendance
-    }).subscribe({
-      next: (response) => {
-        const members = response.data || [];
+    this.memberService.getAllActiveMembers().subscribe({
+      next: (members) => {
         console.log(`✅ [ATTENDANCE] Loaded ${members.length} members from REST API`);
-        console.log('📊 [ATTENDANCE] Response metadata:', response.meta);
 
         // Filter members based on the current user's role and assigned Hiyaw Mahider
         if (['Pastor', 'Deputy Pastor'].includes(this.currentUserRole) && this.currentUserAssignedHiyawMahiderId) {

@@ -114,15 +114,9 @@ export class MembersListComponent implements OnInit, OnDestroy {
           });
 
           console.log(`👥 [MEMBERS-LIST] Loading members for Hiyaw Mahider: ${hiyawMahiderId}`);
-          return this.memberService.getMembersPaged({
-            status: 'active',
-            includes: ['smallTeam'],
-            page: 1,
-            pageSize: 500
-          }).pipe(
-            map(response => {
-              const allMembers = response.data || [];
-              const filtered = allMembers.filter(m => m.hyaw_mahider_id === hiyawMahiderId);
+          return this.memberService.getAllActiveMembers().pipe(
+            map(allMembers => {
+              const filtered = (allMembers || []).filter(m => m.hyaw_mahider_id === hiyawMahiderId);
               this.isLoading = false;
               this.setMembers(filtered);
               return filtered;
@@ -137,18 +131,11 @@ export class MembersListComponent implements OnInit, OnDestroy {
         } else if (currentUser.role === 'Admin') {
           this.hiyawMahiderName = 'All Fellowship Members (Admin View)';
           console.log('👥 [MEMBERS-LIST] Admin - Loading ALL active members...');
-          return this.memberService.getMembersPaged({
-            status: 'active',
-            includes: ['smallTeam'],
-            page: 1,
-            pageSize: 500
-          }).pipe(
-            tap(response => {
-              const members = response.data || [];
+          return this.memberService.getAllActiveMembers().pipe(
+            tap(members => {
               this.isLoading = false;
-              this.setMembers(members);
+              this.setMembers(members || []);
             }),
-            map(response => response.data || []),
             catchError(error => {
               console.error('❌ [MEMBERS-LIST] Error fetching all members for Admin:', error);
               this.errorMessage = 'Failed to load all members. Please try again.';
