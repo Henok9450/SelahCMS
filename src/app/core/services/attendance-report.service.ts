@@ -87,8 +87,7 @@ export class AttendanceReportService {
         })
       );
     } else {
-      // Otherwise, apply general filters for multiple documents
-      q = query(hiyawMahidersCollection, orderBy('nameLower', 'asc'));
+      let q: Query<DocumentData> = hiyawMahidersCollection;
 
       if (filters.status) {
         q = query(q, where('status', '==', filters.status));
@@ -99,15 +98,16 @@ export class AttendanceReportService {
       if (filters.studyDay) {
         q = query(q, where('studyDay', '==', filters.studyDay));
       }
-      if (filters.searchTerm) {
-        q = query(q,
-          where('nameLower', '>=', filters.searchTerm.toLowerCase()),
-          where('nameLower', '<=', filters.searchTerm.toLowerCase() + '\uf8ff')
-        );
-      }
 
       return collectionData(q, { idField: 'id' }).pipe(
-        map(records => records.map(record => this.transformHiyawMahiderData(record))),
+        map(records => {
+          let mahiders = records.map(record => this.transformHiyawMahiderData(record));
+          if (filters.searchTerm) {
+            const term = filters.searchTerm.toLowerCase().trim();
+            mahiders = mahiders.filter(m => (m.name && m.name.toLowerCase().includes(term)));
+          }
+          return mahiders.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        }),
         tap(records => console.log('Processed Hiyaw Mahider records:', records)),
         catchError(error => {
           console.error('Service: Error fetching Hiyaw Mahiders:', error);
@@ -192,42 +192,50 @@ export class AttendanceReportService {
     };
   }
 
-  // NEW: Method to get attendance records
+  // Method to get attendance records with strict zone filtering
   getAttendanceRecords(filters: any = {}, zones: { id: string, name: string }[] = []): Observable<AttendanceRecord[]> {
     console.log('%c[Service][getAttendanceRecords] METHOD ENTERED. Starting query construction...', 'color: blue; font-weight: bold;');
 
     return this.getHiyawMahiders().pipe(
       switchMap(hiyawMahiders => {
-        // Create a map of hiyawMahiderName -> zone
-        const mahiderZoneMap = new Map<string, string>();
+        // Create maps of id -> zone and name -> zone
+        const mahiderIdToZoneMap = new Map<string, string>();
+        const mahiderNameToZoneMap = new Map<string, string>();
+
         hiyawMahiders.forEach(mahider => {
-          mahiderZoneMap.set(mahider.name, mahider.zone);
+          if (mahider.id) {
+            mahiderIdToZoneMap.set(mahider.id, mahider.zone);
+          }
+          if (mahider.name) {
+            mahiderNameToZoneMap.set(mahider.name.trim().toLowerCase(), mahider.zone);
+          }
         });
 
-        console.log('[Service][getAttendanceRecords] Hiyaw Mahider Zone Mapping:', Array.from(mahiderZoneMap.entries()));
+        console.log('[Service][getAttendanceRecords] Hiyaw Mahiders loaded count:', hiyawMahiders.length);
+        console.log('[Service][getAttendanceRecords] Filters received:', filters);
+
+        // If zone filter is specified, check if that zone actually has any Hiyaw Mahiders
+        let mahiderIdsInZone: string[] = [];
+        if (filters.zone) {
+          const mahidersInZone = hiyawMahiders.filter(m => m.zone === filters.zone);
+          // If the selected zone has NO Hiyaw Mahiders at all, attendance is guaranteed to be 0
+          if (mahidersInZone.length === 0) {
+            console.warn(`[Service][getAttendanceRecords] No Hiyaw Mahiders found in zone: ${filters.zone}. Returning 0 records.`);
+            return of([]);
+          }
+          mahiderIdsInZone = mahidersInZone.map(m => m.id);
+        }
 
         const attendanceCollection = collection(this.firestore, 'attendances');
         let q: Query<DocumentData> = query(attendanceCollection, orderBy('date', 'desc'));
-
-        console.log('[Service][getAttendanceRecords] Filters received:', filters);
 
         // Apply hiyawMahiderId filter if specified
         if (filters.hiyawMahiderId) {
           q = query(q, where('hiyawMahiderId', '==', filters.hiyawMahiderId));
           console.log('[Service][getAttendanceRecords] Applied hiyawMahiderId filter:', filters.hiyawMahiderId);
-        }
-
-        // Apply zone filter by mapping to hiyawMahiderNames
-        if (filters.zone) {
-          const mahidersInZone = hiyawMahiders.filter(m => m.zone === filters.zone);
-          const mahiderNamesInZone = mahidersInZone.map(m => m.name);
-
-          if (mahiderNamesInZone.length > 0) {
-            q = query(q, where('hiyawMahiderName', 'in', mahiderNamesInZone));
-            console.log('[Service][getAttendanceRecords] Applied zone filter via hiyawMahiderNames:', mahiderNamesInZone);
-          } else {
-            console.warn('[Service][getAttendanceRecords] No hiyawMahiders found in zone:', filters.zone);
-          }
+        } else if (filters.zone && mahiderIdsInZone.length > 0 && mahiderIdsInZone.length <= 30) {
+          q = query(q, where('hiyawMahiderId', 'in', mahiderIdsInZone));
+          console.log('[Service][getAttendanceRecords] Applied zone filter via hiyawMahiderIds:', mahiderIdsInZone);
         }
 
         if (filters.studyDay) {
@@ -256,20 +264,43 @@ export class AttendanceReportService {
           tap(rawRecords => {
             console.log(`[Service][getAttendanceRecords] RAW data (length: ${rawRecords.length}):`, rawRecords);
           }),
-          map(rawRecords => rawRecords.map(record => {
-            // Type assertion for the raw record
-            const typedRecord = record as { hiyawMahiderName: string, [key: string]: any };
+          map(rawRecords => {
+            return rawRecords
+              .map(record => {
+                const typedRecord = record as { hiyawMahiderId?: string; hiyawMahiderName?: string; zone?: string; [key: string]: any };
+                const recId = typedRecord.hiyawMahiderId || '';
+                const recName = typedRecord.hiyawMahiderName ? typedRecord.hiyawMahiderName.trim().toLowerCase() : '';
 
-            // Transform each record with zone info
-            const zone = mahiderZoneMap.get(typedRecord.hiyawMahiderName) || 'N/A';
-            return {
-              ...this.transformAttendanceRecordData(record),
-              zone,
-              zoneName: zones.find(z => z.id === zone)?.name || 'N/A'
-            };
-          })),
+                // Map to zone accurately
+                const zone = (recId && mahiderIdToZoneMap.get(recId))
+                  || (recName && mahiderNameToZoneMap.get(recName))
+                  || typedRecord.zone
+                  || 'N/A';
+
+                return {
+                  ...this.transformAttendanceRecordData({ ...record, zone }, zones),
+                  zone,
+                  zoneName: zones.find(z => z.id === zone)?.name || 'N/A'
+                };
+              })
+              .filter(record => {
+                // Strictly enforce zone filtering
+                if (filters.zone && record.zone !== filters.zone) {
+                  return false;
+                }
+                // Strictly enforce hiyawMahiderId filtering
+                if (filters.hiyawMahiderId && record.hiyawMahiderId !== filters.hiyawMahiderId) {
+                  return false;
+                }
+                // Strictly enforce studyDay filtering
+                if (filters.studyDay && record.studyDay !== filters.studyDay) {
+                  return false;
+                }
+                return true;
+              });
+          }),
           tap(transformedRecords => {
-            console.log(`[Service][getAttendanceRecords] Transformed records with zones:`, transformedRecords);
+            console.log(`[Service][getAttendanceRecords] Transformed & filtered records count: ${transformedRecords.length}`);
           })
         );
       }),

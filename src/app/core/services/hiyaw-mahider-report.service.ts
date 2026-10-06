@@ -41,7 +41,7 @@ export class HiyawMahiderReportService {
 
   getHiyawMahiders(filters: any = {}): Observable<HiyawMahider[]> {
     const hiyawMahidersCollection = collection(this.firestore, 'hiyawMahiders');
-    let q: Query<DocumentData> = query(hiyawMahidersCollection, orderBy('nameLower', 'asc'));
+    let q: Query<DocumentData> = hiyawMahidersCollection;
 
     if (filters.status) {
       q = query(q, where('status', '==', filters.status));
@@ -55,15 +55,15 @@ export class HiyawMahiderReportService {
       q = query(q, where('studyDay', '==', filters.studyDay));
     }
 
-    if (filters.searchTerm) {
-      q = query(q, 
-        where('nameLower', '>=', filters.searchTerm.toLowerCase()),
-        where('nameLower', '<=', filters.searchTerm.toLowerCase() + '\uf8ff')
-      );
-    }
-
     return collectionData(q, { idField: 'id' }).pipe(
-      map(records => records.map(record => this.transformHiyawMahiderData(record))),
+      map(records => {
+        let mahiders = records.map(record => this.transformHiyawMahiderData(record));
+        if (filters.searchTerm) {
+          const term = filters.searchTerm.toLowerCase().trim();
+          mahiders = mahiders.filter(m => (m.name && m.name.toLowerCase().includes(term)));
+        }
+        return mahiders.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      }),
       tap(records => console.log('Processed Hiyaw Mahider records:', records))
     );
   }
