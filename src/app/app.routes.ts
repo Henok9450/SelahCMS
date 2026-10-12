@@ -35,6 +35,17 @@ export const routes: Routes = [
     canActivate: [noAuthGuard] // Important - allow access without auth
   },
   {
+    path: 'reset-password',
+    loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+    title: 'Set Password'
+  },
+  {
+    path: 'change-password',
+    loadComponent: () => import('./auth/change-password/change-password.component').then(m => m.ChangePasswordComponent),
+    title: 'Change Password',
+    canActivate: [authGuard]
+  },
+  {
     path: 'pages',
     canActivate: [authGuard], // Protect entire pages section
     children: [
@@ -97,7 +108,7 @@ export const routes: Routes = [
           import('./pages/hiyaw-mahider/hiyaw-mahider.component').then(m => m.HiyawMahiderComponent),
         title: 'Hiyaw Mahider',
         canActivate: [RoleGuard],
-        data: { roles: [ROLES.ADMIN, ROLES.PASTOR, ROLES.DEPUTY_PASTOR, ROLES.ZONE_COORDINATOR] }
+        data: { roles: [ROLES.ADMIN, ROLES.ZONE_COORDINATOR] }
       },
       {
         path: 'pastors',

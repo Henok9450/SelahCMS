@@ -39,6 +39,7 @@ export class ChangePasswordComponent {
   errorMessage: string = '';
   successMessage: string = '';
   isLoading: boolean = false;
+  isSuccess: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -51,19 +52,29 @@ export class ChangePasswordComponent {
       return;
     }
 
+    if (this.newPassword.length < 6) {
+      this.errorMessage = 'Password must be at least 6 characters long';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
 
     try {
       await this.authService.changePassword(this.currentPassword, this.newPassword);
-      this.successMessage = 'Password changed successfully!';
-      setTimeout(() => this.router.navigate(['/dashboard']), 2000);
-    } catch (error) {
-      this.errorMessage = 'Failed to change password. Please try again.';
+      this.isSuccess = true;
+      this.successMessage = 'Password changed successfully! Redirecting to dashboard...';
+      setTimeout(() => this.goToDashboard(), 2000);
+    } catch (error: any) {
+      this.errorMessage = error?.message || 'Failed to change password. Please check your current password and try again.';
       console.error('Password change error:', error);
     } finally {
       this.isLoading = false;
     }
+  }
+
+  goToDashboard(): void {
+    this.router.navigate(['/home']);
   }
 }

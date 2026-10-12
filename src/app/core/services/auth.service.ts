@@ -10,7 +10,8 @@ import {
   EmailAuthProvider,
   updatePassword,
   createUserWithEmailAndPassword,
-  User as FirebaseUser
+  User as FirebaseUser,
+  ActionCodeSettings
 } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
@@ -316,9 +317,9 @@ export class AuthService {
       // await this.userService.createOrUpdateUserProfile(firebaseUser.uid, newUserProfileData);
       // console.log('AuthService: User profile created/updated in Firestore.');
 
-      // Send password reset email
-      await sendPasswordResetEmail(this.auth, registrationData.email);
-      console.log('AuthService: Password reset/login link email sent to:', registrationData.email);
+      // Send password reset / set password email
+      await this.sendPasswordResetWithFallback(registrationData.email);
+      console.log('AuthService: Password reset/setup email sent to:', registrationData.email);
 
       // Sign out the newly created user
       await signOut(this.auth);
@@ -422,10 +423,35 @@ export class AuthService {
     }
   }
 
+  getActionCodeSettings(): ActionCodeSettings {
+    const origin = typeof window !== 'undefined' && window.location?.origin
+      ? window.location.origin
+      : 'https://selah.geuc.et';
+    return {
+      url: `${origin}/reset-password`,
+      handleCodeInApp: true
+    };
+  }
+
+  async sendPasswordResetWithFallback(email: string): Promise<void> {
+    const actionCodeSettings = this.getActionCodeSettings();
+    try {
+      await sendPasswordResetEmail(this.auth, email, actionCodeSettings);
+      console.log('AuthService: Password setup/reset email sent with in-app ActionCodeSettings to:', email);
+    } catch (err: any) {
+      if (err?.code === 'auth/unauthorized-continue-uri') {
+        console.warn('AuthService: Action URL domain not yet added to Firebase Console Authorized Domains; falling back to default action URL.');
+        await sendPasswordResetEmail(this.auth, email);
+      } else {
+        throw err;
+      }
+    }
+  }
+
   async resetPassword(email: string): Promise<void> {
     try {
       console.log('AuthService: Sending password reset email to:', email);
-      await sendPasswordResetEmail(this.auth, email);
+      await this.sendPasswordResetWithFallback(email);
       console.log('AuthService: Password reset email sent.');
     } catch (error: any) {
       console.error('AuthService: Reset password error:', error);

@@ -50,9 +50,10 @@ import { RoleNamePipe } from './shared/pipes/role-name.pipe';
 })
 export class AppComponent implements OnInit, OnDestroy {
   currentYear = new Date().getFullYear();
-  showFooter = true;
-  showHeaderAndSidebar = true;
+  showFooter = false;
+  showHeaderAndSidebar = false;
   userName: string = 'User';
+  currentUser: any = null;
   user$!: Observable<any>;
   appVersion = environment.appVersion;
 
@@ -84,9 +85,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(event => {
-        const isLoginPage = event.url.includes('/login') || event.url.includes('/forgot-password');
-        this.showFooter = !isLoginPage;
-        this.showHeaderAndSidebar = !isLoginPage;
+        const targetUrl = event.urlAfterRedirects || event.url;
+        this.updateShellVisibility(targetUrl, this.currentUser);
 
         if (this.isMobileMenuOpen) {
           this.closeMobileMenu();
@@ -94,10 +94,13 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     this.user$.subscribe(user => {
+      this.currentUser = user;
+      const currentUrl = this.router.url;
+      this.updateShellVisibility(currentUrl, user);
+
       if (!user) {
         this.userName = 'User';
-        const currentUrl = this.router.url;
-        if (!currentUrl.includes('/login') && !currentUrl.includes('/forgot-password')) {
+        if (!this.isAuthUrl(currentUrl)) {
           this.ngZone.run(() => {
             this.router.navigate(['/login']);
           });
@@ -116,6 +119,17 @@ export class AppComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  private isAuthUrl(url: string): boolean {
+    return url.includes('/login') || url.includes('/forgot-password') || url.includes('/reset-password');
+  }
+
+  private updateShellVisibility(url: string, user: any): void {
+    const isAuthPage = this.isAuthUrl(url);
+    const isAuthenticated = !!user;
+    this.showHeaderAndSidebar = !isAuthPage && isAuthenticated;
+    this.showFooter = !isAuthPage && isAuthenticated;
   }
 
   ngOnDestroy(): void {

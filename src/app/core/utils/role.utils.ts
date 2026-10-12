@@ -24,7 +24,6 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'events'
   ],
   'Pastor': [
-    'hiyaw-mahider',
     'tasks',
     'study-materials',
     'attendance',
@@ -33,7 +32,6 @@ export const ROLE_PERMISSIONS: Record<AppRole, string[]> = {
     'events'
   ],
   'Deputy Pastor': [
-    'hiyaw-mahider',
     'tasks',
     'study-materials',
     'attendance',

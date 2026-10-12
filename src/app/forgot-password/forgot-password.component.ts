@@ -41,20 +41,21 @@ export class ForgotPasswordComponent implements OnDestroy {
 
   constructor(
     private auth: Auth,
+    private authService: AuthService,
     private router: Router,
     private snackBar: MatSnackBar
   ) {}
 
-async resetPassword() {
+  async resetPassword() {
     if (!this.email) return;
 
     this.isLoading = true;
     try {
-      await sendPasswordResetEmail(this.auth, this.email);
-      this.snackBar.open('Reset link sent to your email', 'Close', { duration: 5000 });
+      await this.authService.resetPassword(this.email);
+      this.snackBar.open('Password reset email sent! Check your inbox.', 'Close', { duration: 5000 });
       this.router.navigate(['/login']);
-    } catch (error) {
-      this.snackBar.open('Error sending reset email', 'Close');
+    } catch (error: any) {
+      this.snackBar.open(error?.message || 'Error sending reset email', 'Close');
       console.error('Password reset error:', error);
     } finally {
       this.isLoading = false;
