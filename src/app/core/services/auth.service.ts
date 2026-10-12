@@ -426,7 +426,7 @@ export class AuthService {
   getActionCodeSettings(): ActionCodeSettings {
     const origin = typeof window !== 'undefined' && window.location?.origin
       ? window.location.origin
-      : 'https://selah.geuc.et';
+      : 'https://selah-cms.vercel.app';
     return {
       url: `${origin}/reset-password`,
       handleCodeInApp: true
