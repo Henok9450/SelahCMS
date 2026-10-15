@@ -40,6 +40,11 @@ export const routes: Routes = [
     title: 'Set Password'
   },
   {
+    path: 'auth/action',
+    loadComponent: () => import('./auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+    title: 'Account Action'
+  },
+  {
     path: 'change-password',
     loadComponent: () => import('./auth/change-password/change-password.component').then(m => m.ChangePasswordComponent),
     title: 'Change Password',

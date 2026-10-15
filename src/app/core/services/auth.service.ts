@@ -428,7 +428,7 @@ export class AuthService {
       ? window.location.origin
       : 'https://selah-cms.vercel.app';
     return {
-      url: `${origin}/reset-password`,
+      url: `${origin}/auth/action`,
       handleCodeInApp: true
     };
   }
