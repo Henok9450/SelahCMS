@@ -1,4 +1,4 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http'; // Add this import
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
@@ -9,9 +9,11 @@ import { environment } from '../environments/environment';
 import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideStorage, getStorage } from '@angular/fire/storage';
+import { GlobalErrorHandler } from './core/handlers/global-error.handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     provideRouter(routes),
     provideAnimations(),
     provideHttpClient(), // Add this line for HTTP functionality
