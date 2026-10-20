@@ -241,7 +241,10 @@ export class AuthService {
       }
 
       this.startSessionTimer(); // Start timer on successful login
-      await this.auditLogService.log('AUTH_LOGIN', 'Auth', result.user.uid, email);
+      await this.auditLogService.log('AUTH_LOGIN', 'Auth', result.user.uid, email, {
+        actorName: (userDoc as any)?.full_name || userDoc?.fullName || result.user.displayName || email,
+        actorRole: userDoc?.role || 'Admin'
+      });
       return {};
     } catch (error: any) {
       console.error('AuthService: Login error:', error);

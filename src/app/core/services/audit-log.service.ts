@@ -43,15 +43,19 @@ export class AuditLogService {
       const firebaseUser = (authService as any).auth?.currentUser;
 
       const actorName =
+        details?.['actorName'] ||
         user?.full_name ||
         user?.fullName ||
         user?.displayName ||
-        user?.email ||
         firebaseUser?.displayName ||
+        user?.email ||
         firebaseUser?.email ||
         (action === 'AUTH_LOGIN' && targetName ? targetName : 'Anonymous');
 
-      const actorRole = user?.role || (action.startsWith('AUTH_') ? 'User' : 'System');
+      const actorRole =
+        details?.['actorRole'] ||
+        user?.role ||
+        (action.startsWith('AUTH_') ? 'User' : 'System');
       const actorUid = user?.uid || user?.firebase_uid || user?.id || firebaseUser?.uid || 'SYSTEM';
 
       const auditCollection = collection(this.firestore, 'auditLogs');
