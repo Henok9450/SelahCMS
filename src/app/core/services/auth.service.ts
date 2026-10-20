@@ -231,19 +231,23 @@ export class AuthService {
         throw new Error('Authentication failed: No user object returned.');
       }
 
-      const userDoc = await firstValueFrom(this.userService.getUser(result.user.uid));
-      console.log('AuthService: Fetched user doc after login:', userDoc);
-
-      if (userDoc?.firstLogin) {
-        console.log('AuthService: User is first login, redirecting to change-password.');
-        this.router.navigate(['/change-password']);
-        return { mustChangePassword: true };
+      let memberProfile: Member | null = null;
+      try {
+        memberProfile = await firstValueFrom(
+          this.memberService.getMemberByFirebaseUid(result.user.uid).pipe(
+            switchMap(m => m ? of(m) : this.memberService.getMemberByEmail(email)),
+            catchError(() => of(null))
+          )
+        );
+        console.log('AuthService: Fetched member profile after login:', memberProfile);
+      } catch (e) {
+        console.warn('AuthService: Could not fetch member profile during login:', e);
       }
 
       this.startSessionTimer(); // Start timer on successful login
       await this.auditLogService.log('AUTH_LOGIN', 'Auth', result.user.uid, email, {
-        actorName: (userDoc as any)?.full_name || userDoc?.fullName || result.user.displayName || email,
-        actorRole: userDoc?.role || 'Admin'
+        actorName: memberProfile?.full_name || result.user.displayName || email,
+        actorRole: memberProfile?.role || 'User'
       });
       return {};
     } catch (error: any) {
